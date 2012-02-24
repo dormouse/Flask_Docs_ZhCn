@@ -1,38 +1,29 @@
-Foreword
-========
+前言
+====
 
-Read this before you get started with Flask.  This hopefully answers some
-questions about the purpose and goals of the project, and when you
-should or should not be using it.
+在使用 Flask 前请阅读本文。本文有助于理解 Flask 的用途和目的，以便于决策是否
+应当使用 Flask 。
 
-What does "micro" mean?
+“微”是什么意思？
 -----------------------
 
-To me, the "micro" in microframework refers not only to the simplicity and
-small size of the framework, but also the fact that it does not make much
-decisions for you.  While Flask does pick a templating engine for you, we
-won't make such decisions for your datastore or other parts.
+对我来说，微框架中的“微”字不仅仅代表框架本身的简单和轻量，同时还意味着较高的
+自由度。 Flask 替你选定了一个模板引擎，但是不会替你选定数据储存的方式或者其他
+东西。
 
-For us however the term “micro” does not mean that the whole implementation
-has to fit into a single Python file.
+同时“微”字不代表整个框架只能塞在一个 Python 文件内。
 
-One of the design decisions with Flask was that simple tasks should be
-simple and not take up a lot of code and yet not limit yourself.  Because
-of that we took a few design choices that some people might find
-surprising or unorthodox.  For example, Flask uses thread-local objects
-internally so that you don't have to pass objects around from function to
-function within a request in order to stay threadsafe.  While this is a
-really easy approach and saves you a lot of time, it might also cause some
-troubles for very large applications because changes on these thread-local
-objects can happen anywhere in the same thread.  In order to solve these
-problems we don't hide the thread locals for you but instead embrace them
-and provide you with a lot of tools to make it as pleasant as possible to
-work with them.
+Flask 的设计思路之一是简单的任务应当保持简单并且不会占用很多代码，同时还不能
+限制住自己。因此有些人可能会对我们的一些设计选择感到惊讶或不正统。例如， Flask
+内部使用了本地线程对象，因此用不着为了线程安全的原因而在一个请求之内把对象在
+函数之间来回传递。虽然这个设计选择很容易实现，并且可以节省大量时间，但是在非常
+大的项目中会出现问题。因为这些本地线程对象会在同一线程中的任何地方发生变化。
+为了解决这个问题，我们不是把本地线程隐藏起来，而是接受它们，并且提供请多工具以
+便于你更好的使用它们。
 
-Flask is also based on convention over configuration, which means that
-many things are preconfigured.  For example, by convention, templates and
-static files are in subdirectories within the Python source tree of the
-application.  While this can be changed you usually don't have to.
+Flask 是按惯例配置的，这意味着很多事情是预先设定的。例如，按照惯例，模板和静态
+文件是放在应用的 Python 源代码树的子目录内的。虽然这是可以改变的，但通常没有
+必要。
 
 The main reason however why Flask is called a "microframework" is the idea
 to keep the core simple but extensible.  There is no database abstraction
