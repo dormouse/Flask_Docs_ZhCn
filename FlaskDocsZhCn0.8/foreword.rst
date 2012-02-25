@@ -25,67 +25,47 @@ Flask 是按惯例配置的，这意味着很多事情是预先设定的。例�
 文件是放在应用的 Python 源代码树的子目录内的。虽然这是可以改变的，但通常没有
 必要。
 
-The main reason however why Flask is called a "microframework" is the idea
-to keep the core simple but extensible.  There is no database abstraction
-layer, no form validation or anything else where different libraries
-already exist that can handle that.  However Flask knows the concept of
-extensions that can add this functionality into your application as if it
-was implemented in Flask itself.  There are currently extensions for
-object relational mappers, form validation, upload handling, various open
-authentication technologies and more.
+Flask 之所以被称为“微框架”的主要原因是保持核心简单且易于扩展。没有数据库抽象
+层，也没有表单验证或其他已经有现成的库可以处理的东西。但是 Flask 可以轻松扩展，
+让你把其他库引进来成为 Flask 的一部分，协同工作。目前已知的可用扩展有对象关系
+映射、表单验证、上传处理和各种开放验证等待。
 
-Since Flask is based on a very solid foundation there is not a lot of code
-in Flask itself.  As such it's easy to adapt even for lage applications
-and we are making sure that you can either configure it as much as
-possible by subclassing things or by forking the entire codebase.  If you
-are interested in that, check out the :ref:`becomingbig` chapter.
+Flask 的基础非常扎实，其本身并没有多少代码。因此它很容易适合大型应用。我们确信
+你可以通过子类继承或直接修改源代码来轻松定制。如果你对大型应用感兴趣，请查看《
+:ref:`becomingbig` 》。
 
-If you are curious about the Flask design principles, head over to the
-section about :ref:`design`.
+如果对 Flask 的设计原则感兴趣，请查看《 :ref:`design` 》。
 
-Web Development is Dangerous
+Web 开发是一件危险的事
 ----------------------------
 
-I'm not joking.  Well, maybe a little.  If you write a web
-application, you are probably allowing users to register and leave their
-data on your server.  The users are entrusting you with data.  And even if
-you are the only user that might leave data in your application, you still
-want that data to be stored securely.
+这不是一个玩笑。好吧，也许有一点。如果你开发了一个 Web 应用，那么可能会让用户
+注册并把他们的数据保存在服务器上。用户把数据托付给了你。哪怕你的应用只是给自己
+用的，你也会希望数据完好无损。
 
-Unfortunately, there are many ways the security of a web application can be
-compromised.  Flask protects you against one of the most common security
-problems of modern web applications: cross-site scripting (XSS).  Unless
-you deliberately mark insecure HTML as secure, Flask and the underlying
-Jinja2 template engine have you covered.  But there are many more ways to
-cause security problems.
+不幸的是， Web 应用的安全性是千疮百孔的，可以攻击的方法太多了。 Flask 可以防御
+现代 Web 应用最常见的安全攻击：跨站代码攻击（ XSS ）。 Flask 和 下层的 Jinja2
+模板引擎会保护你免受这种攻击，除非故意把不安全的 HTML 代码放进来。但是安全攻击
+的方法依然还有很多。
 
-The documentation will warn you about aspects of web development that
-require attention to security.  Some of these security concerns
-are far more complex than one might think, and we all sometimes underestimate
-the likelihood that a vulnerability will be exploited, until a clever
-attacker figures out a way to exploit our applications.  And don't think
-that your application is not important enough to attract an attacker.
-Depending on the kind of attack, chances are that automated bots are
-probing for ways to fill your database with spam, links to malicious
-software, and the like.
+这里警示你：在 web 开发过程中要时刻注意安全问题。一些安全问题远比想象的要复杂
+得多。我们有时会低估程序的弱点，直到被一个聪明人利用这个弱点来攻击我们的程序。
+不要以为你的应用不重要，还不足以别人来攻击。没准是自动化机器人用垃圾邮件或恶意
+软件链接等东西来填满你宝贵的数据库。
 
-So always keep security in mind when doing web development.
+因此，做 web 开发时，安全要牢记在心。
 
-The Status of Python 3
+
+Python 3 的情况
 ----------------------
 
-Currently the Python community is in the process of improving libraries to
-support the new iteration of the Python programming language.  While the
-situation is greatly improving there are still some issues that make it
-hard for us to switch over to Python 3 just now.  These problems are
-partially caused by changes in the language that went unreviewed for too
-long, partially also because we have not quite worked out how the lower
-level API should change for the unicode differences in Python3.
+目前， Python 社区正处在改进库的过程中，以便于加强对 Python 语言的新迭代的
+支持。虽然现在情况已经有很大改善，但是还是存在一些问题使我们难以下决心现在就
+转向 Python 3 。部分原因是 Python 语言中的变动长时间未经审核，还有部分原因是
+我们还没有想好底层 API 针对 Python 3 中 unicode 处理方式的变化应该如何改动。
 
-Werkzeug and Flask will be ported to Python 3 as soon as a solution for
-the changes is found, and we will provide helpful tips how to upgrade
-existing applications to Python 3.  Until then, we strongly recommend
-using Python 2.6 and 2.7 with activated Python 3 warnings during
-development.  If you plan on upgrading to Python 3 in the near future we
-strongly recommend that you read `How to write forwards compatible
-Python code <http://lucumr.pocoo.org/2011/1/22/forwards-compatible-python/>`_.
+Werkzeug 和 Flask 会在变动方案找到后立即移植到 Python 3 ，并且我们会指导你把
+现在的应用升级到 Python 3 。但在这之前，我们强烈建议你在开发过程中使用Python
+2.6 或开启 Python 3 警告的 Python 2.7 。如果你计划在近期升级到 Python 3 ，强烈
+推荐阅读 `如何编写向前兼容的 Python 代码
+<http://lucumr.pocoo.org/2011/1/22/forwards-compatible-python/>`_ 。

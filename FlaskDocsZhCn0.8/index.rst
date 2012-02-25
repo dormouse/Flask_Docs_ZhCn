@@ -13,7 +13,7 @@
 应用。如果你想深入研究 Flask ，那么需要阅读《 :ref:`api` 》。
 《 :ref:`patterns` 》中介绍了一些常用的解决方案。
 
-Flask 依赖两个外部库： `Jinja2`_ 模板引擎和 `Werkzeug`_ WSGI 工具包。这两个库的
+Flask 依赖两个外部库： `Jinja2`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的
 使用不在本文档的范围内，欲知详情请移步：
 
 -   `Jinja2 文档 <http://jinja.pocoo.org/2/documentation/>`_
