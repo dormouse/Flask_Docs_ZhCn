@@ -1,17 +1,16 @@
 .. _quickstart:
 
-Quickstart
+快速上手
 ==========
 
-Eager to get started?  This page gives a good introduction in how to get
-started with Flask.  This assumes you already have Flask installed.  If
-you do not, head over to the :ref:`installation` section.
+渴望开始了吧？本文会给你好好介绍如何上手 Flask 。这里假定你已经安装好了
+Flask ，如果没装请参考《 :ref:`installation` 》。
 
 
-A Minimal Application
+一个最小的应用
 ---------------------
 
-A minimal Flask application looks something like this::
+一个最小的 Flask 应用如下::
 
     from flask import Flask
     app = Flask(__name__)
@@ -23,113 +22,97 @@ A minimal Flask application looks something like this::
     if __name__ == '__main__':
         app.run()
 
-Just save it as `hello.py` or something similar and run it with your
-Python interpreter.  Make sure to not call your application `flask.py`
-because this would conflict with Flask itself.
+把它保存为 `hello.py` 或其他类似名称并用你的 Python 解释器运行这个文件。请不要
+使用 `flask.py` 作为应用名称，这会与 Flask 本身发生冲突。
 
 ::
 
     $ python hello.py
      * Running on http://127.0.0.1:5000/
 
-Head over to `http://127.0.0.1:5000/ <http://127.0.0.1:5000/>`_, you should
-see your hello world greeting.
+在浏览器中打开 `http://127.0.0.1:5000/ <http://127.0.0.1:5000/>`_ ，你应该可以
+看到你的问候了。
 
-So what did that code do?
+那么这些代码是什么意思？
 
-1. First we imported the :class:`~flask.Flask` class.  An instance of this
-   class will be our WSGI application.  The first argument is the name of
-   the application's module.  If you are using a single module (like here)
-   you should use `__name__` because depending on if it's started as
-   application or imported as module the name will be different
-   (``'__main__'`` versus the actual import name).  For more information
-   on that, have a look at the :class:`~flask.Flask` documentation.
-2. Next we create an instance of it.  We pass it the name of the module /
-   package.  This is needed so that Flask knows where it should look for
-   templates, static files and so on.
-3. Then we use the :meth:`~flask.Flask.route` decorator to tell Flask
-   what URL should trigger our function.
-4. The function then has a name which is also used to generate URLs to
-   that particular function, and returns the message we want to display in
-   the user's browser.
-5. Finally we use the :meth:`~flask.Flask.run` function to run the
-   local server with our application.  The ``if __name__ == '__main__':``
-   makes sure the server only runs if the script is executed directly from
-   the Python interpreter and not used as imported module.
+1. 首先我们导入了 :class:`~flask.Flask` 类。这个类的实例将会成为我们的 WSGI
+   应用。第一个参数是应用模块的名称。如果你使用一个单一模块（就像本例），那么
+   应当使用 `__name__` ，因为名称会根据这个模块是按应用开始还是作为一个模块导入
+   而发生变化（可能是 ``'__main__'`` ，也可能实际导入的名称）。更多内容详见
+   :class:`~flask.Flask` 文档。
+2. 接着我们创建了一个实例，向它传递模块 / 包的名称。这样是为了让 Flask 知道可以
+   在哪里找到模板和静态文件等东西。
+3. 然后我们使用 :meth:`~flask.Flask.route` 装饰器来告诉 Flask 触发函数的 URL 。
+4. 函数名称可用于生成相关联的 URL ，并返回需要在用户浏览器中显示的信息。
+5. 最后，使用 :meth:`~flask.Flask.run` 函数来运行本地服务器和我们的应用。
+   ``if __name__ == '__main__':`` 确保服务器只会在使用 Python 解释器运行代码的
+   情况下运行，而不会在作为模块导入时运行。
 
-To stop the server, hit control-C.
+按 control-C 可以停止服务器。
 
 .. _public-server:
 
-.. admonition:: Externally Visible Server
+.. admonition:: 外部可见的服务器。
 
-   If you run the server you will notice that the server is only available
-   from your own computer, not from any other in the network.  This is the
-   default because in debugging mode a user of the application can execute
-   arbitrary Python code on your computer.  If you have `debug` disabled
-   or trust the users on your network, you can make the server publicly
-   available.
+   如果运行服务器，会发现只有你自己的电脑可以使用服务，而网络中的其他电脑不行。
+   缺省设置就是这样的，因为在调试模式下应用的用户可以执行你的电脑中的任意
+   Python 代码。如果你关闭了 `调试` 或信任你网络中的用户，那么可以让服务器被
+   公开访问。
 
-   Just change the call of the :meth:`~flask.Flask.run` method to look
-   like this::
+   只要像这样改变 :meth:`~flask.Flask.run` 方法的调用::
 
        app.run(host='0.0.0.0')
 
-   This tells your operating system to listen on a public IP.
+   这行代码告诉你的操作系统在一个公开的 IP 上监听。
 
 
-Debug Mode
+调试模式
 ----------
 
-The :meth:`~flask.Flask.run` method is nice to start a local
-development server, but you would have to restart it manually after each
-change you do to code.  That is not very nice and Flask can do better.  If
-you enable the debug support the server will reload itself on code changes
-and also provide you with a helpful debugger if things go wrong.
+虽然 :meth:`~flask.Flask.run` 方法可以方便地启动一个本地开发服务器，但是每次
+修改应用之后都需要手动重启服务器。这样不是很方便， Flask 可以做得更好。如果你
+打开调试模式，那么服务器会在修改应用之后自动重启，并且当应用出错时还会提供一个
+有用的调试器。
 
-There are two ways to enable debugging.  Either set that flag on the
-application object::
+打开调试模式有两种方法，一种是在应用对象上设置标志::
 
     app.debug = True
     app.run()
 
-Or pass it to run::
+另一种是作为参数传递给 run 方法::
 
     app.run(debug=True)
 
-Both will have exactly the same effect.
+两种方法的效果相同。
 
-.. admonition:: Attention
+.. admonition:: 注意
 
-   Even though the interactive debugger does not work in forking environments
-   (which makes it nearly impossible to use on production servers), it still
-   allows the execution of arbitrary code. That makes it a major security
-   risk and therefore it **must never be used on production machines**.
+   虽然交互调试器不能在分布环境下工作（这使得它基本不可能用于生产环境），但是
+   它允许执行任意代码，这样会成为一个重大安全隐患。因此， **绝对不能在生产环境中
+   使用调试器** 。
 
-Screenshot of the debugger in action:
+运行的调试器的截图：
 
 .. image:: _static/debugger.png
    :align: center
    :class: screenshot
    :alt: screenshot of debugger in action
 
-.. admonition:: Working With Other Debuggers
+.. admonition:: 与其他调试器一起工作
 
-   Debuggers interfere with each other.  If you are using another debugger
-   (e.g. PyDev or IntelliJ), you may need to set ``app.debug = False``.
+   调试器之间会相互干扰。如果你正在使用其他调试器 （如 PyDev 或 IntelliJ ），
+   那么可能需要设置 ``app.debug = False`` 。
 
 
-Routing
+路由
 -------
 
-Modern web applications have beautiful URLs.  This helps people remember
-the URLs which is especially handy for applications that are used from
-mobile devices with slower network connections.  If the user can directly
-go to the desired page without having to hit the index page it is more
-likely they will like the page and come back next time.
+现代 web 应用都使用漂亮的 URL ，有助于人们记忆，对于使用网速较慢的移动设备尤其
+有利。如果用户可以不通过点击首页而直达所需要的页面，那么这个网页会更得到用户的
+青睐，提高回头率。
 
-As you have seen above, the :meth:`~flask.Flask.route` decorator is used
-to bind a function to a URL.  Here are some basic examples::
+如前文所述， :meth:`~flask.Flask.route` 装饰器用于把一个函数绑定到一个 URL 。
+下面是一些基本的例子::
 
     @app.route('/')
     def index():
@@ -139,16 +122,15 @@ to bind a function to a URL.  Here are some basic examples::
     def hello():
         return 'Hello World'
 
-But there is more to it!  You can make certain parts of the URL dynamic
-and attach multiple rules to a function.
+但是能做的不仅仅是这些！你可以动态变化 URL 的某些部分，还可以为一个函数指定多个
+规则。
 
-Variable Rules
+变更规则
 ``````````````
 
-To add variable parts to a URL you can mark these special sections as
-``<variable_name>``.  Such a part is then passed as keyword argument to
-your function.  Optionally a converter can be specified by specifying a
-rule with ``<converter:variable_name>``.  Here are some nice examples::
+通过 URL 的一部分标记为 ``<variable_name>`` 就可以在 URL 中添加变量。标记的部分
+会作为关键字参数传递给函数。通过使用 ``<converter:variable_name>`` ，可以选择性
+的加上一个转换器，为变量指定规则。请看下面的例子::
 
     @app.route('/user/<username>')
     def show_user_profile(username):
@@ -160,21 +142,20 @@ rule with ``<converter:variable_name>``.  Here are some nice examples::
         # show the post with the given id, the id is an integer
         pass
 
-The following converters exist:
+现有的转换器有：
 
 =========== ===========================================
-`int`       accepts integers
-`float`     like `int` but for floating point values
-`path`      like the default but also accepts slashes
+`int`       接受整数
+`float`     接受浮点数
+`path`      和缺省情况相同，但也接受斜杠
 =========== ===========================================
 
-.. admonition:: Unique URLs / Redirection Behaviour
+.. admonition:: 唯一的 URL / 重定向行为
 
-   Flask's URL rules are based on Werkzeug's routing module.  The idea
-   behind that module is to ensure nice looking and also unique URLs based
-   on behaviour Apache and earlier servers coined.
+   Flask 的 URL 规则都是基于 Werkzeug 的路由模块的。其背后的理念是保证漂亮的
+   外观和唯一的 URL 。这个理念来自于 Apache 和更早期的服务器。
 
-   Take these two rules::
+   假设有如下两条规则::
 
         @app.route('/projects/')
         def projects():
@@ -184,34 +165,26 @@ The following converters exist:
         def about():
             pass
 
-   They look rather similar, the difference is the trailing slash in the
-   URL *definition*.  In the first case, the canonical URL for the
-   `projects` endpoint has a trailing slash.  It's similar to a folder in
-   that sense.  Accessing it without a trailing slash will cause Flask to
-   redirect to the canonical URL with the trailing slash.
+   它们看上去很相近，不同之处在于 URL *定义* 中尾部的斜杠。第一个例子中
+   `prjects` 的 URL 是中规中举的，尾部有一个斜杠，看起来就如同一个文件夹。访问
+   一个没有斜杠结尾的 URL 时 Flask 会自动进行重定向，帮你在尾部加上一个斜杠。
 
-   However in the second case the URL is defined without a slash so it
-   behaves similar to a file and accessing the URL with a trailing slash
-   will be a 404 error.
+   但是在第二个例子中， URL 没有尾部斜杠，因此其行为表现与一个文件类似。如果
+   访问这个 URL 时添加了尾部斜杠就会得到一个 404 错误。
 
-   Why is this?  This allows relative URLs to continue working if users
-   access the page when they forget a trailing slash.  This behaviour is
-   also consistent with how Apache and other servers work.  Also, the URLs
-   will stay unique which helps search engines not indexing the same page
-   twice.
+   为什么这样做？因为这样可以使用户在忘记使用尾部斜杠时继续访问相关的 URL 。
+   这种重定向行为与 Apache 和其他服务器一致。同时， URL 仍保持唯一，帮助搜索
+   引擎不重复索引同一页面。
 
 
 .. _url-building:
 
-URL Building
+URL 构建
 ````````````
 
-If it can match URLs, can it also generate them?  Of course it can.  To
-build a URL to a specific function you can use the :func:`~flask.url_for`
-function.  It accepts the name of the function as first argument and a
-number of keyword arguments, each corresponding to the variable part of
-the URL rule.  Unknown variable parts are appended to the URL as query
-parameter.  Here are some examples:
+如果可以匹配 URL ，那么也可以生成 URL 吗？当然可以。 :func:`~flask.url_for`
+函数就是用于构建指定函数的 URL 的。它把函数名称作为第一个参数，其余参数对应
+URL 中的变量。未知变量将添加到 URL 中作为查询参数。举例：
 
 >>> from flask import Flask, url_for
 >>> app = Flask(__name__)
@@ -235,28 +208,23 @@ parameter.  Here are some examples:
 /login?next=/
 /user/John%20Doe
 
-(This also uses the :meth:`~flask.Flask.test_request_context` method
-explained below.  It basically tells Flask to think we are handling a
-request even though we are not, we are in an interactive Python shell.
-Have a look at the explanation below. :ref:`context-locals`).
+（例子中还使用下文要讲到的 :meth:`~flask.Flask.test_request_context` 方法。这个
+方法的作用是告诉 Flask 我们正在处理一个请求，而实际上也许我们正处在交互
+Python shell 之中，并没有真正的请求。详见下面的 :ref:`context-locals` ）。
 
-Why would you want to build URLs instead of hardcoding them in your
-templates?  There are three good reasons for this:
+为什么不在把 URL 写死在模板中，反而要动态构建？有三个很好的理由： 
 
-1. reversing is often more descriptive than hardcoding the URLs.  Also and
-   more importantly you can change URLs in one go without having to change
-   the URLs all over the place.
-2. URL building will handle escaping of special characters and Unicode
-   data transparently for you, you don't have to deal with that.
-3. If your application is placed outside the URL root (so say in
-   ``/myapplication`` instead of ``/``), :func:`~flask.url_for` will
-   handle that properly for you.
+1. 反向解析通常比硬编码 URL 更直观。同时，更重要的是你可以只在一个地方改变
+   URL ，而不用到处乱找。
+2. URL 创建会为你处理特殊字符的转义和 Unicode 数据，不用你操心。
+3. 如果你的应用是放在 URL 根路径之外的地方（如在 ``/myapplication`` 中，不在
+   ``/`` 中）， :func:`~flask.url_for` 会为你妥善处理。
 
 
-HTTP Methods
+HTTP 方法
 ````````````
 
-HTTP (the protocol web applications are speaking) knows different methods
+HTTP （ web 应用使用的协议）) knows different methods
 to access URLs.  By default a route only answers to `GET` requests, but
 that can be changed by providing the `methods` argument to the
 :meth:`~flask.Flask.route` decorator.  Here are some examples::

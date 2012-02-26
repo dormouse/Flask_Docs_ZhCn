@@ -111,12 +111,10 @@ Windows 用户请运行下面的命令::
     ...
     Finished processing dependencies for Flask
 
-上述操作会
-This will pull in the dependencies and activate the git head as the current
-version inside the virtualenv.  Then you just have to ``git pull origin``
-to get the latest version.
+上述操作会安装相关依赖库并在 virtualenv 中激活 git 头作为当前版本。然后只要
+使用 ``git pull origin`` 命令就可以安装最新版本的 Flask 了。
 
-To just get the development version without git, do this instead::
+如果不使用 git ，那么可以这样获得开发版本::
 
     $ mkdir flask
     $ cd flask
@@ -130,32 +128,27 @@ To just get the development version without git, do this instead::
 
 .. _windows-easy-install:
 
-`easy_install` on Windows
--------------------------
+在 Windows 系统中使用 `easy_install`
+-------------------------------------
 
-On Windows, installation of `easy_install` is a little bit trickier because
-slightly different rules apply on Windows than on Unix-like systems, but
-it's not difficult.  The easiest way to do it is to download the
-`ez_setup.py`_ file and run it.  The easiest way to run the file is to
-open your downloads folder and double-click on the file.
+在 Windows 系统中，安装 `easy_install` 稍微有点麻烦，因为与类 Unix 系统相比
+Windows 的规则稍有不同。但是安装还不算困难。最简单的方法是下载并运行
+`ez_setup.py`_ 文件。最简单的运行文件的方法是打开下载文件所在文件夹，双击这个
+文件。
 
-Next, add the `easy_install` command and other Python scripts to the
-command search path, by adding your Python installation's Scripts folder
-to the `PATH` environment variable.  To do that, right-click on the
-"Computer" icon on the Desktop or in the Start menu, and choose
-"Properties".  Then, on Windows Vista and Windows 7 click on "Advanced System
-settings"; on Windows XP, click on the "Advanced" tab instead.  Then click
-on the "Environment variables" button and double click on the "Path"
-variable in the "System variables" section.  There append the path of your
-Python interpreter's Scripts folder; make sure you delimit it from
-existing values with a semicolon.  Assuming you are using Python 2.6 on
-the default path, add the following value::
+接下来，通过把 Python 代码所在文件夹添加到 `PATH` 环境变量的方法把
+`easy_install` 命令和其他 Python 代码添加到命令搜索目录。操作方法：用鼠标右键
+点击桌面上或者开始菜单中的“我的电脑”图标，在弹出的菜单中点击“属性”。然后
+如果是 Windows Vista 或 Windows 7 ，则点击“高级系统设置”；如果是
+Windows XP ，则点击“高级”分页。接着点击“环境变量”按钮，双击“系统变量”一节
+中的“ Path ”变量。这样就可以添加 这样就可以添加 Python 代码所在的文件夹了。
+注意，与已经存在的值之间要用分号分隔。假设你在缺省路径安装了 Python 2.6 ，那么
+就应该添加如下内容::
 
     ;C:\Python26\Scripts
 
-Then you are done.  To check that it worked, open the Command Prompt and
-execute ``easy_install``.  If you have User Account Control enabled on
-Windows Vista or Windows 7, it should prompt you for admin privileges.
-
+至此安装完成。要检验安装是否正确可以打开命令提示符，并运行 ``easy_install``
+命令。如果你使用 Windows Vista 或 Windows 7 ，并打开了权限控制，会提示你需要
+管理员权限。
 
 .. _ez_setup.py: http://peak.telecommunity.com/dist/ez_setup.py
