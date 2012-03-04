@@ -103,25 +103,19 @@ Jinja 设置
 所以如果要在文本中使用它们就必须把它们替换为“实体”。如果不转义，那么用户就
 无法使用这些字符，而且还会带来安全问题。（参见 :ref:`xss` ）
 
-有时候可能会需要在模板中关闭自动转义功能。
-比如一想要直接把 HTML 植入页面的情况
-下。
-Sometimes however you will need to disable autoescaping in templates.
-This can be the case if you want to explicitly inject HTML into pages, for
-example if they come from a system that generate secure HTML like a
-markdown to HTML converter.
+有时候，如需要直接把 HTML 植入页面的时候，可能会需要在模板中关闭自动转义功能。
+这个可以直接植入的 HTML 一般来自安全的来源，例如一个把标记语言转换为 HTML 的
+转换器。
 
-There are three ways to accomplish that:
+有三种方法可以控制自动转义：
 
--   In the Python code, wrap the HTML string in a :class:`~flask.Markup`
-    object before passing it to the template.  This is in general the
-    recommended way.
--   Inside the template, use the ``|safe`` filter to explicitly mark a
-    string as safe HTML (``{{ myvariable|safe }}``)
--   Temporarily disable the autoescape system altogether.
+-   在 Python 代码中，可以在把 HTML 字符串传递给模板之前，用
+    :class:`~flask.Markup` 对象封装。一般情况下推荐使用这个方法。
+-   在模板中，使用 ``|safe`` 过滤器显式把一个字符串标记为安全的 HTML
+    （例如： ``{{ myvariable|safe }}`` ）。
+-   临时关闭整个系统的自动转义。
 
-To disable the autoescape system in templates, you can use the ``{%
-autoescape %}`` block:
+在模板中关闭自动转义系统可以使用 ``{% autoescape %}`` 块：
 
 .. sourcecode:: html+jinja
 
@@ -130,18 +124,16 @@ autoescape %}`` block:
         <p>{{ will_not_be_escaped }}
     {% endautoescape %}
 
-Whenever you do this, please be very cautious about the variables you are
-using in this block.
+在这样做的时候，要非常小心块中的变量的安全性。
 
-Registering Filters
+注册过滤器
 -------------------
 
-If you want to register your own filters in Jinja2 you have two ways to do
-that.  You can either put them by hand into the
-:attr:`~flask.Flask.jinja_env` of the application or use the
-:meth:`~flask.Flask.template_filter` decorator.
+有两种方法可以在 Jinja2 中注册你自己的过滤器。要么手动把它们放入应用的
+:attr:`~flask.Flask.jinja_env` 中，要么使用
+:meth:`~flask.Flask.template_filter` 装饰器。
 
-The two following examples work the same and both reverse an object::
+下面两个例子功能相同，都是倒序一个对象::
 
     @app.template_filter('reverse')
     def reverse_filter(s):
@@ -151,24 +143,19 @@ The two following examples work the same and both reverse an object::
         return s[::-1]
     app.jinja_env.filters['reverse'] = reverse_filter
 
-In case of the decorator the argument is optional if you want to use the
-function name as name of the filter.
+装饰器的参数是可选的，如果不给出就使用函数名作为过滤器名。
 
-Context Processors
+环境处理器
 ------------------
 
-To inject new variables automatically into the context of a template
-context processors exist in Flask.  Context processors run before the
-template is rendered and have the ability to inject new values into the
-template context.  A context processor is a function that returns a
-dictionary.  The keys and values of this dictionary are then merged with
-the template context::
+环境处理器的作用是把新的变量自动引入模板环境中。环境处理器在模板被渲染前运行，
+因此可以把新的变量自动引入模板环境中。它是一个函数，返回值是一个字典。这个字典
+将与模板环境合并::
 
     @app.context_processor
     def inject_user():
         return dict(user=g.user)
 
-The context processor above makes a variable called `user` available in
-the template with the value of `g.user`.  This example is not very
-interesting because `g` is available in templates anyways, but it gives an
-idea how this works.
+上例中的环境处理器创建了一个值为 `g.user` 的 `user` 变量，并把这个变量加入了
+模板环境中。这个例子只是用于说明工作原理，不是非常有用，因为在模板中， `g` 总是
+存在的。
