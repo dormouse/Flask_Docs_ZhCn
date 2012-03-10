@@ -50,7 +50,8 @@ copyright = u'2010, Armin Ronacher'
 # built documents.
 import pkg_resources
 try:
-    release = pkg_resources.get_distribution('Flask').version
+    #release = pkg_resources.get_distribution('Flask').version
+    release = "0.8"
 except pkg_resources.DistributionNotFound:
     print 'To build the documentation, The distribution information of Flask'
     print 'Has to be available.  Either install the package into your'
