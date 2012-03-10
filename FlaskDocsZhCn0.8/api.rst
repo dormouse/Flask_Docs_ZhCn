@@ -411,7 +411,7 @@ Useful Internals
 .. autoclass:: flask.blueprints.BlueprintSetupState
    :members:
 
-Signals
+信号
 -------
 
 .. when modifying this list, also update the one in signals.rst
@@ -420,55 +420,46 @@ Signals
 
 .. data:: signals_available
 
-   `True` if the signalling system is available.  This is the case
-   when `blinker`_ is installed.
+   信号系统可用时，其值为 `True` ，说明 `blinker`_ 已经安装好了。
 
 .. data:: template_rendered
 
-   This signal is sent when a template was successfully rendered.  The
-   signal is invoked with the instance of the template as `template`
-   and the context as dictionary (named `context`).
+   这个信号发送于一个模板被渲染成功后。信号传递的 `template` 是模板的实例，
+   `context` 是环境对象是一个字典。
 
 .. data:: request_started
 
-   This signal is sent before any request processing started but when the
-   request context was set up.  Because the request context is already
-   bound, the subscriber can access the request with the standard global
-   proxies such as :class:`~flask.request`.
+   这个信号发送于请求开始之前，且请求环境设置完成之后。因为请求环境已经绑定，
+   所以订阅者可以用标准的全局代理，如 :class:`~flask.request` 来操作请求。
 
 .. data:: request_finished
 
-   This signal is sent right before the response is sent to the client.
-   It is passed the response to be sent named `response`.
+   这个信号发送于向客户端发送响应之前。信号传递的 `response` 为将要发送的响应。
 
 .. data:: got_request_exception
 
-   This signal is sent when an exception happens during request processing.
-   It is sent *before* the standard exception handling kicks in and even
-   in debug mode, where no exception handling happens.  The exception
-   itself is passed to the subscriber as `exception`.
+   这个信号发送于请求进行中发生异常的时候。它的发送 *早于* 标准异常处理介于。
+   在调试模式下，虽然没有异常处理，但发生异常时也发送这个信号。信号传递的
+   `exception` 是异常对象。
 
 .. data:: request_tearing_down
 
-   This signal is sent when the application is tearing down the request.
-   This is always called, even if an error happened.  No arguments are
-   provided.
+   这个信号发送于请求崩溃的时候，不管是否引发异常。目前，侦听此信号的函数在一般
+   崩溃处理器后调用，但是没有什么东西可用。
 
 .. currentmodule:: None
 
 .. class:: flask.signals.Namespace
 
-   An alias for :class:`blinker.base.Namespace` if blinker is available,
-   otherwise a dummy class that creates fake signals.  This class is
-   available for Flask extensions that want to provide the same fallback
-   system as Flask itself.
+   如果 blinker 可用，那么这是一个 :class:`blinker.base.Namespace` 的别名。
+   否则就是一个创建假信号的虚拟类。这个类用于需要提供像 Flask 一样的反馈系统的
+   Flask 扩展。
 
    .. method:: signal(name, doc=None)
 
-      Creates a new signal for this namespace if blinker is available,
-      otherwise returns a fake signal that has a send method that will
-      do nothing but will fail with a :exc:`RuntimeError` for all other
-      operations, including connecting.
+      如果 blinker 可用，那么创建一个这个命名空间的新信号。否则，返回一个假
+      信号。这个假信号有一个发送方法，这个方法不能做任何事，除了在所有操作，
+      包括连接时失败，引发一个 :exc:`RuntimeError` 。
 
 .. _blinker: http://pypi.python.org/pypi/blinker
 
