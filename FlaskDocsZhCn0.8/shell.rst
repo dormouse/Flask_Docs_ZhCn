@@ -1,53 +1,43 @@
 .. _shell:
 
-Working with the Shell
+在 Shell 中使用 Flask 
 ======================
 
 .. versionadded:: 0.3
 
-One of the reasons everybody loves Python is the interactive shell.  It
-basically allows you to execute Python commands in real time and
-immediately get results back.  Flask itself does not come with an
-interactive shell, because it does not require any specific setup upfront,
-just import your application and start playing around.
+喜欢 Python 的原因之一是交互式的 shell ，它可以让你实时运行 Python 命令，并且
+立即得到结果。 Flask 本身不带交互 shell ，因为它不需要特定的前期设置，只要在
+shell 中导入你的应用就可以开始使用了。
 
-There are however some handy helpers to make playing around in the shell a
-more pleasant experience.  The main issue with interactive console
-sessions is that you're not triggering a request like a browser does which
-means that :data:`~flask.g`, :data:`~flask.request` and others are not
-available.  But the code you want to test might depend on them, so what
-can you do?
+有些辅助工具可以让你在 shell 中更舒服。在交互终端中最大的问题是你不会像浏览器
+一样触发一个请求，这就意味着无法使用 :data:`~flask.g` 和 :data:`~flask.request`
+等对象。那么如何在 shell 中测试依赖这些对象的代码呢？
 
-This is where some helper functions come in handy.  Keep in mind however
-that these functions are not only there for interactive shell usage, but
-also for unittesting and other situations that require a faked request
-context.
+这里有一些有用的辅助函数。请记住，这些辅助函数不仅仅只能用于 shell ，还可以用于
+单元测试和其他需要假冒请求环境的情况下。
 
-Generally it's recommended that you read the :ref:`request-context`
-chapter of the documentation first.
+在读下去之前最好你已经读过 :ref:`request-context` 一节。
 
-Creating a Request Context
+创建一个请求环境
 --------------------------
 
-The easiest way to create a proper request context from the shell is by
-using the :attr:`~flask.Flask.test_request_context` method which creates
-us a :class:`~flask.ctx.RequestContext`:
+在 shell 中创建一个正确的请求环境的最简便的方法是使用
+:attr:`~flask.Flask.test_request_context` 方法。这个方法会创建一个
+:class:`~flask.ctx.RequestContext` ：
 
 >>> ctx = app.test_request_context()
 
-Normally you would use the `with` statement to make this request object
-active, but in the shell it's easier to use the
-:meth:`~flask.ctx.RequestContext.push` and
-:meth:`~flask.ctx.RequestContext.pop` methods by hand:
+通常你会使用 `with` 语句来激活请求对象，但是在 shell 中，可以简便地手动使用
+:meth:`~flask.ctx.RequestContext.push` 和
+:meth:`~flask.ctx.RequestContext.pop` 方法：
 
 >>> ctx.push()
 
-From that point onwards you can work with the request object until you
-call `pop`:
+从这里开始，直到调用 `pop` 之前，你可以使用请求对象：
 
 >>> ctx.pop()
 
-Firing Before/After Request
+发送Firing Before/After Request
 ---------------------------
 
 By just creating a request context, you still don't have run the code that
