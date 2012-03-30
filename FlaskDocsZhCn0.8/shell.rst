@@ -37,47 +37,37 @@ shell 中导入你的应用就可以开始使用了。
 
 >>> ctx.pop()
 
-发送Firing Before/After Request
+发送请求前/后动作
 ---------------------------
 
-By just creating a request context, you still don't have run the code that
-is normally run before a request.  This might result in your database
-being unavailable if you are connecting to the database in a
-before-request callback or the current user not being stored on the
-:data:`~flask.g` object etc.
+仅仅创建一个请求环境还是不够的，需要在请求前运行的代码还是没有运行。比如，在
+请求前可以会需要转接数据库，或者把用户信息储存在 :data:`~flask.g` 对象中。
 
-This however can easily be done yourself.  Just call
-:meth:`~flask.Flask.preprocess_request`:
+使用 :meth:`~flask.Flask.preprocess_request` 可以方便地模拟请求前/后动作：
 
 >>> ctx = app.test_request_context()
 >>> ctx.push()
 >>> app.preprocess_request()
 
-Keep in mind that the :meth:`~flask.Flask.preprocess_request` function
-might return a response object, in that case just ignore it.
+请记住， :meth:`~flask.Flask.preprocess_request` 函数可以会返回一个响应对象。
+如果返回的话请忽略它。
 
-To shutdown a request, you need to trick a bit before the after request
-functions (triggered by :meth:`~flask.Flask.process_response`) operate on
-a response object:
+如果要关闭一个请求，那么你需要在请求后函数（由
+:meth:`~flask.Flask.process_response` 触发）作用于响应对象前关闭：
 
 >>> app.process_response(app.response_class())
 <Response 0 bytes [200 OK]>
 >>> ctx.pop()
 
-The functions registered as :meth:`~flask.Flask.teardown_request` are
-automatically called when the context is popped.  So this is the perfect
-place to automatically tear down resources that were needed by the request
-context (such as database connections).
+:meth:`~flask.Flask.teardown_request` 函数会在环境弹出后自动执行。我们可以使用
+这些函数来销毁请求环境所需要使用的资源（如数据库连接）。
 
 
-Further Improving the Shell Experience
+在 Shell 用玩得更爽
 --------------------------------------
 
-If you like the idea of experimenting in a shell, create yourself a module
-with stuff you want to star import into your interactive session.  There
-you could also define some more helper methods for common things such as
-initializing the database, dropping tables etc.
-
-Just put them into a module (like `shelltools` and import from there):
+如果你喜欢在 shell 中的感觉，那么你可以创建一个导入有关东西的模块，在模块中还
+可以定义一些辅助方法，如初始化数据库或者删除表等等。假设这个模块名为
+`shelltools` ，那么在开始时你可以：
 
 >>> from shelltools import *
