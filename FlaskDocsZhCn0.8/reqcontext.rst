@@ -181,7 +181,7 @@ this runs after request
     app = current_app._get_current_object()
     my_signal.send(app)
 
-出错时的环境保存。
+出错时的环境保存
 -----------------------------
 
 不管是否出错，在请求结束时，请求环境会被弹出，并且所有相关联的数据会被销毁。
