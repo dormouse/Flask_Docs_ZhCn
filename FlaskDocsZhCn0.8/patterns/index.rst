@@ -1,17 +1,13 @@
 .. _patterns:
 
-Patterns for Flask
+Flask 方案
 ==================
 
-Certain things are common enough that the chances are high you will find
-them in most web applications.  For example quite a lot of applications
-are using relational databases and user authentication.  In that case,
-chances are they will open a database connection at the beginning of the
-request and get the information of the currently logged in user.  At the
-end of the request, the database connection is closed again.
+有一些东西是大多数网络应用都会用到的。比如许多应用都会使用关系型数据库和用户
+验证，在请求之前连接数据库并得到当前登录用户的信息，在请求之后关闭数据库连接。
 
-There are more user contributed snippets and patterns in the `Flask
-Snippet Archives <http://flask.pocoo.org/snippets/>`_.
+更多用户贡献的代码片断和方案参见 `Flask 代码片断归档
+<http://flask.pocoo.org/snippets/>`_ 。
 
 .. toctree::
    :maxdepth: 2
