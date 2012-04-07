@@ -1,26 +1,23 @@
 .. _sqlalchemy-pattern:
 
-SQLAlchemy in Flask
-===================
+在 Flask 中使用 SQLAlchemy
+==========================
 
-Many people prefer `SQLAlchemy`_ for database access.  In this case it's
-encouraged to use a package instead of a module for your flask application
-and drop the models into a separate module (:ref:`larger-applications`).
-While that is not necessary, it makes a lot of sense.
+许多人喜欢使用 `SQLAlchemy`_ 来访问数据库。建议在你的 Flask 应用中使用包来代替
+模块，并把模型放入一个独立的模块中（参见 :ref:`larger-applications` ）。虽然这
+不是必须的，但是很有用。
 
-There are four very common ways to use SQLAlchemy.  I will outline each
-of them here:
+有四种 SQLAlchemy 的常用方法，下面一一道来：
 
-Flask-SQLAlchemy Extension
+Flask-SQLAlchemy 扩展
 --------------------------
 
-Because SQLAlchemy is a common database abstraction layer and object
-relational mapper that requires a little bit of configuration effort,
-there is a Flask extension that handles that for you.  This is recommended
-if you want to get started quickly.
+因为 SQLAlchemy 是一个常用的数据库抽象层，并且需要一定的配置才能使用，因此我们
+为你做了一个处理 SQLAlchemy 的扩展。如果你需要快速的开始使用 SQLAlchemy ，那么
+推荐你使用这个扩展。
 
-You can download `Flask-SQLAlchemy`_ from `PyPI
-<http://pypi.python.org/pypi/Flask-SQLAlchemy>`_.
+你可以从 `PyPI <http://pypi.python.org/pypi/Flask-SQLAlchemy>`_ 下载
+`Flask-SQLAlchemy`_ 。
 
 .. _Flask-SQLAlchemy: http://packages.python.org/Flask-SQLAlchemy/
 
@@ -28,12 +25,11 @@ You can download `Flask-SQLAlchemy`_ from `PyPI
 Declarative
 -----------
 
-The declarative extension in SQLAlchemy is the most recent method of using
-SQLAlchemy.  It allows you to define tables and models in one go, similar
-to how Django works.  In addition to the following text I recommend the
-official documentation on the `declarative`_ extension.
+SQLAlchemy 中的 declarative 扩展是使用 SQLAlchemy 的最新方法，它允许你像
+Django 一样，在一个地方定义表和模型然后到处使用。除了以下内容，我建议你阅读
+`declarative`_ 的官方文档。
 
-Here the example `database.py` module for your application::
+以下是示例 `database.py` 模块::
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session, sessionmaker
