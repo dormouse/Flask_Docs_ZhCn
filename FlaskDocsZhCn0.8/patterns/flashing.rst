@@ -1,20 +1,17 @@
 .. _message-flashing-pattern:
 
-Message Flashing
+消息闪现
 ================
 
-Good applications and user interfaces are all about feedback.  If the user
-does not get enough feedback they will probably end up hating the
-application.  Flask provides a really simple way to give feedback to a
-user with the flashing system.  The flashing system basically makes it
-possible to record a message at the end of a request and access it next
-request and only next request.  This is usually combined with a layout
-template that does this.
+一个好的应用和用户界面都需要良好的反馈。如果用户得不到足够的反馈，那么应用最终
+会被用户唾弃。 Flask 的闪现系统提供了一个良好的反馈方式。闪现系统的基本工作方式
+是：在且只在下一个请求中访问上一个请求结束时记录的消息。一般我们结合布局模板来
+使用闪现系统。
 
-Simple Flashing
+简单的例子
 ---------------
 
-So here is a full example::
+以下是一个完整的示例::
 
     from flask import flash, redirect, url_for, render_template
 
@@ -34,7 +31,7 @@ So here is a full example::
                 return redirect(url_for('index'))
         return render_template('login.html', error=error)
 
-And here the ``layout.html`` template which does the magic:
+以下是实现闪现的 ``layout.html`` 模板：
 
 .. sourcecode:: html+jinja
 
@@ -51,7 +48,7 @@ And here the ``layout.html`` template which does the magic:
    {% endwith %}
    {% block body %}{% endblock %}
 
-And here the index.html template:
+以下是 index.html 模板：
 
 .. sourcecode:: html+jinja
 
@@ -61,7 +58,7 @@ And here the index.html template:
      <p>Do you want to <a href="{{ url_for('login') }}">log in?</a>
    {% endblock %}
 
-And of course the login template:
+login 模板：
 
 .. sourcecode:: html+jinja
 
@@ -83,24 +80,20 @@ And of course the login template:
      </form>
    {% endblock %}
 
-Flashing With Categories
+闪现消息的类别
 ------------------------
 
 .. versionadded:: 0.3
 
-It is also possible to provide categories when flashing a message.  The
-default category if nothing is provided is ``'message'``.  Alternative
-categories can be used to give the user better feedback.  For example
-error messages could be displayed with a red background.
+闪现消息还可以指定类别，如果没有指定，那么缺省的类别为 ``'message'`` 。不同的
+类别可以给用户提供更好的反馈。例如错误消息可以使用红色背景。
 
-To flash a message with a different category, just use the second argument
-to the :func:`~flask.flash` function::
+使用 :func:`~flask.flash` 函数可以指定消息的类别::
 
     flash(u'Invalid password provided', 'error')
 
-Inside the template you then have to tell the
-:func:`~flask.get_flashed_messages` function to also return the
-categories.  The loop looks slightly different in that situation then:
+模板中的 :func:`~flask.get_flashed_messages` 函数也应当返回类别，显示消息的循环
+也要略作改变：
 
 .. sourcecode:: html+jinja
 
@@ -114,6 +107,5 @@ categories.  The loop looks slightly different in that situation then:
      {% endif %}
    {% endwith %}
 
-This is just one example of how to render these flashed messages.  One
-might also use the category to add a prefix such as
-``<strong>Error:</strong>`` to the message.
+上例展示如何根据类别渲染消息，还可以给消息加上前缀，如
+``<strong>Error:</strong>`` 。

@@ -60,7 +60,7 @@ jQuery ，那么就不能硬码应用的路径，只能使用动态路径。怎�
 使用 ``|safe`` 是为了使 Jinja 不要转义 JSON 编码的字符串。通常这样做不是必须
 的，但是在 `script` 内部我们必须这么做。
 
-.. admonition:: Information for Pros
+.. admonition:: 进一步说明
 
    在 HTML 中， `script` 标记是用于声明 `CDATA` 的，也就是说声明的内容不会被
    解析。``<script>`` 与 ``</script>`` 之间的内容都会被作为脚本处理。这也意味着
