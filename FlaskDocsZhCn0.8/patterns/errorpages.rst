@@ -1,62 +1,52 @@
-Custom Error Pages
+自定义出错页面
 ==================
 
-Flask comes with a handy :func:`~flask.abort` function that aborts a
-request with an HTTP error code early.  It will also provide a plain black
-and white error page for you with a basic description, but nothing fancy.
+Flask 有一个方便的 :func:`~flask.abort` 函数，它可以通过一个 HTTP 出错代码退出
+一个请求。它还提供一个包含基本说明的出错页面，页面显示黑白的文本，很朴素。
 
-Depending on the error code it is less or more likely for the user to
-actually see such an error.
+用户可以根据错误代码或多或少知道发生了什么错误。
 
-Common Error Codes
+
+常见出错代码
 ------------------
 
-The following error codes are some that are often displayed to the user,
-even if the application behaves correctly:
+以下出错代码是用户常见的，即使应用正常也会出现这些出错代码：
 
 *404 Not Found*
-    The good old "chap, you made a mistake typing that URL" message.  So
-    common that even novices to the internet know that 404 means: damn,
-    the thing I was looking for is not there.  It's a very good idea to
-    make sure there is actually something useful on a 404 page, at least a
-    link back to the index.
+    这是一个古老的“朋友，你使用了一个错误的 URL ”信息。这个信息出现得如此
+    频繁，以至于连刚上网的新手都知道 404 代表：该死的，我要看的东西不见了。
+    一个好的做法是确保 404 页面上有一些真正有用的东西，至少要有一个返回首页
+    的链接。
 
 *403 Forbidden*
-    If you have some kind of access control on your website, you will have
-    to send a 403 code for disallowed resources.  So make sure the user
-    is not lost when they try to access a forbidden resource.
+    如果你的网站上有某种权限控制，那么当用户访问未获授权内容时应当发送 403
+    代码。因此请确保当用户尝试访问未获授权内容时得到正确的反馈。
 
 *410 Gone*
-    Did you know that there the "404 Not Found" has a brother named "410
-    Gone"?  Few people actually implement that, but the idea is that
-    resources that previously existed and got deleted answer with 410
-    instead of 404.  If you are not deleting documents permanently from
-    the database but just mark them as deleted, do the user a favour and
-    use the 410 code instead and display a message that what they were
-    looking for was deleted for all eternity.
+    你知道 "404 Not Found" 有一个名叫 "410 Gone" 的兄弟吗？很少有人使用这个
+    代码。如果资源以前曾经存在过，但是现在已经被删除了，那么就应该使用 410
+    代码，而不是 404 。如果你不是在数据库中把文档永久地删除，而只是给文档打
+    了一个删除标记，那么请为用户考虑，应当使用 410 代码，并显示信息告知用户
+    要找的东西已经删除。
 
 *500 Internal Server Error*
-    Usually happens on programming errors or if the server is overloaded.
-    A terrible good idea to have a nice page there, because your
-    application *will* fail sooner or later (see also:
-    :ref:`application-errors`).
+    这个代码通常表示程序出错或服务器过载。强烈建议把这个页面弄得友好一点，
+    因为你的应用 *迟早* 会出现故障的（参见 :ref:`application-errors` ）。
 
 
-Error Handlers
+出错处理器
 --------------
 
-An error handler is a function, just like a view function, but it is
-called when an error happens and is passed that error.  The error is most
-likely a :exc:`~werkzeug.exceptions.HTTPException`, but in one case it
-can be a different error: a handler for internal server errors will be
-passed other exception instances as well if they are uncaught.
+一个出错处理器是一个函数，就像一个视图函数一样。与视图函数不同之处在于出错处理器
+在出现错误时被调用，且传递错误。错误大多数是一个
+:exc:`~werkzeug.exceptions.HTTPException` ，但是有一个例外：当出现内部服务器错误
+时会把异常实例传递给出错处理器。
 
-An error handler is registered with the :meth:`~flask.Flask.errorhandler`
-decorator and the error code of the exception.  Keep in mind that Flask
-will *not* set the error code for you, so make sure to also provide the
-HTTP status code when returning a response.
+出错处理器使用 :meth:`~flask.Flask.errorhandler` 装饰器注册，注册时应提供异常的
+出代码。请记住， Flask *不会* 为你设置出错代码，因此请确保在返回响应时，同时提供
+HTTP 状态代码。
 
-Here an example implementation for a "404 Page Not Found" exception::
+以下是一个处理 "404 Page Not Found" 异常的示例::
 
     from flask import render_template
 
@@ -64,7 +54,7 @@ Here an example implementation for a "404 Page Not Found" exception::
     def page_not_found(e):
         return render_template('404.html'), 404
 
-An example template might be this:
+示例模板：
 
 .. sourcecode:: html+jinja
 
