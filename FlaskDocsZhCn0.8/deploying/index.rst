@@ -1,17 +1,13 @@
 .. _deployment:
 
-Deployment Options
+部署方式
 ==================
 
-Depending on what you have available there are multiple ways to run
-Flask applications.  You can use the builtin server during development,
-but you should use a full deployment option for production applications.
-(Do not use the builtin development server in production.)  Several
-options are available and documented here.
+Flask 应用可以采用多种方式部署。在开发时，你可以使用内置的服务器，但是在生产环境
+下你就应当选择功能完整的服务器。下面为你提供几个可用的选择。
 
-If you have a different WSGI server look up the server documentation
-about how to use a WSGI app with it.  Just remember that your
-:class:`Flask` application object is the actual WSGI application.
+除了下面提到的服务器之外，如果你使用了其他的 WSGI 服务器，那么请阅读其文档中与
+使用 WSGI 应用相关的部分。因为 :class:`Flask` 应用对象的实质就是一个 WSGI 应用。
 
 .. toctree::
    :maxdepth: 2
