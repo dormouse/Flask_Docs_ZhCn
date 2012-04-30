@@ -3,22 +3,20 @@
 FastCGI
 =======
 
-FastCGI is a deployment option on servers like `nginx`_, `lighttpd`_,
-and `cherokee`_; see :ref:`deploying-uwsgi` and
-:ref:`deploying-other-servers` for other options.  To use your WSGI
-application with any of them you will need a FastCGI server first.  The
-most popular one is `flup`_ which we will use for this guide.  Make sure
-to have it installed to follow along.
+FastCGI 也是部署 Flask 的途径之一。 Flask 的部署途径还有 `nginx`_  、
+`lighttpd`_ 和 `cherokee`_ ，其部署途径参见 :ref:`deploying-uwsgi` 。更多的部署
+途径参见 :ref:`deploying-other-servers` 。当然部署的先决条件是先要有一个 FastCGI
+服务器。 `flup`_ 最流行的 FastCGI 服务器之一，我们将会在本文中使用它。在阅读下文
+之前先安装好 `flup`_ 。
 
-.. admonition:: Watch Out
+.. admonition:: 小心
 
-   Please make sure in advance that any ``app.run()`` calls you might
-   have in your application file are inside an ``if __name__ ==
-   '__main__':`` block or moved to a separate file.  Just make sure it's
-   not called because this will always start a local WSGI server which
-   we do not want if we deploy that application to FastCGI.
+   请务必把 ``app.run()`` 放在 ``if __name__ == '__main__':`` 内部或者放在单独
+   的文件中，这样可以保证它不会被调用。因为，每调用一次就会开启一个本地 WSGI
+   服务器。当我们使用 FastCGI 部署应用时，不需要使用本地服务器。
 
-Creating a `.fcgi` file
+
+创建一个 `.fcgi` 文件
 -----------------------
 
 First you need to create the FastCGI server file.  Let's call it
