@@ -3,11 +3,11 @@
 FastCGI
 =======
 
-FastCGI 也是部署 Flask 的途径之一。 Flask 的部署途径还有 `nginx`_  、
-`lighttpd`_ 和 `cherokee`_ ，其部署途径参见 :ref:`deploying-uwsgi` 。更多的部署
-途径参见 :ref:`deploying-other-servers` 。当然部署的先决条件是先要有一个 FastCGI
-服务器。 `flup`_ 最流行的 FastCGI 服务器之一，我们将会在本文中使用它。在阅读下文
-之前先安装好 `flup`_ 。
+FastCGI 是部署 Flask 的途径之一,类似的部署途径还有 `nginx`_  、 `lighttpd`_ 和 
+`cherokee`_ 。其他部署途径的信息参见 :ref:`deploying-uwsgi` 和
+:ref:`deploying-other-servers` 。本文讲述的是使用 FastCGI 部署，因此先决条件是
+要有一个 FastCGI 服务器。 `flup`_ 最流行的 FastCGI 服务器之一，我们将会在本文中
+使用它。在阅读下文之前先安装好 `flup`_ 。
 
 .. admonition:: 小心
 

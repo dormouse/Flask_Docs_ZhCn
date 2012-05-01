@@ -1,24 +1,21 @@
 .. _deploying-other-servers:
 
-Other Servers
+其他服务器
 =============
 
-There are popular servers written in Python that allow the execution of WSGI
-applications as well.  These servers stand alone when they run; you can proxy
-to them from your web server.
+还有一些流行的用 Python 写的服务器也可以用于运行 WSGI 应用。这些服务器是独立
+运行的，你可以把网络服务器作为它们的代理。
 
 Tornado
 --------
 
-`Tornado`_ is an open source version of the scalable, non-blocking web
-server and tools that power `FriendFeed`_.  Because it is non-blocking and
-uses epoll, it can handle thousands of simultaneous standing connections,
-which means it is ideal for real-time web services.  Integrating this
-service with Flask is a trivial task::
+`Tornado`_ 是构建 `FriendFeed`_ 的服务器和工具的开源版本，具有良好的伸缩性，非
+阻塞性。得益于其非阻塞的方式和对 epoll 的运用，它可以同步处理数以千计的独立
+连接，因此 Tornado 是实时 Web 服务的一个理想框架。用它来服务 Flask 是小事一桩::
 
     from tornado.wsgi import WSGIContainer
     from tornado.httpserver import HTTPServer
-    from tornado.ioloop import IOLoop
+    from toranado.ioloop import IOLoop
     from yourapplication import app
 
     http_server = HTTPServer(WSGIContainer(app))
@@ -32,9 +29,8 @@ service with Flask is a trivial task::
 Gevent
 -------
 
-`Gevent`_ is a coroutine-based Python networking library that uses
-`greenlet`_ to provide a high-level synchronous API on top of `libevent`_
-event loop::
+`Gevent`_ 是一个 Python 并发网络库，它使用了基于 `libevent`_ 事件循环的
+`greenlet`_ 来提供一个高级同步 API::
 
     from gevent.wsgi import WSGIServer
     from yourapplication import app
