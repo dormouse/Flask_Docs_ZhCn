@@ -45,15 +45,15 @@ Gevent
 Gunicorn
 --------
 
-`Gunicorn`_ 'Green Unicorn' is a WSGI HTTP Server for UNIX. It's a pre-fork
-worker model ported from Ruby's Unicorn project. It supports both `eventlet`_
-and `greenlet`_. Running a Flask application on this server is quite simple::
+`Gunicorn`_ 'Green Unicorn' 是一个 UNIX 下的 WSGI HTTP 服务器，它移植自 Ruby 的
+Unicorn 项目，是一个 pre-fork worker 模型。它既支持 `eventlet`_ ，也支持
+`greenlet`_ 。在 Gunicorn 上运行 Flask 应用非常方便::
 
     gunicorn myproject:app
 
-`Gunicorn`_ provides many command-line options -- see ``gunicorn -h``.
-For example, to run a Flask application with 4 worker processes (``-w
-4``) binding to localhost port 4000 (``-b 127.0.0.1:4000``)::
+`Gunicorn`_ 提供许多命令行参数，可以使用 ``gunicorn -h`` 来获得帮助。下面的例子
+使用 4 worker 进程（ ``-w 4`` ）来运行 Flask 应用，绑定到 localhost 的 4000
+端口（ ``-b 127.0.0.1:4000`` ）::
 
     gunicorn -w 4 -b 127.0.0.1:4000 myproject:app
 
@@ -61,28 +61,24 @@ For example, to run a Flask application with 4 worker processes (``-w
 .. _eventlet: http://eventlet.net/
 .. _greenlet: http://codespeak.net/py/0.9.2/greenlet.html
 
-Proxy Setups
+代理设置
 ------------
 
-If you deploy your application using one of these servers behind an HTTP
-proxy you will need to rewrite a few headers in order for the
-application to work.  The two problematic values in the WSGI environment
-usually are `REMOTE_ADDR` and `HTTP_HOST`.  Werkzeug ships a fixer that
-will solve some common setups, but you might want to write your own WSGI
-middleware for specific setups.
+如果你要在一个 HTTP 代理后面在上述服务器上运行应用，那么必须重写一些头部才行。
+通常，在 WSGI 环境中经常会出现问题的有两个变量：
+`REMOTE_ADDR` 和 `HTTP_HOST` 。 Werkzeug 带有一个修复工具可以用于常用的设置，
+但是你可能需要为特定的设置编写你自己的 WSGI 中间件。
 
-The most common setup invokes the host being set from `X-Forwarded-Host`
-and the remote address from `X-Forwarded-For`::
+最常用的设置是调用 `X-Forwarded-Host` 定义的主机和 `X-Forwarded-For` 定义的远程
+地址::
 
     from werkzeug.contrib.fixers import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
-Please keep in mind that it is a security issue to use such a middleware
-in a non-proxy setup because it will blindly trust the incoming
-headers which might be forged by malicious clients.
+请注意，在非代理情况下使用这个中间件是有安全问题的，因为它会盲目信任恶意客户端
+发来的头部。
 
-If you want to rewrite the headers from another header, you might want to
-use a fixer like this::
+如果你要根据另一个头部来重写一个头部，那么可以像下例一样使用修复工具::
 
     class CustomProxyFix(object):
 
