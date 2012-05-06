@@ -5,12 +5,11 @@ API
 
 .. module:: flask
 
-This part of the documentation covers all the interfaces of Flask.  For
-parts where Flask depends on external libraries, we document the most
-important right here and provide links to the canonical documentation.
+本文涵盖了 Flask 的所有接口。对于 Flask 所依赖的外部库，本文阐述了最重要的部分，
+同时提供了官方文档的链接。
 
 
-Application Object
+应用对象
 ------------------
 
 .. autoclass:: Flask
@@ -18,14 +17,14 @@ Application Object
    :inherited-members:
 
 
-Blueprint Objects
+蓝图对象
 -----------------
 
 .. autoclass:: Blueprint
    :members:
    :inherited-members:
 
-Incoming Request Data
+进来的请求数据
 ---------------------
 
 .. autoclass:: Request
@@ -33,57 +32,53 @@ Incoming Request Data
 
    .. attribute:: form
 
-      A :class:`~werkzeug.datastructures.MultiDict` with the parsed form data from `POST`
-      or `PUT` requests.  Please keep in mind that file uploads will not
-      end up here,  but instead in the :attr:`files` attribute.
+      一个 :class:`~werkzeug.datastructures.MultiDict` 对象，包含 `POST` 或
+      `PUT` 请求的被解析过的表单数据。请记住，有关文件上传的表单数据包含在
+      :attr:`files` 属性中。
 
    .. attribute:: args
 
-      A :class:`~werkzeug.datastructures.MultiDict` with the parsed contents of the query
-      string.  (The part in the URL after the question mark).
+      一个 :class:`~werkzeug.datastructures.MultiDict` 对象，包含被解析过的查询
+      字符串。（ URL 中问号后面的部分）
 
    .. attribute:: values
 
-      A :class:`~werkzeug.datastructures.CombinedMultiDict` with the contents of both
-      :attr:`form` and :attr:`args`.
+      一个 :class:`~werkzeug.datastructures.CombinedMultiDict` 对象，包含
+      :attr:`form` 和 :attr:`args` 的内容。
 
    .. attribute:: cookies
 
-      A :class:`dict` with the contents of all cookies transmitted with
-      the request.
+      一个 :class:`dict` 对象，包含请求传送的所有 cookie 内容。
 
    .. attribute:: stream
 
-      If the incoming form data was not encoded with a known mimetype
-      the data is stored unmodified in this stream for consumption.  Most
-      of the time it is a better idea to use :attr:`data` which will give
-      you that data as a string.  The stream only returns the data once.
+      如果表单数据无法被已知的 MIME 类型编码，那么将以原始形态储存在这个数据流
+      中。大多数时候，应当使用 :attr:`data` 来返回字符串形式的数据。流只能返回
+      一次数据。
 
    .. attribute:: headers
 
-      The incoming request headers as a dictionary like object.
+      类似于字典对象的进来的请求头部。
 
    .. attribute:: data
 
-      Contains the incoming request data as string in case it came with
-      a mimetype Flask does not handle.
+      包含视作为字符串的 Flask 无法处理的 MINE 类型的数据。
 
    .. attribute:: files
 
-      A :class:`~werkzeug.datastructures.MultiDict` with files uploaded as part of a
-      `POST` or `PUT` request.  Each file is stored as
-      :class:`~werkzeug.datastructures.FileStorage` object.  It basically behaves like a
-      standard file object you know from Python, with the difference that
-      it also has a :meth:`~werkzeug.datastructures.FileStorage.save` function that can
-      store the file on the filesystem.
+      一个 :class:`~werkzeug.datastructures.MultiDict` 对象，包含 `POST` 或
+      `PUT` 请求的上传的文件数据。每个文件被储存为一个 
+      :class:`~werkzeug.datastructures.FileStorage` 对象。它基本上类似于一个
+      标准的 Python 文件对象，只是多出了一个用于储存到文件系统的
+      :meth:`~werkzeug.datastructures.FileStorage.save` 函数。
 
    .. attribute:: environ
 
-      The underlying WSGI environment.
+      底层的 WSGI 环境。
 
    .. attribute:: method
 
-      The current request method (``POST``, ``GET`` etc.)
+      当前的请求方法（ ``POST`` 、 ``GET`` 等）。
 
    .. attribute:: path
    .. attribute:: script_root
@@ -91,17 +86,15 @@ Incoming Request Data
    .. attribute:: base_url
    .. attribute:: url_root
 
-      Provides different ways to look at the current URL.  Imagine your
-      application is listening on the following URL::
+      提供搜索当前 URL 的不同方法。假设你的应用侦听以下 URL::
 
           http://www.example.com/myapplication
 
-      And a user requests the following URL::
+      并且用户请求了如下 URL::
 
           http://www.example.com/myapplication/page.html?x=y
 
-      In this case the values of the above mentioned attributes would be
-      the following:
+      在这种情况下，上述属性值如下：
 
       ============= ======================================================
       `path`        ``/page.html``
@@ -113,28 +106,23 @@ Incoming Request Data
 
    .. attribute:: is_xhr
 
-      `True` if the request was triggered via a JavaScript
-      `XMLHttpRequest`. This only works with libraries that support the
-      ``X-Requested-With`` header and set it to `XMLHttpRequest`.
-      Libraries that do that are prototype, jQuery and Mochikit and
-      probably some more.
+      如果请求由一个 JavaScript `XMLHttpRequest` 触发，则值为 `True` 。只有与
+      支持``X-Requested-With`` 头部并且设置为 `XMLHttpRequest` 同时使用时才
+      有效。支持的库有 prototype 、 jQuery 和 Mochikit 等。
 
 .. class:: request
 
-   To access incoming request data, you can use the global `request`
-   object.  Flask parses incoming request data for you and gives you
-   access to it through that global object.  Internally Flask makes
-   sure that you always get the correct data for the active thread if you
-   are in a multithreaded environment.
+   全局 `request` 对象可用于访问进来的请求数据。 Flask 为你解析进来的请求数据，
+   然后你可以通过全局对象来访问请求数据。如果你的应用处于多线程环境， Flask 将
+   在内部确保从活动线程获得正确的数据。
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+   请求对象是一个代理。更多信息参见 :ref:`notes-on-proxies` 。
 
-   The request object is an instance of a :class:`~werkzeug.wrappers.Request`
-   subclass and provides all of the attributes Werkzeug defines.  This
-   just shows a quick overview of the most important ones.
+   请求对象是 :class:`~werkzeug.wrappers.Request` 的子类的实例，拥有 Werkzeug
+   所定义的所有属性。这里只是对最重要的内容进行概述。
 
 
-Response Objects
+响应对象
 ----------------
 
 .. autoclass:: flask.Response
@@ -142,41 +130,39 @@ Response Objects
 
    .. attribute:: headers
 
-      A :class:`Headers` object representing the response headers.
+      表现响应对象头部的 :class:`Headers` 对象。
 
    .. attribute:: status_code
 
-      The response status as integer.
+      整数类型的响应状态。
 
 
-Sessions
+会话
 --------
 
-If you have the :attr:`Flask.secret_key` set you can use sessions in Flask
-applications.  A session basically makes it possible to remember
-information from one request to another.  The way Flask does this is by
-using a signed cookie.  So the user can look at the session contents, but
-not modify it unless they know the secret key, so make sure to set that
-to something complex and unguessable.
+如果你设置了 :attr:`Flask.secret_key` ，那么就可以在 Flask 应用中使用会话。会话
+的基本功能是在请求变更的过程中储存信息。 Flask 实现会话的方法是使用一个被标记的
+cookie 。因此用户可以查看会话内容，但是不能修改，除非知道密钥。请确保密钥复杂性
+和不可测性。
 
-To access the current session you can use the :class:`session` object:
+使用 :class:`session` 对象可以访问当前会话：
 
 .. class:: session
 
-   The session object works pretty much like an ordinary dict, with the
-   difference that it keeps track on modifications.
+   会话对象类似与普通的字典，不同之处在于会话还能追踪修改。
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+   会话对象是一个代理。更多信息参见 :ref:`notes-on-proxies` 。
 
-   The following attributes are interesting:
+   以下属性比较重要：
 
    .. attribute:: new
 
-      `True` if the session is new, `False` otherwise.
+      如果会话为新，则值为 `True` ，否则值为 `False` 。
 
    .. attribute:: modified
 
-      `True` if the session object detected a modification.  Be advised
+      如果会话对象被修改过，则值为 `True` 。这里要注意的是
+      if the session object detected a modification.  Be advised
       that modifications on mutable structures are not picked up
       automatically, in that situation you have to explicitly set the
       attribute to `True` yourself.  Here an example::
