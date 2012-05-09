@@ -161,27 +161,23 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
 
    .. attribute:: modified
 
-      如果会话对象被修改过，则值为 `True` 。这里要注意的是
-      if the session object detected a modification.  Be advised
-      that modifications on mutable structures are not picked up
-      automatically, in that situation you have to explicitly set the
-      attribute to `True` yourself.  Here an example::
+      如果会话对象被修改过，则值为 `True` 。这里要注意的是可变结构的变动是不会
+      自动修改这个属性的，必须自己手动把这个属性设置为 `True` 。示例::
 
-          # this change is not picked up because a mutable object (here
-          # a list) is changed.
+          # 可变对象（下面的列表）的变动不会自动修改这个属性。
           session['objects'].append(42)
-          # so mark it as modified yourself
+          # 因此需要手动设置这个属性
           session.modified = True
 
    .. attribute:: permanent
 
-      If set to `True` the session lives for
-      :attr:`~flask.Flask.permanent_session_lifetime` seconds.  The
-      default is 31 days.  If set to `False` (which is the default) the
-      session will be deleted when the user closes the browser.
+      这个属性如果设置为 `True` ，那么这个会话的存活期为
+      :attr:`~flask.Flask.permanent_session_lifetime` 所设定的时间（缺省值为 31
+      天。这个属性如果设置为 `False` （缺省情况），那么会话在关闭浏览器时会被
+      删除。
 
 
-Session Interface
+会话接口
 -----------------
 
 .. versionadded:: 0.8
@@ -464,33 +460,30 @@ Class Based Views
 
 .. _url-route-registrations:
 
-URL Route Registrations
+URL 路由注册
 -----------------------
 
-Generally there are three ways to define rules for the routing system:
+定义路由系统规则一般有三种方法：
 
-1.  You can use the :meth:`flask.Flask.route` decorator.
-2.  You can use the :meth:`flask.Flask.add_url_rule` function.
-3.  You can directly access the underlying Werkzeug routing system
-    which is exposed as :attr:`flask.Flask.url_map`.
+1.  使用 :meth:`flask.Flask.route` 装饰器。
+2.  使用 :meth:`flask.Flask.add_url_rule` 函数。
+3.  通过 :attr:`flask.Flask.url_map` 直接操作底层的 Werkzeug 路由系统。
 
-Variable parts in the route can be specified with angular brackets
-(``/user/<username>``).  By default a variable part in the URL accepts any
-string without a slash however a different converter can be specified as
-well by using ``<converter:name>``.
+可以使用尖括号来定义路由中的变量（ ``/user/<username>`` ）。缺省情况下， URL 中
+的变量可以是任何不包含斜杠的字符串。可以使用 ``<converter:name>`` 来转换变量。
 
-Variable parts are passed to the view function as keyword arguments.
+URL 中的变量会作为关键字参数传递给视图函数。
 
-The following converters are available:
+可以使用以下转换器：
 
 =========== ===============================================
-`unicode`   accepts any text without a slash (the default)
-`int`       accepts integers
-`float`     like `int` but for floating point values
-`path`      like the default but also accepts slashes
+`unicode`   接受任何不包含斜杠的文本（缺省）
+`int`       接受整数
+`float`     接受浮点数
+`path`      与缺省的类似，但是可以接受斜杠
 =========== ===============================================
 
-Here are some examples::
+一些示例::
 
     @app.route('/')
     def index():
@@ -561,7 +554,7 @@ instead of the `view_func` parameter.
 
 .. _view-func-options:
 
-View Function Options
+视图函数选项
 ---------------------
 
 For internal usage the view functions can have some attributes attached to
@@ -585,7 +578,7 @@ some defaults to :meth:`~flask.Flask.add_url_rule` or general behavior:
     decorators that want to customize the `OPTIONS` response on a per-view
     basis.
 
-Full example::
+完整的例子::
 
     def index():
         if request.method == 'OPTIONS':
@@ -598,4 +591,4 @@ Full example::
     app.add_url_rule('/', index)
 
 .. versionadded:: 0.8
-   The `provide_automatic_options` functionality was added.
+   添加了 `provide_automatic_options` 功能。
