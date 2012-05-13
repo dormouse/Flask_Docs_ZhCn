@@ -497,41 +497,33 @@ URL 中的变量会作为关键字参数传递给视图函数。
     def show_post(post_id):
         pass
 
-An important detail to keep in mind is how Flask deals with trailing
-slashes.  The idea is to keep each URL unique so the following rules
-apply:
+一个应当注意的细节是 Flask 如何处理尾部斜杠。为了使每个 URL 保持唯一，其处理的
+规则如下：
 
-1. If a rule ends with a slash and is requested without a slash by the
-   user, the user is automatically redirected to the same page with a
-   trailing slash attached.
-2. If a rule does not end with a trailing slash and the user requests the
-   page with a trailing slash, a 404 not found is raised.
+1. 如果 URL 规则的尾部有斜杠，而用户请求没有斜杠，那么会自动加上一个发问斜杠。
+2. 如果 URL 规则的尾部没有斜杠，而用户请求有斜杠，那么引发 404 页面未找到错误。
 
-This is consistent with how web servers deal with static files.  This
-also makes it possible to use relative link targets safely.
+以上规则与网络服务器处理静态文件的规则一致。同时以上规则也保证相对连接可以安全
+使用。
 
-You can also define multiple rules for the same function.  They have to be
-unique however.  Defaults can also be specified.  Here for example is a
-definition for a URL that accepts an optional page::
+同一个函数可以使用多个规则，但是必须保证规则是唯一的。设置规则时还可以定义
+缺省值。以下是可接受参数页面的规则定义示例::
 
     @app.route('/users/', defaults={'page': 1})
     @app.route('/users/page/<int:page>')
     def show_users(page):
         pass
 
-This specifies that ``/users/`` will be the URL for page one and
-``/users/page/N`` will be the URL for page `N`.
+以上规则定义了 ``/users/`` 为第一页的 URL ， ``/users/page/N`` 为第 N 页的 URL 。
 
-Here are the parameters that :meth:`~flask.Flask.route` and
-:meth:`~flask.Flask.add_url_rule` accept.  The only difference is that
-with the route parameter the view function is defined with the decorator
-instead of the `view_func` parameter.
+以下是 :meth:`~flask.Flask.route` 和 :meth:`~flask.Flask.add_url_rule` 能够接受
+的参数。两者唯一不同之处在于前者使用装饰器定义路由参数，后者使用 `view_func`
+参数定义视图函数。
 
 =============== ==========================================================
-`rule`          the URL roule as string
-`endpoint`      the endpoint for the registered URL rule.  Flask itself
-                assumes that the name of the view function is the name
-                of the endpoint if not explicitly stated.
+`rule`          字符串格式的 URL 规则。
+`endpoint`      已注册的 URL 规则的底端。如果没有显式定义这个参数，那么
+                Flask 会假定底端为视图函数的名称。
 `view_func`     the function to call when serving a request to the
                 provided endpoint.  If this is not provided one can
                 specify the function later by storing it in the
