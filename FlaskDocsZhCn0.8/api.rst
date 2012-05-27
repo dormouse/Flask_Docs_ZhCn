@@ -445,7 +445,7 @@ Useful Internals
 
 .. _blinker: http://pypi.python.org/pypi/blinker
 
-Class Based Views
+基于类的视图
 -----------------
 
 .. versionadded:: 0.7
@@ -524,24 +524,18 @@ URL 中的变量会作为关键字参数传递给视图函数。
 `rule`          字符串格式的 URL 规则。
 `endpoint`      已注册的 URL 规则的底端。如果没有显式定义这个参数，那么
                 Flask 会假定底端为视图函数的名称。
-`view_func`     the function to call when serving a request to the
-                provided endpoint.  If this is not provided one can
-                specify the function later by storing it in the
-                :attr:`~flask.Flask.view_functions` dictionary with the
-                endpoint as key.
-`defaults`      A dictionary with defaults for this rule.  See the
-                example above for how defaults work.
-`subdomain`     specifies the rule for the subdomain in case subdomain
-                matching is in use.  If not specified the default
-                subdomain is assumed.
-`**options`     the options to be forwarded to the underlying
-                :class:`~werkzeug.routing.Rule` object.  A change to
-                Werkzeug is handling of method options.  methods is a list
-                of methods this rule should be limited to (`GET`, `POST`
-                etc.).  By default a rule just listens for `GET` (and
-                implicitly `HEAD`).  Starting with Flask 0.6, `OPTIONS` is
-                implicitly added and handled by the standard request
-                handling.  They have to be specified as keyword arguments.
+`view_func`     请求的 URL 规则底端相应的函数。如果一开始没有定义，可以稍后
+                在 :attr:`~flask.Flask.view_functions` 字典中定义。在字典中
+                定义时把底端作为字典的键值。
+`defaults`      URL 规则的缺省值。这个参数是一个字典。使用方法参见上例。
+`subdomain`     定义子域的规则，如果使用子域匹配的话。如果本参数未定义，则
+                假设使用缺省子域。
+`**options`     传递给底层 :class:`~werkzeug.routing.Rule` 对象的参数。这里
+                与 Werkzeug 不同的是可以控制方法参数。方法参数是指规则所能
+                接受的方法列表（如 `GET` 、 `POST` 等等）。缺省情况下规则只
+                侦听 `GET` （包括隐式的 `HEAD` ）。从 Flask 0.6 版本开始，
+                `OPTIONS` 被隐含增加，由标准请求处理，它们必须被定义为关键字
+                参数。
 =============== ==========================================================
 
 .. _view-func-options:
@@ -549,27 +543,20 @@ URL 中的变量会作为关键字参数传递给视图函数。
 视图函数选项
 ---------------------
 
-For internal usage the view functions can have some attributes attached to
-customize behavior the view function would normally not have control over.
-The following attributes can be provided optionally to either override
-some defaults to :meth:`~flask.Flask.add_url_rule` or general behavior:
+对于内部使用，视图函数可以使用一些属性来定制自定义行为。以下属性可以用于重载
+:meth:`~flask.Flask.add_url_rule` 的缺省属性或一般行为：
 
--   `__name__`: The name of a function is by default used as endpoint.  If
-    endpoint is provided explicitly this value is used.  Additionally this
-    will be prefixed with the name of the blueprint by default which
-    cannot be customized from the function itself.
+-   `__name__`: 函数的名称缺省情况下被用作底端。如果显式定义了底端，那么这个
+    值将被使用。另外缺省情况下这个值会被加上蓝图的名称作为前缀，这个在函数中
+    无法改变。
 
--   `methods`: If methods are not provided when the URL rule is added,
-    Flask will look on the view function object itself is an `methods`
-    attribute exists.  If it does, it will pull the information for the
-    methods from there.
+-   `methods`: 当添加 URL 规则时，如果没有定义方法，那么 Flask 会查找视图函数
+    对象中是否存在一个 `methods` 属性。如果存在，那么会使用这个属性中的内容。
 
--   `provide_automatic_options`: if this attribute is set Flask will
-    either force enable or disable the automatic implementation of the
-    HTTP `OPTIONS` response.  This can be useful when working with
-    decorators that want to customize the `OPTIONS` response on a per-view
-    basis.
-
+-   `provide_automatic_options`: 如果设置了这个属性，那么 Flask 会强制打开或
+    关闭 HTTP `OPTIONS` 响应的自动执行。这个功能用于相要自定义基于一个每视图
+    的 `OPTIONS` 响应的装饰器。
+    
 完整的例子::
 
     def index():
