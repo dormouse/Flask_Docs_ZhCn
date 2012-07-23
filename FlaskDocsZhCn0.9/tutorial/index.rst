@@ -1,20 +1,16 @@
 .. _tutorial:
 
-Tutorial
+教程
 ========
 
-You want to develop an application with Python and Flask?  Here you have
-the chance to learn that by example.  In this tutorial we will create a
-simple microblog application.  It only supports one user that can create
-text-only entries and there are no feeds or comments, but it still
-features everything you need to get started.  We will use Flask and SQLite
-as database which comes out of the box with Python, so there is nothing
-else you need.
+想要用 Python 和 Flask 开发应用吗？让我们来边看例子边学习。本教程中我们将会创建
+一个微博应用。这个应用只支持单一用户，只能创建文本条目，也没有不能订阅和评论，
+但是已经具备一个初学者需要掌握的功能。这个应用只需要使用 Flask 和 SQLite ，
+SQLite 是 Python 自带的。
 
-If you want the full sourcecode in advance or for comparison, check out
-the `example source`_.
+如果你想要事先下载完整的源代码或者用于比较，请查看 `示例源代码`_ 。
 
-.. _example source:
+.. _示例源代码:
    http://github.com/mitsuhiko/flask/tree/master/examples/flaskr/
 
 .. toctree::
