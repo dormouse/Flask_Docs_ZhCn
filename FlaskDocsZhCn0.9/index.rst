@@ -1,28 +1,23 @@
 :orphan:
 
-Welcome to Flask
-================
+欢迎来到 Flask 的世界
+=====================
 
 .. image:: _static/logo-full.png
    :alt: Flask: web development, one drop at a time
    :class: floatingflask
 
-Welcome to Flask's documentation.  This documentation is divided into
-different parts.  I recommend that you get started with
-:ref:`installation` and then head over to the :ref:`quickstart`.
-Besides the quickstart, there is also a more detailed :ref:`tutorial` that
-shows how to create a complete (albeit small) application with Flask.  If
-you'd rather dive into the internals of Flask, check out
-the :ref:`api` documentation.  Common patterns are described in the
-:ref:`patterns` section.
+欢迎阅读 Flask 的文档。本文档分成几个部分，我推荐您先读
+《 :ref:`installation` 》，然后读《 :ref:`quickstart` 》。《 :ref:`tutorial` 》
+比快速上手文档更详细一点，该文档介绍了如何创建一个完整（尽管很小）的 Flask
+应用。如果你想深入研究 Flask ，那么需要阅读《 :ref:`api` 》。
+《 :ref:`patterns` 》中介绍了一些常用的解决方案。
 
-Flask depends on two external libraries: the `Jinja2`_ template
-engine and the `Werkzeug`_ WSGI toolkit.  These libraries are not documented
-here.  If you want to dive into their documentation, check out the
-following links:
+Flask 依赖两个外部库： `Jinja2`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的
+使用不在本文档的范围内，欲知详情请移步：
 
--   `Jinja2 Documentation <http://jinja.pocoo.org/2/documentation/>`_
--   `Werkzeug Documentation <http://werkzeug.pocoo.org/documentation/>`_
+-   `Jinja2 文档 <http://jinja.pocoo.org/2/documentation/>`_
+-   `Werkzeug 文档 <http://werkzeug.pocoo.org/documentation/>`_
 
 .. _Jinja2: http://jinja.pocoo.org/2/
 .. _Werkzeug: http://werkzeug.pocoo.org/
