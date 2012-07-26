@@ -1,39 +1,35 @@
 .. _sqlalchemy-pattern:
 
-SQLAlchemy in Flask
-===================
+在 Flask 中使用 SQLAlchemy
+==========================
 
-Many people prefer `SQLAlchemy`_ for database access.  In this case it's
-encouraged to use a package instead of a module for your flask application
-and drop the models into a separate module (:ref:`larger-applications`).
-While that is not necessary, it makes a lot of sense.
+许多人喜欢使用 `SQLAlchemy`_ 来访问数据库。建议在你的 Flask 应用中使用包来代替
+模块，并把模型放入一个独立的模块中（参见 :ref:`larger-applications` ）。虽然这
+不是必须的，但是很有用。
 
-There are four very common ways to use SQLAlchemy.  I will outline each
-of them here:
+有四种 SQLAlchemy 的常用方法，下面一一道来：
 
-Flask-SQLAlchemy Extension
+Flask-SQLAlchemy 扩展
 --------------------------
 
-Because SQLAlchemy is a common database abstraction layer and object
-relational mapper that requires a little bit of configuration effort,
-there is a Flask extension that handles that for you.  This is recommended
-if you want to get started quickly.
+因为 SQLAlchemy 是一个常用的数据库抽象层，并且需要一定的配置才能使用，因此我们
+为你做了一个处理 SQLAlchemy 的扩展。如果你需要快速的开始使用 SQLAlchemy ，那么
+推荐你使用这个扩展。
 
-You can download `Flask-SQLAlchemy`_ from `PyPI
-<http://pypi.python.org/pypi/Flask-SQLAlchemy>`_.
+你可以从 `PyPI <http://pypi.python.org/pypi/Flask-SQLAlchemy>`_ 下载
+`Flask-SQLAlchemy`_ 。
 
 .. _Flask-SQLAlchemy: http://packages.python.org/Flask-SQLAlchemy/
 
 
-Declarative
+声明
 -----------
 
-The declarative extension in SQLAlchemy is the most recent method of using
-SQLAlchemy.  It allows you to define tables and models in one go, similar
-to how Django works.  In addition to the following text I recommend the
-official documentation on the `declarative`_ extension.
+SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你像 Django 一样，
+在一个地方定义表和模型然后到处使用。除了以下内容，我建议你阅读 `声明`_ 的官方
+文档。
 
-Here the example `database.py` module for your application::
+以下是示例 `database.py` 模块::
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -47,21 +43,18 @@ Here the example `database.py` module for your application::
     Base.query = db_session.query_property()
 
     def init_db():
-        # import all modules here that might define models so that
-        # they will be registered properly on the metadata.  Otherwise
-        # you will have to import them first before calling init_db()
+        # 在这里导入定义模型所需要的所有模块，这样它们就会正确的注册在
+        # 元数据上。否则你就必须在调用 init_db() 之前导入它们。
         import yourapplication.models
         Base.metadata.create_all(bind=engine)
 
-To define your models, just subclass the `Base` class that was created by
-the code above.  If you are wondering why we don't have to care about
-threads here (like we did in the SQLite3 example above with the
-:data:`~flask.g` object): that's because SQLAlchemy does that for us
-already with the :class:`~sqlalchemy.orm.scoped_session`.
+要定义模型的话，只要继承上面创建的 `Base` 类就可以了。你可能会奇怪这里为什么
+不用理会线程（就像我们在 SQLite3 的例子中一样使用 :data:`~flask.g` 对象）。
+原因是 SQLAlchemy 已经用 :class:`~sqlalchemy.orm.scoped_session` 为我们做好了此
+类工作。
 
-To use SQLAlchemy in a declarative way with your application, you just
-have to put the following code into your application module.  Flask will
-automatically remove database sessions at the end of the request for you::
+那么要在应用中以声明方法使用 SQLAlchemy ，那么只要把下列代码加入应用模块就可以
+了。 Flask 会自动在请求结束时删除数据库会话::
 
     from yourapplication.database import db_session
 
@@ -69,7 +62,7 @@ automatically remove database sessions at the end of the request for you::
     def shutdown_session(exception=None):
         db_session.remove()
 
-Here is an example model (put this into `models.py`, e.g.)::
+以下是一个示例模型（放入 `models.py` 中）::
 
     from sqlalchemy import Column, Integer, String
     from yourapplication.database import Base
@@ -87,12 +80,12 @@ Here is an example model (put this into `models.py`, e.g.)::
         def __repr__(self):
             return '<User %r>' % (self.name)
 
-To create the database you can use the `init_db` function:
+可以使用 `init_db` 函数来创建数据库：
 
 >>> from yourapplication.database import init_db
 >>> init_db()
 
-You can insert entries into the database like this:
+在数据库中插入条目示例：
 
 >>> from yourapplication.database import db_session
 >>> from yourapplication.models import User
@@ -100,7 +93,7 @@ You can insert entries into the database like this:
 >>> db_session.add(u)
 >>> db_session.commit()
 
-Querying is simple as well:
+查询很简单：
 
 >>> User.query.all()
 [<User u'admin'>]
@@ -111,17 +104,14 @@ Querying is simple as well:
 .. _declarative:
    http://www.sqlalchemy.org/docs/orm/extensions/declarative.html
 
-Manual Object Relational Mapping
+人工对象关系映射
 --------------------------------
 
-Manual object relational mapping has a few upsides and a few downsides
-versus the declarative approach from above.  The main difference is that
-you define tables and classes separately and map them together.  It's more
-flexible but a little more to type.  In general it works like the
-declarative approach, so make sure to also split up your application into
-multiple modules in a package.
+人工对象关系映射相较于上面的声明方式有优点也有缺点。主要区别是人工对象关系映射
+分别定义表和类并映射它们。这种方式更灵活，但是要多些代码。通常，这种方式与声明
+方式一样运行，因此请确保把你的应用在包中分为多个模块。
 
-Here is an example `database.py` module for your application::
+示例 `database.py` 模块::
 
     from sqlalchemy import create_engine, MetaData
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -134,8 +124,7 @@ Here is an example `database.py` module for your application::
     def init_db():
         metadata.create_all(bind=engine)
 
-As for the declarative approach you need to close the session after
-each request.  Put this into your application module::
+就像声明方法一样，你需要在请求后关闭会话。把以下代码放入你的应用模块::
 
     from yourapplication.database import db_session
 
@@ -143,7 +132,7 @@ each request.  Put this into your application module::
     def shutdown_session(exception=None):
         db_session.remove()
 
-Here is an example table and model (put this into `models.py`)::
+以下是一个示例表和模型（放入 `models.py` 中）::
 
     from sqlalchemy import Table, Column, Integer, String
     from sqlalchemy.orm import mapper
@@ -166,49 +155,45 @@ Here is an example table and model (put this into `models.py`)::
     )
     mapper(User, users)
 
-Querying and inserting works exactly the same as in the example above.
+查询和插入与声明方式的一样。
 
 
-SQL Abstraction Layer
+SQL 抽象层 
 ---------------------
 
-If you just want to use the database system (and SQL) abstraction layer
-you basically only need the engine::
+如果你只需要使用数据库系统（和 SQL ）抽象层，那么基本上只要使用引擎::
 
     from sqlalchemy import create_engine, MetaData
 
     engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
     metadata = MetaData(bind=engine)
 
-Then you can either declare the tables in your code like in the examples
-above, or automatically load them::
+然后你要么像前文中一样在代码中声明表，要么自动载入它们::
 
     users = Table('users', metadata, autoload=True)
 
-To insert data you can use the `insert` method.  We have to get a
-connection first so that we can use a transaction:
+可以使用 `insert` 方法插入数据。为了使用事务，我们必须先得到一个连接：
 
 >>> con = engine.connect()
 >>> con.execute(users.insert(name='admin', email='admin@localhost'))
 
-SQLAlchemy will automatically commit for us.
+SQLAlchemy 会自动提交。
 
-To query your database, you use the engine directly or use a connection:
+可以直接使用引擎或连接来查询数据库：
 
 >>> users.select(users.c.id == 1).execute().first()
 (1, u'admin', u'admin@localhost')
 
-These results are also dict-like tuples:
+查询结果也是类字典元组：
 
 >>> r = users.select(users.c.id == 1).execute().first()
 >>> r['name']
 u'admin'
 
-You can also pass strings of SQL statements to the
-:meth:`~sqlalchemy.engine.base.Connection.execute` method:
+你也可以把 SQL 语句作为字符串传递给
+:meth:`~sqlalchemy.engine.base.Connection.execute` 方法：
 
 >>> engine.execute('select * from users where id = :1', [1]).first()
 (1, u'admin', u'admin@localhost')
 
-For more information about SQLAlchemy, head over to the
-`website <http://sqlalchemy.org/>`_.
+关于 SQLAlchemy 的更多信息请移步其 `官方网站 <http://sqlalchemy.org/>`_ 。
