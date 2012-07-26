@@ -1,48 +1,42 @@
-Flask Extensions
+Flask 扩展
 ================
 
-Flask extensions extend the functionality of Flask in various different
-ways.  For instance they add support for databases and other common tasks.
+Flask 扩展以各种方式扩展了 Flask 的功能，比如增强对数据库的支持等等。
 
-Finding Extensions
+查找扩展
 ------------------
 
-Flask extensions are listed on the `Flask Extension Registry`_ and can be
-downloaded with ``easy_install`` or ``pip``.  If you add a Flask extension
-as dependency to your ``requirements.rst`` or ``setup.py`` file they are
-usually installed with a simple command or when your application installs.
+Flask 扩展都列在 `Flask 扩展注册`_ 中，并且可以使用 ``easy_install`` 或 ``pip``
+下载。如果你把一个扩展作为依赖添加到你的 ``requirements.rst`` 或 ``setup.py``
+文件，那么它们可以使用一个简单的命令安装或随着应用一起安装。
 
-Using Extensions
+使用扩展
 ----------------
 
-Extensions typically have documentation that goes along that shows how to
-use it.  There are no general rules in how extensions are supposed to
-behave but they are imported from common locations.  If you have an
-extension called ``Flask-Foo`` or ``Foo-Flask`` it will be always
-importable from ``flask.ext.foo``::
+扩展一般都有说明如何使用的文档，这些文档应该和扩展一起发行。扩展如何运行没有
+统一的要求，但是一般在常见位置导入扩展。假设一个扩展称为
+``Flask-Foo`` 或 ``Foo-Flask`` ，那么总是可以导入 ``flask.ext.foo``::
 
     from flask.ext import foo
 
-Flask Before 0.8
-----------------
+Flask 0.8 以前的版本
+--------------------
 
-If you are using Flask 0.7 or earlier the :data:`flask.ext` package will not
-exist, instead you have to import from ``flaskext.foo`` or ``flask_foo``
-depending on how the extension is distributed.  If you want to develop an
-application that supports Flask 0.7 or earlier you should still import
-from the :data:`flask.ext` package.  We provide you with a compatibility
-module that provides this package for older versions of Flask.  You can
-download it from github: `flaskext_compat.py`_
+如果你正在使用 Flask 0.7 版本或更早版本， :data:`flask.ext` 包是不存在的。你
+必须根据扩展的发行方式导入 ``flaskext.foo`` 或 ``flask_foo`` 。如果你要开发一个
+支持 Flask 0.7 版本或更早版本的应用，那么你应当还是从 :data:`flask.ext` 包中
+导入。我们提供了一个兼容模块用以兼容老版本的 Flask ，你可以从 github 下载：
+`flaskext_compat.py`_
 
-And here is how you can use it::
+使用方法如下::
 
     import flaskext_compat
     flaskext_compat.activate()
 
     from flask.ext import foo
 
-Once the ``flaskext_compat`` module is activated the :data:`flask.ext` will
-exist and you can start importing from there.
+一旦 ``flaskext_compat`` 模块被激活， :data:`flask.ext` 就会存在，就可以从这个
+包导入扩展。
 
-.. _Flask Extension Registry: http://flask.pocoo.org/extensions/
+.. _Flask 扩展注册: http://flask.pocoo.org/extensions/
 .. _flaskext_compat.py: https://github.com/mitsuhiko/flask/raw/master/scripts/flaskext_compat.py
