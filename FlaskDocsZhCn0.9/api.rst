@@ -305,10 +305,9 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
 
     使用示例请参阅 :mod:`json` 文档。
 
-    The :func:`~json.dumps` function of this json module is also available
-    as filter called ``|tojson`` in Jinja2.  Note that inside `script`
-    tags no escaping must take place, so make sure to disable escaping
-    with ``|safe`` if you intend to use it inside `script` tags:
+    这个 json 模块的 :func:`~json.dumps` 函数同时还在 Jinja2 中以名为
+    ``|tojson`` 过滤器的身份出现。注意，在 `script` 标记内部不能有转义，因此
+    如果要在 `script` 标记内部使用这个过滤器，请确保使用 ``|safe`` 来关闭转义。
 
     .. sourcecode:: html+jinja
 
@@ -316,9 +315,9 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
             doSomethingWith({{ user.username|tojson|safe }});
         </script>
 
-    Note that the ``|tojson`` filter escapes forward slashes properly.
+    注意， ``|tojson`` 过滤器会正确转义反斜杠。
 
-Template Rendering
+模板渲染
 ------------------
 
 .. autofunction:: render_template
@@ -327,13 +326,13 @@ Template Rendering
 
 .. autofunction:: get_template_attribute
 
-Configuration
+配置
 -------------
 
 .. autoclass:: Config
    :members:
 
-Extensions
+扩展
 ----------
 
 .. data:: flask.ext
