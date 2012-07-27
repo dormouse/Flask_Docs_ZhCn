@@ -42,22 +42,9 @@ Werkzeug 包含许多 `中间件 <http://werkzeug.pocoo.org/docs/middlewares/>`_
 -----
 
 如果以下建议都没有用，那么直接派生 Flask 吧。 Flask 的主要代码都在 Werkzeug 和
-Jinja2 这两个库内。这两个库起了主要作用。 Flask 只是把它们粘合在一起而已。
-.  These libraries do the majority of the work.
-Flask is just the paste that glues those together.  For every project there is
-the point where the underlying framework gets in the way (due to assumptions
-the original developers had).  This is natural because if this would not be the
-case, the framework would be a very complex system to begin with which causes a
-steep learning curve and a lot of user frustration.
-该框架将是一个非常复杂的系统，开始与导致
-陡峭的学习曲线和大量用户受挫。
-
-为什么要创建分支？
----------------------
-
-Flask 的主要代码都位于 Werkzeug 和 Jinja2 之中。这两个库完成了大多数工作， Flask
-只是把这两个库整合在一起而已。对于每个项目来说，应当由其基础框架来完成大多数
-工作。否则将会形成一个非常复杂的框架，势必带来陡峭的学习曲线，从而吓退用户。
+Jinja2 这两个库内。这两个库起了主要作用。 Flask 只是把它们粘合在一起而已。对于
+一个项目来讲，底层框架的切入点很重要。因为如果不重视这一点，那么框架会变得非常
+复杂，势必带来陡峭的学习曲线，从而吓退用户。
 
 Flask 并不推崇唯一版本。许多人为了避免缺陷，都使用打过补丁或修改过的版本。这个
 理念在 Flask 的许可中也有所体现：你不必返回你对框架所做的修改。
@@ -85,6 +72,6 @@ Flask 中唯一影响伸缩性的因素是环境本地代理。Flask 中的环�
 与社区沟通
 ---------------------------
 
-Flask 开发者非常乐于帮助大家。因此，如果发现 Flask 有什么问题，请立即通过邮件
-列表或 IRC 与社区进行沟通。对于 Flask 及其扩展的开发都来说，提升其在大型应用中
-的功能的最佳途径是倾听用户的心声。
+不管你的代码库是否强大， Flask 开发者总是保持框架的可操作性。如果发现 Flask 有
+什么问题，请立即通过邮件列表或 IRC 与社区进行沟通。对于 Flask 及其扩展的开发都
+来说，提升其在大型应用中的功能的最佳途径是倾听用户的心声。
