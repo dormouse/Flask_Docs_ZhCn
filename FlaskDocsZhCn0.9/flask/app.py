@@ -65,42 +65,39 @@ def setupmethod(f):
 
 
 class Flask(_PackageBoundObject):
-    """The flask object implements a WSGI application and acts as the central
-    object.  It is passed the name of the module or package of the
-    application.  Once it is created it will act as a central registry for
-    the view functions, the URL rules, template configuration and much more.
+    """flask 对象实现了一个 WSGI 应用，是一个核心对象。它传递了应用模块或包的
+    名称。一旦这个对象创建后，它将成为视图函数、 URL 规则和模板配置等对象的
+    注册中心。
 
-    The name of the package is used to resolve resources from inside the
-    package or the folder the module is contained in depending on if the
-    package parameter resolves to an actual python package (a folder with
-    an `__init__.py` file inside) or a standard module (just a `.py` file).
+    包的名称用于从包的内部或者包含模块的文件夹中解析资源。解析的方式取决于参数
+    包是指向一个实际的 python 包（一个包含 `__init__.py` 文件的文件夹）还是一
+    个标准的模块（只是一个 `.py` 文件）。
 
-    For more information about resource loading, see :func:`open_resource`.
+    更多关于资源载入的信息参见 :func:`open_resource` 。
 
-    Usually you create a :class:`Flask` instance in your main module or
-    in the `__init__.py` file of your package like this::
+    通常你会在你的主模块或包的 `__init__.py` 文件中像下面这样创建一个
+    :class:`Flask` 实例::
 
         from flask import Flask
         app = Flask(__name__)
 
-    .. admonition:: About the First Parameter
+    .. admonition:: 关于第一个参数
 
-        The idea of the first parameter is to give Flask an idea what
-        belongs to your application.  This name is used to find resources
-        on the file system, can be used by extensions to improve debugging
-        information and a lot more.
+        第一个参数是“名称”，它的作用是告诉 Flask 哪些东西属于你的应用。这个
+        名称用于在文件系统中查找资源。这个名称可以被扩展使用，优化调试信息，
+        当然还有许多其他作用。
 
-        So it's important what you provide there.  If you are using a single
-        module, `__name__` is always the correct value.  If you however are
-        using a package, it's usually recommended to hardcode the name of
-        your package there.
+        因此第一个参数十分重要。如果你只使用单一模块，那么把 `__name__` 作为
+        第一个参数是不会错的。如果你使用的是一个包，那么建议你把名称直接
+        硬编码写在程序中。
 
-        For example if your application is defined in `yourapplication/app.py`
-        you should create it with one of the two versions below::
+        例如，假设你的应用在 `yourapplication/app.py` 中定义，那么你应当在下面
+        示例选择一种方法来创建 Flask 对象::
 
             app = Flask('yourapplication')
             app = Flask(__name__.split('.')[0])
 
+        为什么要这样做？
         Why is that?  The application will work even with `__name__`, thanks
         to how resources are looked up.  However it will make debugging more
         painful.  Certain extensions can make assumptions based on the

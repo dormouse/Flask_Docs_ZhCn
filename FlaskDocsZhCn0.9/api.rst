@@ -241,13 +241,11 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
 
 .. data:: current_app
 
-   Points to the application handling the request.  This is useful for
-   extensions that want to support multiple applications running side
-   by side.  This is powered by the application context and not by the
-   request context, so you can change the value of this proxy by
-   using the :meth:`~flask.Flask.app_context` method.
+   这个对象指向正在处理请求的应用。它对于需要支持同时运行多个相同应用的扩展特别
+   有用。它由应用环境支撑，而不是由请求环境支撑，因此你可以通过使用
+   :meth:`~flask.Flask.app_context` 方法来改变这个代理的值。
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+   这是一个代理。更多信息参见 :ref:`notes-on-proxies` 。
 
 .. autofunction:: has_request_context
 
@@ -257,11 +255,10 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
 
 .. function:: abort(code)
 
-   Raises an :exc:`~werkzeug.exceptions.HTTPException` for the given
-   status code.  For example to abort request handling with a page not
-   found exception, you would call ``abort(404)``.
+   根据给定的状态代码引发一个 :exc:`~werkzeug.exceptions.HTTPException` 。
+   例如，如果要引发一个中断请求的页面未找到异常，那么可以调用 ``abort(404)`` 。
 
-   :param code: the HTTP error code.
+   :param code: HTTP 错误代码。
 
 .. autofunction:: redirect
 
@@ -337,13 +334,11 @@ cookie 。因此用户可以查看会话内容，但是不能修改，除非知�
 
 .. data:: flask.ext
 
-   This module acts as redirect import module to Flask extensions.  It was
-   added in 0.8 as the canonical way to import Flask extensions and makes
-   it possible for us to have more flexibility in how we distribute
-   extensions.
+   这个模块用作一个针对 Flask 扩展的重定向导入模块。这个模块在 Flask 0.8 版本中
+   被加入，作为 Flask 扩展导入的标准方法。它为扩展的的布置提供了更强的灵活性。
 
-   If you want to use an extension named “Flask-Foo” you would import it
-   from :data:`~flask.ext` as follows::
+   如果你要使用一个名为 “Flask-Foo” 的扩展，那么可以像下面一样从
+   :data:`~flask.ext` 导入它::
 
         from flask.ext import foo
 
