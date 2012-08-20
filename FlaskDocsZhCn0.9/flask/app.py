@@ -97,44 +97,33 @@ class Flask(_PackageBoundObject):
             app = Flask('yourapplication')
             app = Flask(__name__.split('.')[0])
 
-        为什么要这样做？
-        Why is that?  The application will work even with `__name__`, thanks
-        to how resources are looked up.  However it will make debugging more
-        painful.  Certain extensions can make assumptions based on the
-        import name of your application.  For example the Flask-SQLAlchemy
-        extension will look for the code in your application that triggered
-        an SQL query in debug mode.  If the import name is not properly set
-        up, that debugging information is lost.  (For example it would only
-        pick up SQL queries in `yourapplication.app` and not
-        `yourapplication.views.frontend`)
+        为什么要这样做？基于资源搜索的策略，即使使用 `__name__` 应用也不会有
+        问题。但是这样会给调试带来麻烦，因为某些扩展会根据导入的应用名称来做
+        一些假设。例如在除错模式下， Flask-SQLAlchemy 扩展会搜索应用中触发
+        SQL 查询的代码。如果导入的名称不正确，那么就会导致除错信息丢失。（
+        例如除错信息中只出现 `yourapplication.app` 中的 SQL 查询，而不出现
+        `yourapplication.views.frontend` 中的 SQL 查询。）
 
     .. versionadded:: 0.7
-       The `static_url_path`, `static_folder`, and `template_folder`
-       parameters were added.
+       增加了 `static_url_path` 、 `static_folder` 和 `template_folder` 参数。
 
     .. versionadded:: 0.8
-       The `instance_path` and `instance_relative_config` parameters were
-       added.
+       增加了 `instance_path` 和 `instance_relative_config` 参数。
 
-    :param import_name: the name of the application package
-    :param static_url_path: can be used to specify a different path for the
-                            static files on the web.  Defaults to the name
-                            of the `static_folder` folder.
-    :param static_folder: the folder with static files that should be served
-                          at `static_url_path`.  Defaults to the ``'static'``
-                          folder in the root path of the application.
-    :param template_folder: the folder that contains the templates that should
-                            be used by the application.  Defaults to
-                            ``'templates'`` folder in the root path of the
-                            application.
-    :param instance_path: An alternative instance path for the application.
-                          By default the folder ``'instance'`` next to the
-                          package or module is assumed to be the instance
-                          path.
-    :param instance_relative_config: if set to `True` relative filenames
-                                     for loading the config are assumed to
-                                     be relative to the instance path instead
-                                     of the application root.
+    :param import_name: 应用包的名称
+    :param static_url_path: 这个参数可用于为静态文件定义不同的网络路径。
+                            缺省的路径为 `static_folder` 参数所定义的文件夹
+                            名称。
+    :param static_folder: 包含静态文件的文件夹名称，可被用于
+                          `static_url_path` 。缺省的文件夹是应用根路径下的
+                          ``'static'`` 。
+    :param template_folder: 包含应用模板的文件夹名称。 缺省的文件夹是应用根
+                            路径下的 ``'templates'`` 。
+    :param instance_path: 应用的可选实例路径。缺省情况下是与包或模块并列的
+                          ``'instance'`` 文件夹。
+    :param instance_relative_config: 如果这个参数设置为 `True` ，那么用于载入
+                                     配置的相关文件会被与实例路径挂钩。否则，
+                                     与应用根路径挂钩。
     """
 
     #: The class that is used for request objects.  See :class:`~flask.Request`
@@ -854,47 +843,43 @@ class Flask(_PackageBoundObject):
 
     @setupmethod
     def add_url_rule(self, rule, endpoint=None, view_func=None, **options):
-        """Connects a URL rule.  Works exactly like the :meth:`route`
-        decorator.  If a view_func is provided it will be registered with the
-        endpoint.
+        """连接一个 URL 规则。运作方法与 :meth:`route` 装饰器非常相似。如果提供
+        了 view_func 参数，那么它会被与 endpoint 一起注册。
 
-        Basically this example::
+        基本上下例::
 
             @app.route('/')
             def index():
                 pass
 
-        Is equivalent to the following::
+        等同于::
 
             def index():
                 pass
             app.add_url_rule('/', 'index', index)
 
-        If the view_func is not provided you will need to connect the endpoint
-        to a view function like so::
+        如果没有提供 view_func ，那么底端与视图函数连接方式如下::
 
             app.view_functions['index'] = index
 
-        Internally :meth:`route` invokes :meth:`add_url_rule` so if you want
-        to customize the behavior via subclassing you only need to change
-        this method.
+        :meth:`route` 内部调用了 :meth:`add_url_rule` ，因此如果要通过继承来
+        定制行为，那么只需要改变这个方法就行了。
 
-        For more information refer to :ref:`url-route-registrations`.
+        更多信息参数 :ref:`url-route-registrations` 。
 
         .. versionchanged:: 0.2
-           `view_func` parameter added.
+           增加了 `view_func` 参数。
 
         .. versionchanged:: 0.6
-           `OPTIONS` is added automatically as method.
+           `OPTIONS` 被作为方法自动增加。
 
-        :param rule: the URL rule as string
-        :param endpoint: the endpoint for the registered URL rule.  Flask
-                         itself assumes the name of the view function as
-                         endpoint
-        :param view_func: the function to call when serving a request to the
-                          provided endpoint
-        :param options: the options to be forwarded to the underlying
-                        :class:`~werkzeug.routing.Rule` object.  A change
+        :param rule: 字符串形式的 URL
+        :param endpoint: 要注册的 URL 规则的底端。 Flask 本身假定视图函数的名称
+                         就是底端
+        :param view_func: 底端对应的调用函数
+        :param options: 提供给背后的 :class:`~werkzeug.routing.Rule` 对象的
+                        参数。Werkzeug 的变化之一是现在可以处理方法参数了。
+
                         to Werkzeug is handling of method options.  methods
                         is a list of methods this rule should be limited
                         to (`GET`, `POST` etc.).  By default a rule
@@ -1075,11 +1060,11 @@ class Flask(_PackageBoundObject):
 
     @setupmethod
     def add_template_filter(self, f, name=None):
-        """Register a custom template filter.  Works exactly like the
-        :meth:`template_filter` decorator.
+        """注册一个自定义的模板过滤器。与 :meth:`template_filter` 装饰器运作
+        方式非常相似。
 
-        :param name: the optional name of the filter, otherwise the
-                     function name will be used.
+        :param name: 可选参数，用于定义过滤器的名称。如果没有定义这个参数，
+                     那么把函数的名称作为过滤器的名称。
         """
         self.jinja_env.filters[name or f.__name__] = f
 
