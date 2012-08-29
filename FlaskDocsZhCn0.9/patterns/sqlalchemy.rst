@@ -53,7 +53,7 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
 原因是 SQLAlchemy 已经用 :class:`~sqlalchemy.orm.scoped_session` 为我们做好了此
 类工作。
 
-那么要在应用中以声明方法使用 SQLAlchemy ，那么只要把下列代码加入应用模块就可以
+如果要在应用中以声明方式使用 SQLAlchemy ，那么只要把下列代码加入应用模块就可以
 了。 Flask 会自动在请求结束时删除数据库会话::
 
     from yourapplication.database import db_session

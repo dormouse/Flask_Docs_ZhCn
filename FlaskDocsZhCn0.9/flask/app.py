@@ -879,13 +879,10 @@ class Flask(_PackageBoundObject):
         :param view_func: 底端对应的调用函数
         :param options: 提供给背后的 :class:`~werkzeug.routing.Rule` 对象的
                         参数。Werkzeug 的变化之一是现在可以处理方法参数了。
-
-                        to Werkzeug is handling of method options.  methods
-                        is a list of methods this rule should be limited
-                        to (`GET`, `POST` etc.).  By default a rule
-                        just listens for `GET` (and implicitly `HEAD`).
-                        Starting with Flask 0.6, `OPTIONS` is implicitly
-                        added and handled by the standard request handling.
+                        这里的方法是指 `GET` 和 `POST` 等等。缺省情况下，一个
+                        规则只侦听 `GET` （以及隐含的 `HEAD` ）。从 Flask 0.6
+                        版本开始， `OPTIONS` 被隐含地增加了，并且由标准请求来
+                        处理。
         """
         if endpoint is None:
             endpoint = _endpoint_from_view_func(view_func)
@@ -1085,12 +1082,12 @@ class Flask(_PackageBoundObject):
 
     @setupmethod
     def after_request(self, f):
-        """Register a function to be run after each request.  Your function
-        must take one parameter, a :attr:`response_class` object and return
-        a new response object or the same (see :meth:`process_response`).
+        """注册一个在每个请求之后运行的函数。这个函数必须有一个参数：
+        一个 :attr:`response_class` 对象，并且返回一个新的或者相同的响应对象
+        （参见 :meth:`process_response` ）。
 
-        As of Flask 0.7 this function might not be executed at the end of the
-        request in case an unhandled exception ocurred.
+        在 Flask 0.7 版本中，这个函数在发生无法处理的意外的情况下可以不会被
+        执行。
         """
         self.after_request_funcs.setdefault(None, []).append(f)
         return f
