@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Flask Changelog</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="license.html" title="License"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="upgrading.html" title="Upgrading to Newer Releases"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flask-changelog">
+<h1>Flask Changelog</h1>
+<p>Here you can see the full list of changes between each Flask release.</p>
+<div class="section" id="version-0-9">
+<h2>Version 0.9</h2>
+<p>Released on July 1st 2012, codename Camapri.</p>
+<ul class="simple">
+<li>The <a class="reference internal" href="api.html#flask.Request.on_json_loading_failed" title="flask.Request.on_json_loading_failed"><tt class="xref py py-func docutils literal"><span class="pre">flask.Request.on_json_loading_failed()</span></tt></a> now returns a JSON formatted
+response by default.</li>
+<li>The <a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">flask.url_for()</span></tt></a> function now can generate anchors to the
+generated links.</li>
+<li>The <a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">flask.url_for()</span></tt></a> function now can also explicitly generate
+URL rules specific to a given HTTP method.</li>
+<li>Logger now only returns the debug log setting if it was not set
+explicitly.</li>
+<li>Unregister a circular dependency between the WSGI environment and
+the request object when shutting down the request.  This means that
+environ <tt class="docutils literal"><span class="pre">werkzeug.request</span></tt> will be <cite>None</cite> after the response was
+returned to the WSGI server but has the advantage that the garbage
+collector is not needed on CPython to tear down the request unless
+the user created circular dependencies themselves.</li>
+<li>Session is now stored after callbacks so that if the session payload
+is stored in the session you can still modify it in an after
+request callback.</li>
+<li>The <a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">flask.Flask</span></tt></a> class will avoid importing the provided import name
+if it can (the required first parameter), to benefit tools which build Flask
+instances programmatically.  The Flask class will fall back to using import
+on systems with custom module hooks, e.g. Google App Engine, or when the
+import name is inside a zip archive (usually a .egg) prior to Python 2.7.</li>
+<li>Blueprints now have a decorator to add custom template filters application
+wide, <a class="reference internal" href="api.html#flask.Blueprint.app_template_filter" title="flask.Blueprint.app_template_filter"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Blueprint.app_template_filter()</span></tt></a>.</li>
+<li>The Flask and Blueprint classes now have a non-decorator method for adding
+custom template filters application wide,
+<a class="reference internal" href="api.html#flask.Flask.add_template_filter" title="flask.Flask.add_template_filter"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Flask.add_template_filter()</span></tt></a> and
+<a class="reference internal" href="api.html#flask.Blueprint.add_app_template_filter" title="flask.Blueprint.add_app_template_filter"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Blueprint.add_app_template_filter()</span></tt></a>.</li>
+<li>The <a class="reference internal" href="api.html#flask.get_flashed_messages" title="flask.get_flashed_messages"><tt class="xref py py-func docutils literal"><span class="pre">flask.get_flashed_messages()</span></tt></a> function now allows rendering flashed
+message categories in separate blocks, through a <tt class="docutils literal"><span class="pre">category_filter</span></tt>
+argument.</li>
+<li>The <a class="reference internal" href="api.html#flask.Flask.run" title="flask.Flask.run"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Flask.run()</span></tt></a> method now accepts <cite>None</cite> for <cite>host</cite> and <cite>port</cite>
+arguments, using default values when <cite>None</cite>.  This allows for calling run
+using configuration values, e.g. <tt class="docutils literal"><span class="pre">app.run(app.config.get('MYHOST'),</span>
+<span class="pre">app.config.get('MYPORT'))</span></tt>, with proper behavior whether or not a config
+file is provided.</li>
+<li>The <a class="reference internal" href="api.html#flask.render_template" title="flask.render_template"><tt class="xref py py-meth docutils literal"><span class="pre">flask.render_template()</span></tt></a> method now accepts a either an iterable of
+template names or a single template name.  Previously, it only accepted a
+single template name.  On an iterable, the first template found is rendered.</li>
+<li>Added <a class="reference internal" href="api.html#flask.Flask.app_context" title="flask.Flask.app_context"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Flask.app_context()</span></tt></a> which works very similar to the
+request context but only provides access to the current application.  This
+also adds support for URL generation without an active request context.</li>
+<li>View functions can now return a tuple with the first instance being an
+instance of <a class="reference internal" href="api.html#flask.Response" title="flask.Response"><tt class="xref py py-class docutils literal"><span class="pre">flask.Response</span></tt></a>.  This allows for returning
+<tt class="docutils literal"><span class="pre">jsonify(error=&quot;error</span> <span class="pre">msg&quot;),</span> <span class="pre">400</span></tt> from a view function.</li>
+<li><a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> and <a class="reference internal" href="api.html#flask.Blueprint" title="flask.Blueprint"><tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt></a> now provide a
+<a class="reference internal" href="api.html#flask.Flask.get_send_file_max_age" title="flask.Flask.get_send_file_max_age"><tt class="xref py py-meth docutils literal"><span class="pre">get_send_file_max_age()</span></tt></a> hook for subclasses to override
+behavior of serving static files from Flask when using
+<a class="reference internal" href="api.html#flask.Flask.send_static_file" title="flask.Flask.send_static_file"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Flask.send_static_file()</span></tt></a> (used for the default static file
+handler) and <tt class="xref py py-func docutils literal"><span class="pre">send_file()</span></tt>.  This hook is provided a
+filename, which for example allows changing cache controls by file extension.
+The default max-age for <cite>send_file</cite> and static files can be configured
+through a new <tt class="docutils literal"><span class="pre">SEND_FILE_MAX_AGE_DEFAULT</span></tt> configuration variable, which is
+used in the default <cite>get_send_file_max_age</cite> implementation.</li>
+<li>Fixed an assumption in sessions implementation which could break message
+flashing on sessions implementations which use external storage.</li>
+<li>Changed the behavior of tuple return values from functions.  They are no
+longer arguments to the response object, they now have a defined meaning.</li>
+<li>Added <a class="reference internal" href="api.html#flask.Flask.request_globals_class" title="flask.Flask.request_globals_class"><tt class="xref py py-attr docutils literal"><span class="pre">flask.Flask.request_globals_class</span></tt></a> to allow a specific class to
+be used on creation of the <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> instance of each request.</li>
+<li>Added <cite>required_methods</cite> attribute to view functions to force-add methods
+on registration.</li>
+<li>Added <tt class="xref py py-func docutils literal"><span class="pre">flask.after_this_request()</span></tt>.</li>
+<li>Added <a class="reference internal" href="api.html#flask.stream_with_context" title="flask.stream_with_context"><tt class="xref py py-func docutils literal"><span class="pre">flask.stream_with_context()</span></tt></a> and the ability to push contexts
+multiple times without producing unexpected behavior.</li>
+</ul>
+</div>
+<div class="section" id="version-0-8-1">
+<h2>Version 0.8.1</h2>
+<p>Bugfix release, released on July 1th 2012</p>
+<ul class="simple">
+<li>Fixed an issue with the undocumented <cite>flask.session</cite> module to not
+work properly on Python 2.5.  It should not be used but did cause
+some problems for package managers.</li>
+</ul>
+</div>
+<div class="section" id="version-0-8">
+<h2>Version 0.8</h2>
+<p>Released on September 29th 2011, codename Rakija</p>
+<ul class="simple">
+<li>Refactored session support into a session interface so that
+the implementation of the sessions can be changed without
+having to override the Flask class.</li>
+<li>Empty session cookies are now deleted properly automatically.</li>
+<li>View functions can now opt out of getting the automatic
+OPTIONS implementation.</li>
+<li>HTTP exceptions and Bad Request errors can now be trapped so that they
+show up normally in the traceback.</li>
+<li>Flask in debug mode is now detecting some common problems and tries to
+warn you about them.</li>
+<li>Flask in debug mode will now complain with an assertion error if a view
+was attached after the first request was handled.  This gives earlier
+feedback when users forget to import view code ahead of time.</li>
+<li>Added the ability to register callbacks that are only triggered once at
+the beginning of the first request. (<tt class="xref py py-meth docutils literal"><span class="pre">Flask.before_first_request()</span></tt>)</li>
+<li>Malformed JSON data will now trigger a bad request HTTP exception instead
+of a value error which usually would result in a 500 internal server
+error if not handled.  This is a backwards incompatible change.</li>
+<li>Applications now not only have a root path where the resources and modules
+are located but also an instance path which is the designated place to
+drop files that are modified at runtime (uploads etc.).  Also this is
+conceptionally only instance depending and outside version control so it&#8217;s
+the perfect place to put configuration files etc.  For more information
+see <a class="reference internal" href="config.html#instance-folders"><em>实例文件夹</em></a>.</li>
+<li>Added the <tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt> configuration variable.</li>
+<li>Implemented <tt class="xref py py-meth docutils literal"><span class="pre">session_transaction()</span></tt> to
+easily modify sessions from the test environment.</li>
+<li>Refactored test client internally.  The <tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt> configuration
+variable as well as <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> are now properly used by the test client
+as defaults.</li>
+<li>Added <a class="reference internal" href="api.html#flask.views.View.decorators" title="flask.views.View.decorators"><tt class="xref py py-attr docutils literal"><span class="pre">flask.views.View.decorators</span></tt></a> to support simpler decorating of
+pluggable (class-based) views.</li>
+<li>Fixed an issue where the test client if used with the &#8220;with&#8221; statement did not
+trigger the execution of the teardown handlers.</li>
+<li>Added finer control over the session cookie parameters.</li>
+<li>HEAD requests to a method view now automatically dispatch to the <cite>get</cite>
+method if no handler was implemented.</li>
+<li>Implemented the virtual <tt class="xref py py-mod docutils literal"><span class="pre">flask.ext</span></tt> package to import extensions from.</li>
+<li>The context preservation on exceptions is now an integral component of
+Flask itself and no longer of the test client.  This cleaned up some
+internal logic and lowers the odds of runaway request contexts in unittests.</li>
+</ul>
+</div>
+<div class="section" id="version-0-7-3">
+<h2>Version 0.7.3</h2>
+<p>Bugfix release, release date to be decided</p>
+<ul class="simple">
+<li>Fixed the Jinja2 environment&#8217;s list_templates method not returning the
+correct names when blueprints or modules were involved.</li>
+</ul>
+</div>
+<div class="section" id="version-0-7-2">
+<h2>Version 0.7.2</h2>
+<p>Bugfix release, released on July 6th 2011</p>
+<ul class="simple">
+<li>Fixed an issue with URL processors not properly working on
+blueprints.</li>
+</ul>
+</div>
+<div class="section" id="version-0-7-1">
+<h2>Version 0.7.1</h2>
+<p>Bugfix release, released on June 29th 2011</p>
+<ul class="simple">
+<li>Added missing future import that broke 2.5 compatibility.</li>
+<li>Fixed an infinite redirect issue with blueprints.</li>
+</ul>
+</div>
+<div class="section" id="version-0-7">
+<h2>Version 0.7</h2>
+<p>Released on June 28th 2011, codename Grappa</p>
+<ul class="simple">
+<li>Added <a class="reference internal" href="api.html#flask.Flask.make_default_options_response" title="flask.Flask.make_default_options_response"><tt class="xref py py-meth docutils literal"><span class="pre">make_default_options_response()</span></tt></a>
+which can be used by subclasses to alter the default
+behavior for <cite>OPTIONS</cite> responses.</li>
+<li>Unbound locals now raise a proper <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#RuntimeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#RuntimeError]</span> instead
+of an <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#AttributeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">AttributeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#AttributeError]</span>.</li>
+<li>Mimetype guessing and etag support based on file objects is now
+deprecated for <a class="reference internal" href="api.html#flask.send_file" title="flask.send_file"><tt class="xref py py-func docutils literal"><span class="pre">flask.send_file()</span></tt></a> because it was unreliable.
+Pass filenames instead or attach your own etags and provide a
+proper mimetype by hand.</li>
+<li>Static file handling for modules now requires the name of the
+static folder to be supplied explicitly.  The previous autodetection
+was not reliable and caused issues on Google&#8217;s App Engine.  Until
+1.0 the old behavior will continue to work but issue dependency
+warnings.</li>
+<li>fixed a problem for Flask to run on jython.</li>
+<li>added a <cite>PROPAGATE_EXCEPTIONS</cite> configuration variable that can be
+used to flip the setting of exception propagation which previously
+was linked to <cite>DEBUG</cite> alone and is now linked to either <cite>DEBUG</cite> or
+<cite>TESTING</cite>.</li>
+<li>Flask no longer internally depends on rules being added through the
+<cite>add_url_rule</cite> function and can now also accept regular werkzeug
+rules added to the url map.</li>
+<li>Added an <cite>endpoint</cite> method to the flask application object which
+allows one to register a callback to an arbitrary endpoint with
+a decorator.</li>
+<li>Use Last-Modified for static file sending instead of Date which
+was incorrectly introduced in 0.6.</li>
+<li>Added <cite>create_jinja_loader</cite> to override the loader creation process.</li>
+<li>Implemented a silent flag for <cite>config.from_pyfile</cite>.</li>
+<li>Added <cite>teardown_request</cite> decorator, for functions that should run at the end
+of a request regardless of whether an exception occurred.  Also the behavior
+for <cite>after_request</cite> was changed.  It&#8217;s now no longer executed when an exception
+is raised.  See <a class="reference internal" href="upgrading.html#upgrading-to-new-teardown-handling"><em>Upgrading to new Teardown Handling</em></a></li>
+<li>Implemented <a class="reference internal" href="api.html#flask.has_request_context" title="flask.has_request_context"><tt class="xref py py-func docutils literal"><span class="pre">flask.has_request_context()</span></tt></a></li>
+<li>Deprecated <cite>init_jinja_globals</cite>.  Override the
+<a class="reference internal" href="api.html#flask.Flask.create_jinja_environment" title="flask.Flask.create_jinja_environment"><tt class="xref py py-meth docutils literal"><span class="pre">create_jinja_environment()</span></tt></a> method instead to
+achieve the same functionality.</li>
+<li>Added <a class="reference internal" href="api.html#flask.safe_join" title="flask.safe_join"><tt class="xref py py-func docutils literal"><span class="pre">flask.safe_join()</span></tt></a></li>
+<li>The automatic JSON request data unpacking now looks at the charset
+mimetype parameter.</li>
+<li>Don&#8217;t modify the session on <a class="reference internal" href="api.html#flask.get_flashed_messages" title="flask.get_flashed_messages"><tt class="xref py py-func docutils literal"><span class="pre">flask.get_flashed_messages()</span></tt></a> if there
+are no messages in the session.</li>
+<li><cite>before_request</cite> handlers are now able to abort requests with errors.</li>
+<li>it is not possible to define user exception handlers.  That way you can
+provide custom error messages from a central hub for certain errors that
+might occur during request processing (for instance database connection
+errors, timeouts from remote resources etc.).</li>
+<li>Blueprints can provide blueprint specific error handlers.</li>
+<li>Implemented generic <a class="reference internal" href="views.html#views"><em>可插拨视图</em></a> (class-based views).</li>
+</ul>
+</div>
+<div class="section" id="version-0-6-1">
+<h2>Version 0.6.1</h2>
+<p>Bugfix release, released on December 31st 2010</p>
+<ul class="simple">
+<li>Fixed an issue where the default <cite>OPTIONS</cite> response was
+not exposing all valid methods in the <cite>Allow</cite> header.</li>
+<li>Jinja2 template loading syntax now allows &#8221;./&#8221; in front of
+a template load path.  Previously this caused issues with
+module setups.</li>
+<li>Fixed an issue where the subdomain setting for modules was
+ignored for the static folder.</li>
+<li>Fixed a security problem that allowed clients to download arbitrary files
+if the host server was a windows based operating system and the client
+uses backslashes to escape the directory the files where exposed from.</li>
+</ul>
+</div>
+<div class="section" id="version-0-6">
+<h2>Version 0.6</h2>
+<p>Released on July 27th 2010, codename Whisky</p>
+<ul class="simple">
+<li>after request functions are now called in reverse order of
+registration.</li>
+<li>OPTIONS is now automatically implemented by Flask unless the
+application explicitly adds &#8216;OPTIONS&#8217; as method to the URL rule.
+In this case no automatic OPTIONS handling kicks in.</li>
+<li>static rules are now even in place if there is no static folder
+for the module.  This was implemented to aid GAE which will
+remove the static folder if it&#8217;s part of a mapping in the .yml
+file.</li>
+<li>the <a class="reference internal" href="api.html#flask.Flask.config" title="flask.Flask.config"><tt class="xref py py-attr docutils literal"><span class="pre">config</span></tt></a> is now available in the templates
+as <cite>config</cite>.</li>
+<li>context processors will no longer override values passed directly
+to the render function.</li>
+<li>added the ability to limit the incoming request data with the
+new <tt class="docutils literal"><span class="pre">MAX_CONTENT_LENGTH</span></tt> configuration value.</li>
+<li>the endpoint for the <tt class="xref py py-meth docutils literal"><span class="pre">flask.Module.add_url_rule()</span></tt> method
+is now optional to be consistent with the function of the
+same name on the application object.</li>
+<li>added a <a class="reference internal" href="api.html#flask.make_response" title="flask.make_response"><tt class="xref py py-func docutils literal"><span class="pre">flask.make_response()</span></tt></a> function that simplifies
+creating response object instances in views.</li>
+<li>added signalling support based on blinker.  This feature is currently
+optional and supposed to be used by extensions and applications.  If
+you want to use it, make sure to have <a class="reference external" href="http://pypi.python.org/pypi/blinker">blinker</a><span class="link-target"> [http://pypi.python.org/pypi/blinker]</span> installed.</li>
+<li>refactored the way URL adapters are created.  This process is now
+fully customizable with the <a class="reference internal" href="api.html#flask.Flask.create_url_adapter" title="flask.Flask.create_url_adapter"><tt class="xref py py-meth docutils literal"><span class="pre">create_url_adapter()</span></tt></a>
+method.</li>
+<li>modules can now register for a subdomain instead of just an URL
+prefix.  This makes it possible to bind a whole module to a
+configurable subdomain.</li>
+</ul>
+</div>
+<div class="section" id="version-0-5-2">
+<h2>Version 0.5.2</h2>
+<p>Bugfix Release, released on July 15th 2010</p>
+<ul class="simple">
+<li>fixed another issue with loading templates from directories when
+modules were used.</li>
+</ul>
+</div>
+<div class="section" id="version-0-5-1">
+<h2>Version 0.5.1</h2>
+<p>Bugfix Release, released on July 6th 2010</p>
+<ul class="simple">
+<li>fixes an issue with template loading from directories when modules
+where used.</li>
+</ul>
+</div>
+<div class="section" id="version-0-5">
+<h2>Version 0.5</h2>
+<p>Released on July 6th 2010, codename Calvados</p>
+<ul class="simple">
+<li>fixed a bug with subdomains that was caused by the inability to
+specify the server name.  The server name can now be set with
+the <cite>SERVER_NAME</cite> config key.  This key is now also used to set
+the session cookie cross-subdomain wide.</li>
+<li>autoescaping is no longer active for all templates.  Instead it
+is only active for <tt class="docutils literal"><span class="pre">.html</span></tt>, <tt class="docutils literal"><span class="pre">.htm</span></tt>, <tt class="docutils literal"><span class="pre">.xml</span></tt> and <tt class="docutils literal"><span class="pre">.xhtml</span></tt>.
+Inside templates this behavior can be changed with the
+<tt class="docutils literal"><span class="pre">autoescape</span></tt> tag.</li>
+<li>refactored Flask internally.  It now consists of more than a
+single file.</li>
+<li><a class="reference internal" href="api.html#flask.send_file" title="flask.send_file"><tt class="xref py py-func docutils literal"><span class="pre">flask.send_file()</span></tt></a> now emits etags and has the ability to
+do conditional responses builtin.</li>
+<li>(temporarily) dropped support for zipped applications.  This was a
+rarely used feature and led to some confusing behavior.</li>
+<li>added support for per-package template and static-file directories.</li>
+<li>removed support for <cite>create_jinja_loader</cite> which is no longer used
+in 0.5 due to the improved module support.</li>
+<li>added a helper function to expose files from any directory.</li>
+</ul>
+</div>
+<div class="section" id="version-0-4">
+<h2>Version 0.4</h2>
+<p>Released on June 18th 2010, codename Rakia</p>
+<ul class="simple">
+<li>added the ability to register application wide error handlers
+from modules.</li>
+<li><a class="reference internal" href="api.html#flask.Flask.after_request" title="flask.Flask.after_request"><tt class="xref py py-meth docutils literal"><span class="pre">after_request()</span></tt></a> handlers are now also invoked
+if the request dies with an exception and an error handling page
+kicks in.</li>
+<li>test client has not the ability to preserve the request context
+for a little longer.  This can also be used to trigger custom
+requests that do not pop the request stack for testing.</li>
+<li>because the Python standard library caches loggers, the name of
+the logger is configurable now to better support unittests.</li>
+<li>added <cite>TESTING</cite> switch that can activate unittesting helpers.</li>
+<li>the logger switches to <cite>DEBUG</cite> mode now if debug is enabled.</li>
+</ul>
+</div>
+<div class="section" id="version-0-3-1">
+<h2>Version 0.3.1</h2>
+<p>Bugfix release, released on May 28th 2010</p>
+<ul class="simple">
+<li>fixed a error reporting bug with <a class="reference internal" href="api.html#flask.Config.from_envvar" title="flask.Config.from_envvar"><tt class="xref py py-meth docutils literal"><span class="pre">flask.Config.from_envvar()</span></tt></a></li>
+<li>removed some unused code from flask</li>
+<li>release does no longer include development leftover files (.git
+folder for themes, built documentation in zip and pdf file and
+some .pyc files)</li>
+</ul>
+</div>
+<div class="section" id="version-0-3">
+<h2>Version 0.3</h2>
+<p>Released on May 28th 2010, codename Schnaps</p>
+<ul class="simple">
+<li>added support for categories for flashed messages.</li>
+<li>the application now configures a <tt class="xref py py-class docutils literal"><span class="pre">logging.Handler</span></tt> and will
+log request handling exceptions to that logger when not in debug
+mode.  This makes it possible to receive mails on server errors
+for example.</li>
+<li>added support for context binding that does not require the use of
+the with statement for playing in the console.</li>
+<li>the request context is now available within the with statement making
+it possible to further push the request context or pop it.</li>
+<li>added support for configurations.</li>
+</ul>
+</div>
+<div class="section" id="version-0-2">
+<h2>Version 0.2</h2>
+<p>Released on May 12th 2010, codename Jägermeister</p>
+<ul class="simple">
+<li>various bugfixes</li>
+<li>integrated JSON support</li>
+<li>added <a class="reference internal" href="api.html#flask.get_template_attribute" title="flask.get_template_attribute"><tt class="xref py py-func docutils literal"><span class="pre">get_template_attribute()</span></tt></a> helper function.</li>
+<li><a class="reference internal" href="api.html#flask.Flask.add_url_rule" title="flask.Flask.add_url_rule"><tt class="xref py py-meth docutils literal"><span class="pre">add_url_rule()</span></tt></a> can now also register a
+view function.</li>
+<li>refactored internal request dispatching.</li>
+<li>server listens on 127.0.0.1 by default now to fix issues with chrome.</li>
+<li>added external URL support.</li>
+<li>added support for <a class="reference internal" href="api.html#flask.send_file" title="flask.send_file"><tt class="xref py py-func docutils literal"><span class="pre">send_file()</span></tt></a></li>
+<li>module support and internal request handling refactoring
+to better support pluggable applications.</li>
+<li>sessions can be set to be permanent now on a per-session basis.</li>
+<li>better error reporting on missing secret keys.</li>
+<li>added support for Google Appengine.</li>
+</ul>
+</div>
+<div class="section" id="version-0-1">
+<h2>Version 0.1</h2>
+<p>First public preview release.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>通过 jQuery 使用 AJAX</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="errorpages.html" title="自定义出错页面"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="flashing.html" title="消息闪现"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="jquery-ajax">
+<h1>通过 jQuery 使用 AJAX</h1>
+<p><a class="reference external" href="http://jquery.com/">jQuery</a><span class="link-target"> [http://jquery.com/]</span> 是一个小型的 JavaScript 库，通常用于简化 DOM 和 JavaScript 的使用。它
+是一个非常好的工具，可以通过在服务端和客户端交换 JSON 来使网络应用更具有动态性。</p>
+<p>JSON 是一种非常轻巧的传输格式，非常类似于 Python 原语（数字、字符串、字典和列表
+）。 JSON 被广泛支持，易于解析。 JSON 在几年之前开始流行，在网络应用中迅速取代
+了 XML 。</p>
+<p>如果你使用的是 Python 2.6 ，那么 JSON 是开箱即用的。但是如果你使用的是 Pythhon
+2.5 ，那么你必须先从 PyPI 安装 <a class="reference external" href="http://pypi.python.org/pypi/simplejson">simplejson</a><span class="link-target"> [http://pypi.python.org/pypi/simplejson]</span> 库。</p>
+<div class="section" id="id1">
+<h2>载入 jQuery</h2>
+<p>为了使用 jQuery ，你必须先把它下载下来，放在应用的静态目录中，并确保它被载入。
+理想情况下你有一个用于所有页面的布局模板。在这个模板的 <cite>&lt;body&gt;</cite> 的底部添加一个
+script 语句来载入 jQuery ：</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span> <span class="na">src=</span><span class="s">&quot;{{</span>
+<span class="s">  url_for(&#39;static&#39;, filename=&#39;jquery.js&#39;) }}&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</pre></div>
+</div>
+<p>另一个方法是使用 Google 的 <a class="reference external" href="http://code.google.com/apis/ajaxlibs/documentation/">AJAX 库 API</a><span class="link-target"> [http://code.google.com/apis/ajaxlibs/documentation/]</span> 来载入 jQuery：</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span> <span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;&lt;script src=&quot;{{</span>
+<span class="s1">  url_for(&#39;</span><span class="kr">static</span><span class="s1">&#39;, filename=&#39;</span><span class="nx">jquery</span><span class="p">.</span><span class="nx">js</span><span class="s1">&#39;) }}&quot;&gt;\x3C/script&gt;&#39;</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+<p>在这种方式中，应用会先尝试从 Google 下载 jQuery ，如果失败则会调用静态目录中的
+备用 jQuery 。这样做的好处是如果用户已经去过使用与 Google 相同版本的 jQuery 的
+网站后，访问你的网站时，页面可能会更快地载入，因为浏览器已经缓存了 jQuery 。</p>
+</div>
+<div class="section" id="id2">
+<h2>我的网站在哪里？</h2>
+<p>我的网站在哪里？如果你的应用还在开发中，那么答案很简单：它在本机的某个端口上，
+且在服务器的根路径下。但是如果以后要把应用移到其他位置（例如
+<tt class="docutils literal"><span class="pre">http://example.com/myapp</span></tt> ）上呢？在服务端，这个问题不成为问题，可以使用
+<a class="reference internal" href="../api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">url_for()</span></tt></a> 函数来得到答案。但是如果我们使用
+jQuery ，那么就不能硬码应用的路径，只能使用动态路径。怎么办？</p>
+<p>一个简单的方法是在页面中添加一个 script 标记，设置一个全局变量来表示应用的根
+路径。示例：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span><span class="nt">&gt;</span>
+  <span class="nx">$SCRIPT_ROOT</span> <span class="o">=</span> <span class="cp">{{</span> <span class="nv">request.script_root</span><span class="o">|</span><span class="nf">tojson</span><span class="o">|</span><span class="nf">safe</span> <span class="cp">}}</span><span class="p">;</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+<p>使用 <tt class="docutils literal"><span class="pre">|safe</span></tt> 是为了使 Jinja 不要转义 JSON 编码的字符串。通常这样做不是必须
+的，但是在 <cite>script</cite> 内部我们必须这么做。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">进一步说明</p>
+<p class="last">在 HTML 中， <cite>script</cite> 标记是用于声明 <cite>CDATA</cite> 的，也就是说声明的内容不会被
+解析。<tt class="docutils literal"><span class="pre">&lt;script&gt;</span></tt> 与 <tt class="docutils literal"><span class="pre">&lt;/script&gt;</span></tt> 之间的内容都会被作为脚本处理。这也意味着
+在 script 标记之间不会存在任何 <tt class="docutils literal"><span class="pre">&lt;/</span></tt> 。在这里 <tt class="docutils literal"><span class="pre">|tojson</span></tt> 会正确处理问题，
+并为你转义斜杠（ <tt class="docutils literal"><span class="pre">{{</span> <span class="pre">&quot;&lt;/script&gt;&quot;|tojson|safe</span> <span class="pre">}}</span></tt> 会被渲染为
+<tt class="docutils literal"><span class="pre">&quot;&lt;\/script&gt;&quot;</span></tt> ）。</p>
+</div>
+</div>
+<div class="section" id="json">
+<h2>JSON 视图函数</h2>
+<p>现在让我们来创建一个服务端函数，这个函数接收两个 URL 参数（两个需要相加的数字
+），然后向应用返回一个 JSON 对象。下面这个例子是非常不实用的，因为一般会在
+客户端完成类似工作，但这个例子可以简单明了地展示如何使用 jQuery 和 Flask:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">request</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/_add_numbers&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add_numbers</span><span class="p">():</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>正如你所见，我还添加了一个 <cite>index</cite> 方法来渲染模板。这个模板会按前文所述载入
+jQuery 。模板中有一个用于两个数字相加的表单和一个触发服务端函数的链接。</p>
+<p>注意，这里我们使用了 <a class="reference external" href="http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.MultiDict.get" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.MultiDict.get]</span> 方法。它
+不会调用失败。如果字典的键不存在，就会返回一个缺省值（这里是 <tt class="docutils literal"><span class="pre">0</span></tt> ）。更进一步
+它还会把值转换为指定的格式（这里是 <cite>int</cite> ）。在脚本（ API 、 JavaScript 等）
+触发的代码中使用它特别方便，因为在这种情况下不需要特殊的错误报告。</p>
+</div>
+<div class="section" id="html">
+<h2>HTML</h2>
+<p>你的 index.html 模板要么继承一个已经载入 jQuery 和设置好 <cite>$SCRIPT_ROOT</cite> 变量的
+<cite>layout.html</cite> 模板，要么在模板开头就做好那两件事。下面就是应用的 HTML 示例
+（ <cite>index.html</cite> ）。注意，我们把脚本直接放入了 HTML 中。通常更好的方式是放在
+独立的脚本文件中：</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span><span class="nt">&gt;</span>
+  <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;a#calculate&#39;</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">$</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span><span class="nx">$SCRIPT_ROOT</span> <span class="o">+</span> <span class="s1">&#39;/_add_numbers&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">a</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;input[name=&quot;a&quot;]&#39;</span><span class="p">).</span><span class="nx">val</span><span class="p">(),</span>
+        <span class="nx">b</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;input[name=&quot;b&quot;]&#39;</span><span class="p">).</span><span class="nx">val</span><span class="p">()</span>
+      <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#result&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">result</span><span class="p">);</span>
+      <span class="p">});</span>
+      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;h1&gt;</span>jQuery Example<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;&lt;input</span> <span class="na">type=</span><span class="s">text</span> <span class="na">size=</span><span class="s">5</span> <span class="na">name=</span><span class="s">a</span><span class="nt">&gt;</span> +
+   <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">text</span> <span class="na">size=</span><span class="s">5</span> <span class="na">name=</span><span class="s">b</span><span class="nt">&gt;</span> =
+   <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">result</span><span class="nt">&gt;</span>?<span class="nt">&lt;/span&gt;</span>
+<span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">#</span> <span class="na">id=</span><span class="s">calculate</span><span class="nt">&gt;</span>calculate server side<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>这里不讲述 jQuery 运行详细情况，仅对上例作一个简单说明：</p>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">$(function()</span> <span class="pre">{</span> <span class="pre">...</span> <span class="pre">})</span></tt> 定义浏览器在页面的基本部分载入完成后立即执行的.
+代码。</li>
+<li><tt class="docutils literal"><span class="pre">$('selector')</span></tt> 选择一个元素供你操作。</li>
+<li><tt class="docutils literal"><span class="pre">element.bind('event',</span> <span class="pre">func)</span></tt> 定义一个用户点击元素时运行的函数。如果函数
+返回 <cite>false</cite> ，那么缺省行为就不会起作用（本例为转向 <cite>#</cite> URL ）。</li>
+<li><tt class="docutils literal"><span class="pre">$.getJSON(url,</span> <span class="pre">data,</span> <span class="pre">func)</span></tt> 向 <cite>url</cite> 发送一个 <cite>GET</cite> 请求，并把 <cite>data</cite>
+对象的内容作为查询参数。一旦有数据返回，它将调用指定的函数，并把返回值作为
+函数的参数。注意，我们可以在这里使用先前定义的 <cite>$SCRIPT_ROOT</cite> 变量。</li>
+</ol>
+<p>如果你没有一个完整的概念，请从 github 下载 <a class="reference external" href="http://github.com/mitsuhiko/flask/tree/master/examples/jqueryexample">示例源代码</a><span class="link-target"> [http://github.com/mitsuhiko/flask/tree/master/examples/jqueryexample]</span> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

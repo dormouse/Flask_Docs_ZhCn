@@ -1,0 +1,148 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>在 Flask 中使用 SQLite 3</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="sqlalchemy.html" title="在 Flask 中使用 SQLAlchemy"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="fabric.html" title="使用 Fabric 部署"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flask-sqlite-3">
+<span id="sqlite3"></span><h1>在 Flask 中使用 SQLite 3</h1>
+<p>在 Flask 中，通过使用特殊的 <a class="reference internal" href="../api.html#flask.g" title="flask.g"><tt class="xref py py-class docutils literal"><span class="pre">g</span></tt></a> 对象可以使用
+<a class="reference internal" href="../api.html#flask.Flask.before_request" title="flask.Flask.before_request"><tt class="xref py py-meth docutils literal"><span class="pre">before_request()</span></tt></a> 和 <a class="reference internal" href="../api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-meth docutils literal"><span class="pre">teardown_request()</span></tt></a>
+在请求开始前打开数据库连接，在请求结束后关闭连接。</p>
+<p>以下是一个在 Flask 中使用 SQLite 3 的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">g</span>
+
+<span class="n">DATABASE</span> <span class="o">=</span> <span class="s">&#39;/path/to/database.db&#39;</span>
+
+<span class="k">def</span> <span class="nf">connect_db</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DATABASE</span><span class="p">)</span>
+
+<span class="nd">@app.before_request</span>
+<span class="k">def</span> <span class="nf">before_request</span><span class="p">():</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">connect_db</span><span class="p">()</span>
+
+<span class="nd">@app.teardown_request</span>
+<span class="k">def</span> <span class="nf">teardown_request</span><span class="p">(</span><span class="n">exception</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;db&#39;</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">请记住，销毁函数是一定会被执行的。即使请求前处理器执行失败或根本没有执行，
+销毁函数也会被执行。因此，我们必须保证在关闭数据库连接之前数据库连接是存在
+的。</p>
+</div>
+<div class="section" id="id1">
+<h2>按需连接</h2>
+<p>上述方式的缺点是只有在 Flask 执行了请求前处理器时才有效。如果你尝试在脚本或者
+Python 解释器中使用数据库，那么你必须这样来执行数据库连接代码:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">():</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">preprocess_request</span><span class="p">()</span>
+    <span class="c"># now you can use the g.db object</span>
+</pre></div>
+</div>
+<p>这样虽然不能排除对请求环境的依赖，但是可以按需连接数据库:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_connection</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;_db&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">db</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">connect_db</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">db</span>
+</pre></div>
+</div>
+<p>这样做的缺点是必须使用 <tt class="docutils literal"><span class="pre">db</span> <span class="pre">=</span> <span class="pre">get_connection()</span></tt> 来代替直接使用 <tt class="docutils literal"><span class="pre">g.db</span></tt> 。</p>
+</div>
+<div class="section" id="easy-querying">
+<span id="id2"></span><h2>简化查询</h2>
+<p>现在，在每个请求处理函数中可以通过访问 <cite>g.db</cite> 来得到当前打开的数据库连接。为了
+简化 SQLite 的使用，这里有一个有用的辅助函数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">query_db</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">one</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">((</span><span class="n">cur</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
+               <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">rv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">rv</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">one</span> <span class="k">else</span> <span class="n">rv</span>
+</pre></div>
+</div>
+<p>使用这个实用的小函数比直接使用原始指针和转接对象要舒服一点。</p>
+<p>可以这样使用上述函数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">query_db</span><span class="p">(</span><span class="s">&#39;select * from users&#39;</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">user</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span> <span class="s">&#39;has the id&#39;</span><span class="p">,</span> <span class="n">user</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>只需要得到单一结果的用法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">user</span> <span class="o">=</span> <span class="n">query_db</span><span class="p">(</span><span class="s">&#39;select * from users where username = ?&#39;</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">the_username</span><span class="p">],</span> <span class="n">one</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;No such user&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">the_username</span><span class="p">,</span> <span class="s">&#39;has the id&#39;</span><span class="p">,</span> <span class="n">user</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>如果要给 SQL 语句传递参数，请在语句中使用问号来代替参数，并把参数放在一个列表中
+一起传递。不要用字符串格式化的方式直接把参数加入 SQL 语句中，这样会给应用带来
+<a class="reference external" href="http://en.wikipedia.org/wiki/SQL_injection">SQL 注入</a><span class="link-target"> [http://en.wikipedia.org/wiki/SQL_injection]</span> 的风险。</p>
+</div>
+<div class="section" id="id3">
+<h2>初始化模式</h2>
+<p>关系数据库是需要模式的，因此一个应用常常需要一个 <cite>schema.sql</cite> 文件来创建
+数据库。因此我们需要使用一个函数来其于模式创建数据库。下面这个函数可以完成这个
+任务:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">closing</span>
+
+<span class="k">def</span> <span class="nf">init_db</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">closing</span><span class="p">(</span><span class="n">connect_db</span><span class="p">())</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="s">&#39;schema.sql&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">executescript</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>可以使用上述函数在 Python 解释器中创建数据库：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">init_db</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">init_db</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

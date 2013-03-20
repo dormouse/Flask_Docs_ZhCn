@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>视图装饰器</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="wtforms.html" title="使用 WTForms 进行表单验证"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="caching.html" title="缓存"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>视图装饰器</h1>
+<p>Python 有一个非常有趣的功能：函数装饰器。这个功能可以使网络应用干净整洁。 Flask
+中的每个视图都是一个装饰器，它可以被注入额外的功能。你可以已经用过了
+<a class="reference internal" href="../api.html#flask.Flask.route" title="flask.Flask.route"><tt class="xref py py-meth docutils literal"><span class="pre">route()</span></tt></a> 装饰器。但是，你有可能需要使用你自己的装饰器。假设有
+一个视图，只有已经登录的用户才能使用。如果用户访问时没有登录，则会被重定向到
+登录页面。这种情况下就是使用装饰器的绝佳机会。</p>
+<div class="section" id="id2">
+<h2>检查登录装饰器</h2>
+<p>让我们来实现这个装饰器。装饰器是一个返回函数的函数。听上去复杂，其实很简单。只要
+记住一件事：装饰器用于更新函数的 <cite>__name__</cite> 、 <cite>__module__</cite> 和其他属性。这一点很
+容易忘记，但是你不必人工更新函数属性，可以使用一个类似于装饰器的函数（
+<a class="reference external" href="http://docs.python.org/dev/library/functools.html#functools.wraps" title="(in Python v3.4)"><tt class="xref py py-func docutils literal"><span class="pre">functools.wraps()</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/functools.html#functools.wraps]</span> ）。</p>
+<p>下面是检查登录装饰器的例子。假设登录页面为 <tt class="docutils literal"><span class="pre">'login'</span></tt> ，当前用户被储存在
+<cite>g.user</cite> 中，如果还没有登录，其值为 <cite>None</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">g</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
+
+<span class="k">def</span> <span class="nf">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorated_function</span>
+</pre></div>
+</div>
+<p>如何使用这个装饰器呢？把这个装饰器放在最靠近函数的地方就行了。当使用更进一步的
+装饰器时，请记住要把 <a class="reference internal" href="../api.html#flask.Flask.route" title="flask.Flask.route"><tt class="xref py py-meth docutils literal"><span class="pre">route()</span></tt></a> 装饰器放在最外面:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/secret_page&#39;</span><span class="p">)</span>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">secret_page</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>缓存装饰器</h2>
+<p>假设有一个视图函数需要消耗昂贵的计算成本，因此你需要在一定时间内缓存这个视图的
+计算结果。这种情况下装饰器是一个好的选择。我们假设你像 <a class="reference internal" href="caching.html#caching-pattern"><em>缓存</em></a>
+方案中一样设置了缓存。</p>
+<p>下面是一个示例缓存函数。它根据一个特定的前缀（实际上是一个格式字符串）和请求的
+当前路径生成缓存键。注意，我们先使用了一个函数来创建装饰器，这个装饰器用于装饰
+函数。听起来拗口吧，确实有一点复杂，但是下面的示例代码还是很容易读懂的。</p>
+<p>被装饰代码按如下步骤工作</p>
+<ol class="arabic simple">
+<li>基于基础路径获得当前请求的唯一缓存键。</li>
+<li>从缓存中获取键值。如果获取成功则返回获取到的值。</li>
+<li>否则调用原来的函数，并把返回值存放在缓存中，直至过期（缺省值为五分钟）。</li>
+</ol>
+<p>代码:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="k">def</span> <span class="nf">cached</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;view/</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">key</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rv</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">rv</span>
+        <span class="k">return</span> <span class="n">decorated_function</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+</div>
+<p>注意，以上代码假设存在一个可用的实例化的 <cite>cache</cite> 对象，更多信息参见
+<a class="reference internal" href="caching.html#caching-pattern"><em>缓存</em></a> 方案。</p>
+</div>
+<div class="section" id="id4">
+<h2>模板装饰器</h2>
+<p>不久前， TurboGear 的人发明了模板装饰器这个通用模式。其工作原理是返回一个字典，
+这个字典包含从视图传递给模板的值，模板自动被渲染。以下三个例子的功能是相同的:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="nd">@templated</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="nd">@templated</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>正如你所见，如果没有提供模板名称，那么就会使用 URL 映射的端点（把点转换为斜杠）
+加上 <tt class="docutils literal"><span class="pre">'.html'</span></tt> 。如果提供了，那么就会使用所提供的模板名称。当装饰器函数返回
+时，返回的字典就被传送到模板渲染函数。如果返回的是 <cite>None</cite> ，就会使用空字典。如果
+返回的不是字典，那么就会直接传递原封不动的返回值。这样就可以仍然使用重定向函数或
+返回简单的字符串。</p>
+<p>以下是装饰器的代码:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="k">def</span> <span class="nf">templated</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">template_name</span> <span class="o">=</span> <span class="n">template</span>
+            <span class="k">if</span> <span class="n">template_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">template_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">endpoint</span> \
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.html&#39;</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">ctx</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">ctx</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="o">**</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decorated_function</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>端点装饰器</h2>
+<p>当你想要使用 werkzeug 路由系统，以便于获得更强的灵活性时，需要和
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Rule" title="(in Werkzeug v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Rule</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Rule]</span> 中定义的一样，把端点映射到视图函数。这样就需要
+用的装饰器了。例如:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">werkzeug.routing</span> <span class="kn">import</span> <span class="n">Rule</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">url_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rule</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s">&#39;index&#39;</span><span class="p">))</span>
+
+<span class="nd">@app.endpoint</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;Hello world&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>使用 Distribute 部署</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="fabric.html" title="使用 Fabric 部署"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="urlprocessors.html" title="URL 处理器"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="distribute">
+<span id="distribute-deployment"></span><h1>使用 Distribute 部署</h1>
+<p><a class="reference external" href="http://pypi.python.org/pypi/distribute">distribute</a><span class="link-target"> [http://pypi.python.org/pypi/distribute]</span> 的前身是 setuptools ，它是一个扩展库，通常用于分发 Python 库和
+扩展。它的英文名称的就是“分发”的意思。它扩展了 Python 自带的一个基础模块安装
+系统 distutils ，支持多种更复杂的结构，方便了大型应用的分发部署。它的主要特色：</p>
+<ul class="simple">
+<li><strong>支持依赖</strong> ：一个库或者应用可以声明其所依赖的其他库的列表。依赖库将被自动
+安装。</li>
+<li><strong>包注册</strong> ：可以在安装过程中注册包，这样就可以通过一个包查询其他包的信息。
+这套系统最有名的功能是“切入点”，即一个包可以定义一个入口，以便于其他包挂接，
+用以扩展包。</li>
+<li><strong>安装管理</strong> ： distribute 中的 <cite>easy_install</cite> 可以为你安装其他库。你也可以
+使用早晚会替代 <cite>easy_install</cite> 的 <a class="reference external" href="http://pypi.python.org/pypi/pip">pip</a><span class="link-target"> [http://pypi.python.org/pypi/pip]</span> ，它除了安装包还可以做更多的事。</li>
+</ul>
+<p>Flask 本身，以及其他所有在 cheeseshop 中可以找到的库要么是用 distribute 分发的，
+要么是用老的 setuptools 或 distutils 分发的。</p>
+<p>在这里我们假设你的应用名称是 <cite>yourapplication.py</cite> ，且没有使用模块，而是一个
+<a class="reference internal" href="packages.html#larger-applications"><em>包</em></a> 。 <a class="reference external" href="http://pypi.python.org/pypi/distribute">distribute</a><span class="link-target"> [http://pypi.python.org/pypi/distribute]</span> 不支持分发标准模块，因此我们不
+讨论模块的问题。关于如何把模块转换为包的信息参见 <a class="reference internal" href="packages.html#larger-applications"><em>大型应用</em></a>
+方案。</p>
+<p>使用 distribute 将使发布更复杂，也更加自动化。如果你想要完全自动化处理，请同时
+阅读 <a class="reference internal" href="fabric.html#fabric-deployment"><em>使用 Fabric 部署</em></a> 一节。</p>
+<div class="section" id="id1">
+<h2>基础设置脚本</h2>
+<p>因为你已经安装了 Flask ，所以你应当已经安装了 setuptools 或 distribute 。如果
+没有安装，不用怕，有一个 <a class="reference external" href="http://python-distribute.org/distribute_setup.py">distribute_setup.py</a><span class="link-target"> [http://python-distribute.org/distribute_setup.py]</span> 脚本可以帮助你安装。只要下载这个
+脚本，并在你的 Python 解释器中运行就可以了。</p>
+<p>标准声明: <a class="reference internal" href="../installation.html#virtualenv"><em>最好使用 virtualenv</em></a> 。</p>
+<p>你的设置代码应用放在 <cite>setup.py</cite> 文件中，这个文件应当位于应用旁边。这个文件名只是
+一个约定，但是最好不要改变，因为大家都会去找这个文件。</p>
+<p>是的，即使你使用 <cite>distribute</cite> ，你导入的包也是 <cite>setuptools</cite> 。 <cite>distribute</cite> 完全
+向后兼容于 <cite>setuptools</cite> ，因此它使用相同的导入名称。</p>
+<p>Flask 应用的基础 <cite>setup.py</cite> 文件示例如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">&#39;Your Application&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s">&#39;1.0&#39;</span><span class="p">,</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">,</span>
+    <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;yourapplication&#39;</span><span class="p">],</span>
+    <span class="n">include_package_data</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">zip_safe</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">install_requires</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;Flask&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>请记住，你必须显式的列出子包。如果你要 distribute 自动为你搜索包，你可以使用
+<cite>find_packages</cite> 函数:</p>
+<div class="highlight-python"><pre>from setuptools import setup, find_packages
+
+setup(
+    ...
+    packages=find_packages()
+)</pre>
+</div>
+<p>大多数 <cite>setup</cite> 的参数可以望文生义，但是 <cite>include_package_data</cite> 和 <cite>zip_safe</cite>
+可以不容易理解。 <cite>include_package_data</cite> 告诉 distribute 要搜索一个
+<cite>MANIFEST.in</cite> 文件，把文件内容所匹配的所有条目作为包数据安装。可以通过使用这个
+参数分发 Python 模块的静态文件和模板（参见 <a class="reference internal" href="#distributing-resources"><em>分发资源</em></a> ）。
+<cite>zip_safe</cite> 标志可用于强制或防止创建 zip 压缩包。通常你不会想要把包安装为 zip
+压缩文件，因为一些工具不支持压缩文件，而且压缩文件比较难以调试。</p>
+</div>
+<div class="section" id="distributing-resources">
+<span id="id2"></span><h2>分发资源</h2>
+<p>如果你尝试安装上文创建的包，你会发现诸如 <cite>static</cite> 或 <cite>templates</cite> 之类的文件夹
+没有被安装。原因是 distribute 不知道要为你添加哪些文件。你要做的是：在你的
+<cite>setup.py</cite> 文件旁边创建一个 <cite>MANIFEST.in</cite> 文件。这个文件列出了所有应当添加到
+tar 压缩包的文件:</p>
+<div class="highlight-python"><pre>recursive-include yourapplication/templates *
+recursive-include yourapplication/static *</pre>
+</div>
+<p>不要忘了把 <cite>setup</cite> 函数的 <cite>include_package_data</cite> 参数设置为 <cite>True</cite> ！否则即使把
+内容在 <cite>MANIFEST.in</cite> 文件中全部列出来也没有用。</p>
+</div>
+<div class="section" id="id3">
+<h2>声明依赖</h2>
+<p>依赖是在 <cite>install_requires</cite> 参数中声明的，这个参数是一个列表。列表中的每一项都是
+一个需要在安装时从 PyPI 获得的包。缺省情况下，总是会获得最新版本的包，但你可以
+指定最高版本和最低版本。示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">install_requires</span><span class="o">=</span><span class="p">[</span>
+    <span class="s">&#39;Flask&gt;=0.2&#39;</span><span class="p">,</span>
+    <span class="s">&#39;SQLAlchemy&gt;=0.6&#39;</span><span class="p">,</span>
+    <span class="s">&#39;BrokenPackage&gt;=0.7,&lt;=1.0&#39;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>我前面提到，依赖包都从 PyPI 获得的。但是如果要从别的地方获得包怎么办呢？你只要
+还是按照上述方法写，然后提供一个可选地址列表就行了:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dependency_links</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;http://example.com/yourfiles&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>请确保页面上有一个目录列表，且页面上的链接指向正确的 tar 压缩包。这样
+distribute 就会找到文件了。如果你的包在公司内部网络上，请提供指向服务器的 URL 。</p>
+</div>
+<div class="section" id="id4">
+<h2>安装 / 开发</h2>
+<p>要安装你的应用（理想情况下是安装到一个 virtualenv ），只要运行带 <cite>install</cite> 参数
+的 <cite>setup.py</cite> 脚本就可以了。它会将你的应用安装到 virtualenv 的 site-packages
+文件夹下，同时下载并安装依赖:</p>
+<div class="highlight-python"><pre>$ python setup.py install</pre>
+</div>
+<p>如果你正开发这个包，同时也希望相关依赖被安装，那么可以使用 <cite>develop</cite> 来代替:</p>
+<div class="highlight-python"><pre>$ python setup.py develop</pre>
+</div>
+<p>这样做的好处是只安装一个指向 site-packages 的连接，而不是把数据复制到那里。这样
+在开发过程中就不必每次修改以后再运行 <cite>install</cite> 了。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

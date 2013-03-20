@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>应用调度</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="urlprocessors.html" title="URL 处理器"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="appfactories.html" title="应用工厂"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="app-dispatch">
+<span id="id1"></span><h1>应用调度</h1>
+<p>应用调度是在 WSGI 层面组合多个 WSGI 应用的过程。可以组合多个 Flask 应用，也可以
+组合 Flask 应用和其他 WSGI 应用。通过这种组合，如果有必要的话，甚至可以在同一个
+解释器中一边运行 Django ，一边运行 Flask 。这种组合的好处取决于应用内部是如何
+工作的。</p>
+<p>应用调度与 <a class="reference internal" href="packages.html#larger-applications"><em>模块化</em></a> 的最大不同在于应用调度中的每个
+应用是完全独立的，它们以各自的配置运行，并在 WSGI 层面被调度。</p>
+<div class="section" id="id2">
+<h2>说明</h2>
+<p>下面所有的技术说明和举例都归结于一个可以运行于任何 WSGI 服务器的
+<tt class="docutils literal"><span class="pre">application</span></tt> 对象。对于生产环境，参见 <a class="reference internal" href="../deploying/index.html#deployment"><em>部署方式</em></a> 。对于开发环境，
+Werkzeug 提供了一个内建开发服务器，它使用 <a class="reference external" href="http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple" title="(in Werkzeug v0.9)"><tt class="xref py py-func docutils literal"><span class="pre">werkzeug.serving.run_simple()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple]</span>
+来运行:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.serving</span> <span class="kn">import</span> <span class="n">run_simple</span>
+<span class="n">run_simple</span><span class="p">(</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">application</span><span class="p">,</span> <span class="n">use_reloader</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>注意 <a class="reference external" href="http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple" title="(in Werkzeug v0.9)"><tt class="xref py py-func docutils literal"><span class="pre">run_simple</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple]</span> 不能用于生产环境，生产
+环境服务器参见 <a class="reference internal" href="../deploying/index.html#deployment"><em>成熟的 WSGI 服务器</em></a> 。</p>
+<p>为了使用交互调试器，应用和简单服务器都应当处于调试模式。下面是一个简单的
+“ hello world ”示例，使用了调试模式和
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple" title="(in Werkzeug v0.9)"><tt class="xref py py-func docutils literal"><span class="pre">run_simple</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/serving/#werkzeug.serving.run_simple]</span>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">werkzeug.serving</span> <span class="kn">import</span> <span class="n">run_simple</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;Hello World!&#39;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_simple</span><span class="p">(</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span>
+               <span class="n">use_reloader</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">use_debugger</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">use_evalex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>组合应用</h2>
+<p>如果你想在同一个 Python 解释器中运行多个独立的应用，那么你可以使用
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/middlewares/#werkzeug.wsgi.DispatcherMiddleware" title="(in Werkzeug v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">werkzeug.wsgi.DispatcherMiddleware</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/middlewares/#werkzeug.wsgi.DispatcherMiddleware]</span> 。其原理是：每个独立的 Flask 应用都
+是一个合法的 WSGI 应用，它们通过调度中间件组合为一个基于前缀调度的大应用。</p>
+<p>假设你的主应用运行于 <cite>/</cite> ，后台接口位于 <cite>/backend</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.wsgi</span> <span class="kn">import</span> <span class="n">DispatcherMiddleware</span>
+<span class="kn">from</span> <span class="nn">frontend_app</span> <span class="kn">import</span> <span class="n">application</span> <span class="k">as</span> <span class="n">frontend</span>
+<span class="kn">from</span> <span class="nn">backend_app</span> <span class="kn">import</span> <span class="n">application</span> <span class="k">as</span> <span class="n">backend</span>
+
+<span class="n">application</span> <span class="o">=</span> <span class="n">DispatcherMiddleware</span><span class="p">(</span><span class="n">frontend</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;/backend&#39;</span><span class="p">:</span>     <span class="n">backend</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>根据子域调度</h2>
+<p>有时候你可能需要使用不同的配置来运行同一个应用的多个实例。可以把应用创建过程
+放在一个函数中，这样调用这个函数就可以创建一个应用的实例，具体实现参见
+<a class="reference internal" href="appfactories.html#app-factories"><em>应用工厂</em></a> 方案。</p>
+<p>最常见的做法是每个子域创建一个应用，配置服务器来调度所有子域的应用请求，使用
+子域来创建用户自定义的实例。一旦你的服务器可以监听所有子域，那么就可以使用一个
+很简单的 WSGI 应用来动态创建应用了。</p>
+<p>WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来监视请求，并把请求分配
+给你的 Flask 应用。如果被分配的应用还没有创建，那么就会动态创建应用并被登记
+下来:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
+
+<span class="k">class</span> <span class="nc">SubdomainDispatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">create_app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_app</span> <span class="o">=</span> <span class="n">create_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">get_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">host</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">),</span> <span class="s">&#39;Configuration error&#39;</span>
+        <span class="n">subdomain</span> <span class="o">=</span> <span class="n">host</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">subdomain</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_app</span><span class="p">(</span><span class="n">subdomain</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="n">subdomain</span><span class="p">]</span> <span class="o">=</span> <span class="n">app</span>
+            <span class="k">return</span> <span class="n">app</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_application</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HTTP_HOST&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>调度器示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapplication</span> <span class="kn">import</span> <span class="n">create_app</span><span class="p">,</span> <span class="n">get_user_for_subdomain</span>
+<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">NotFound</span>
+
+<span class="k">def</span> <span class="nf">make_app</span><span class="p">(</span><span class="n">subdomain</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">get_user_for_subdomain</span><span class="p">(</span><span class="n">subdomain</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># 如果子域没有对应的用户，那么还是得返回一个 WSGI 应用</span>
+        <span class="c"># 用于处理请求。这里我们把 NotFound() 异常作为应用返回，</span>
+        <span class="c"># 它会被渲染为一个缺省的 404 页面。然后，可能还需要把</span>
+        <span class="c"># 用户重定向到主页。</span>
+        <span class="k">return</span> <span class="n">NotFound</span><span class="p">()</span>
+
+    <span class="c"># 否则为特定用户创建应用</span>
+    <span class="k">return</span> <span class="n">create_app</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+
+<span class="n">application</span> <span class="o">=</span> <span class="n">SubdomainDispatcher</span><span class="p">(</span><span class="s">&#39;example.com&#39;</span><span class="p">,</span> <span class="n">make_app</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>根据路径调度</h2>
+<p>根据 URL 的路径调度非常简单。上面，我们通过查找 <cite>Host</cite> 头来判断子域，现在
+只要查找请求路径的第一个斜杠之前的路径就可以了:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
+<span class="kn">from</span> <span class="nn">werkzeug.wsgi</span> <span class="kn">import</span> <span class="n">pop_path_info</span><span class="p">,</span> <span class="n">peek_path_info</span>
+
+<span class="k">class</span> <span class="nc">PathDispatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_app</span><span class="p">,</span> <span class="n">create_app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_app</span> <span class="o">=</span> <span class="n">default_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_app</span> <span class="o">=</span> <span class="n">create_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">get_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_app</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">=</span> <span class="n">app</span>
+            <span class="k">return</span> <span class="n">app</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_application</span><span class="p">(</span><span class="n">peek_path_info</span><span class="p">(</span><span class="n">environ</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">pop_path_info</span><span class="p">(</span><span class="n">environ</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_app</span>
+        <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>与根据子域调度相比最大的不同是：根据路径调度时，如果创建函数返回 <cite>None</cite> ，那么
+就会回落到另一个应用:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapplication</span> <span class="kn">import</span> <span class="n">create_app</span><span class="p">,</span> <span class="n">default_app</span><span class="p">,</span> <span class="n">get_user_for_prefix</span>
+
+<span class="k">def</span> <span class="nf">make_app</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">get_user_for_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">create_app</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+
+<span class="n">application</span> <span class="o">=</span> <span class="n">PathDispatcher</span><span class="p">(</span><span class="n">default_app</span><span class="p">,</span> <span class="n">make_app</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

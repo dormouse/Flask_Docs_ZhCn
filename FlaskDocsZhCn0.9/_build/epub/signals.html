@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>信号</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="views.html" title="可插拨视图"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="配置管理"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="signals">
+<span id="id1"></span><h1>信号</h1>
+<p class="versionadded">
+<span class="versionmodified">0.6 新版功能.</span></p>
+<p>Flask 自 0.6 版本开始在内部支持信号。信号功能由优秀的 <a class="reference external" href="http://pypi.python.org/pypi/blinker">blinker</a><span class="link-target"> [http://pypi.python.org/pypi/blinker]</span> 库提供支持，
+如果没有安装该库就无法使用信号功能，但不影响其他功能。</p>
+<p>什么是信号？当核心框架的其他地方或另一个 Flask 扩展中发生动作时，信号通过发送
+通知来帮助你解耦应用。简言之，信号允许某个发送者通知接收者有事情发生了。</p>
+<p>Flask 自身有许多信号，其他扩展可能还会带来更多信号。请记住，信号使用目的是通知
+接收者，不应该鼓励接收者修改数据。你会注意到信号的功能与一些内建的装饰器类似（
+如 <a class="reference internal" href="api.html#flask.request_started" title="flask.request_started"><tt class="xref py py-data docutils literal"><span class="pre">request_started</span></tt></a> 与 <a class="reference internal" href="api.html#flask.Flask.before_request" title="flask.Flask.before_request"><tt class="xref py py-meth docutils literal"><span class="pre">before_request()</span></tt></a> 非常
+相似），但是它们的工作原理不同。例如核心的 <a class="reference internal" href="api.html#flask.Flask.before_request" title="flask.Flask.before_request"><tt class="xref py py-meth docutils literal"><span class="pre">before_request()</span></tt></a>
+处理器以一定的顺序执行，并且可以提前退出请求，返回一个响应。相反，所有的信号
+处理器是乱序执行的，并且不修改任何数据。</p>
+<p>信号的最大优势是可以安全快速的订阅。比如，在单元测试中这些临时订阅十分有用。
+假设你想知道请求需要渲染哪个模块，信号可以给你答案。</p>
+<div class="section" id="id2">
+<h2>订阅信号</h2>
+<p>使用信号的 <a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connect" title="(in Blinker v1.1)"><tt class="xref py py-meth docutils literal"><span class="pre">connect()</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connect]</span> 方法可以订阅该信号。该方法的
+第一个参数是当信号发出时所调用的函数。第二个参数是可选参数，定义一个发送者。
+使用 <a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.disconnect" title="(in Blinker v1.1)"><tt class="xref py py-meth docutils literal"><span class="pre">disconnect()</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.disconnect]</span> 方法可以退订信号。</p>
+<p>所有核心 Flask 信号的发送者是应用本身。因此当订阅信号时请指定发送者，除非你真的
+想要收听应用的所有信号。当你正在开发一个扩展时，尤其要注意这点。</p>
+<p>下面是一个环境管理器的辅助工具，可用于在单元测试中辨别哪个模板被渲染了，哪些
+变量被传递给了模板:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">template_rendered</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">captured_templates</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="n">recorded</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="n">recorded</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
+    <span class="n">template_rendered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">recorded</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">template_rendered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例可以在测试客户端中轻松使用:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">captured_templates</span><span class="p">(</span><span class="n">app</span><span class="p">)</span> <span class="k">as</span> <span class="n">templates</span><span class="p">:</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_client</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rv</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">templates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">template</span><span class="p">,</span> <span class="n">context</span> <span class="o">=</span> <span class="n">templates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">template</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;index.html&#39;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>为了使 Flask 在向信号中添加新的参数时不发生错误，请确保使用一个额外的
+<tt class="docutils literal"><span class="pre">**extra</span></tt> 参数。</p>
+<p>在 with 代码块中，所有由 <cite>app</cite> 渲染的模板会被记录在 <cite>templates</cite> 变量中。每当有
+模板被渲染，模板对象及环境就会追加到变量中。</p>
+<p>另外还有一个方便的辅助方法（ <a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connected_to" title="(in Blinker v1.1)"><tt class="xref py py-meth docutils literal"><span class="pre">connected_to()</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connected_to]</span> ）。它
+允许临时把一个使用环境对象的函数订阅到一个信号。因为环境对象的返回值不能被
+指定，所以必须把列表作为参数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">template_rendered</span>
+
+<span class="k">def</span> <span class="nf">captured_templates</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">recorded</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">recorded</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">template_rendered</span><span class="o">.</span><span class="n">connected_to</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例可以这样使用:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">templates</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="n">captured_templates</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">templates</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">template</span><span class="p">,</span> <span class="n">context</span> <span class="o">=</span> <span class="n">templates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition-blinker-api admonition">
+<p class="first admonition-title">Blinker API 变化</p>
+<p class="last">Blinker version 1.1 版本中增加了
+<a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connected_to" title="(in Blinker v1.1)"><tt class="xref py py-meth docutils literal"><span class="pre">connected_to()</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.connected_to]</span> 方法。</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>创建信号</h2>
+<p>如果相要在你自己的应用中使用信号，那么可以直接使用 blinker 库。最常见的,也是最
+推荐的方法是在自定义的 <a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Namespace" title="(in Blinker v1.1)"><tt class="xref py py-class docutils literal"><span class="pre">Namespace</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Namespace]</span> 中命名信号:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">blinker</span> <span class="kn">import</span> <span class="n">Namespace</span>
+<span class="n">my_signals</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>接着可以像这样创建新的信号:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">model_saved</span> <span class="o">=</span> <span class="n">my_signals</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s">&#39;model-saved&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>信号的名称应当是唯一的，并且应当简明以便于调试。可以通过
+<a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.NamedSignal.name" title="(in Blinker v1.1)"><tt class="xref py py-attr docutils literal"><span class="pre">name</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.NamedSignal.name]</span> 属性获得信号的名称。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">扩展开发者注意</p>
+<p class="last">如果你正在编写一个 Flask 扩展，并且想要妥善处理 blinker 安装缺失的情况，那么
+可以使用 <a class="reference internal" href="api.html#flask.signals.Namespace" title="flask.signals.Namespace"><tt class="xref py py-class docutils literal"><span class="pre">flask.signals.Namespace</span></tt></a> 类。</p>
+</div>
+</div>
+<div class="section" id="signals-sending">
+<span id="id4"></span><h2>发送信号</h2>
+<p>如果想要发送信号，可以使用 <a class="reference external" href="http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.send" title="(in Blinker v1.1)"><tt class="xref py py-meth docutils literal"><span class="pre">send()</span></tt></a><span class="link-target"> [http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Signal.send]</span> 方法。它的第一个
+参数是一个发送者，其他参数要发送给订阅者的东西，其他参数是可选的:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">model_saved</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>请谨慎选择发送者。如果是一个发送信号的类，请把 <cite>self</cite> 作为发送者。如果发送信号
+的是一个随机的函数，那么可以把 <tt class="docutils literal"><span class="pre">current_app._get_current_object()</span></tt> 作为
+发送者。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">传递代理作为发送者</p>
+<p class="last">不要把 <a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> 作为发送者传递给信号。请使用
+<tt class="docutils literal"><span class="pre">current_app._get_current_object()</span></tt> 。因为 <a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> 是
+一个代理，不是实际的应用对象。</p>
+</div>
+</div>
+<div class="section" id="flask">
+<h2>信号与 Flask 的请求环境</h2>
+<p>信号在接收时，完全支持 <a class="reference internal" href="reqcontext.html#request-context"><em>请求环境</em></a> 。在
+<a class="reference internal" href="api.html#flask.request_started" title="flask.request_started"><tt class="xref py py-data docutils literal"><span class="pre">request_started</span></tt></a> 和 <a class="reference internal" href="api.html#flask.request_finished" title="flask.request_finished"><tt class="xref py py-data docutils literal"><span class="pre">request_finished</span></tt></a> 本地环境变量
+始终可用。因此你可以依赖 <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-class docutils literal"><span class="pre">flask.g</span></tt></a> 及其他本地环境变量。
+请注意在 <a class="reference internal" href="#signals-sending"><em>发送信号</em></a> 中所述的限制和
+<a class="reference internal" href="api.html#flask.request_tearing_down" title="flask.request_tearing_down"><tt class="xref py py-data docutils literal"><span class="pre">request_tearing_down</span></tt></a> 信号。</p>
+</div>
+<div class="section" id="id5">
+<h2>信号订阅装饰器</h2>
+<p>Blinker 1.1 版本中你还可以通过使用新的
+<tt class="xref py py-meth docutils literal"><span class="pre">connect_via()</span></tt> 装饰器轻松订阅信号:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">template_rendered</span>
+
+<span class="nd">@template_rendered.connect_via</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">when_template_rendered</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&#39;Template </span><span class="si">%s</span><span class="s"> is rendered with </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>核心信号</h2>
+<p>Flask 中有以下信号:</p>
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">template_rendered</tt></dt>
+<dd><p>这个信号发送于一个模板被渲染成功后。信号传递的 <cite>template</cite> 是模板的实例，
+<cite>context</cite> 是环境对象是一个字典。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">log_template_renders</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Rendering template &quot;</span><span class="si">%s</span><span class="s">&quot; with context </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span>
+                        <span class="n">template</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;string template&#39;</span><span class="p">,</span>
+                        <span class="n">context</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">template_rendered</span>
+<span class="n">template_rendered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_template_renders</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">request_started</tt></dt>
+<dd><p>这个信号发送于请求开始之前，且请求环境设置完成之后。因为请求环境已经绑定，
+所以订阅者可以用标准的全局代理，如 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">request</span></tt></a> 来操作请求。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">log_request</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Request context is set up&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_started</span>
+<span class="n">request_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_request</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">request_finished</tt></dt>
+<dd><p>这个信号发送于向客户端发送响应之前。信号传递的 <cite>response</cite> 为将要发送的响应。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">log_response</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Request context is about to close down.  &#39;</span>
+                        <span class="s">&#39;Response: </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_finished</span>
+<span class="n">request_finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_response</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">got_request_exception</tt></dt>
+<dd><p>这个信号发送于请求进行中发生异常的时候。它的发送 <em>早于</em> 标准异常处理介于。
+在调试模式下，虽然没有异常处理，但发生异常时也发送这个信号。信号传递的
+<cite>exception</cite> 是异常对象。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">log_exception</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Got exception during processing: </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">got_request_exception</span>
+<span class="n">got_request_exception</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_exception</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">request_tearing_down</tt></dt>
+<dd><p>这个信号发送于请求崩溃的时候，不管是否引发异常。目前，侦听此信号的函数在一般
+崩溃处理器后调用，但是没有什么东西可用。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">close_db_connection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_tearing_down</span>
+<span class="n">request_tearing_down</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">close_db_connection</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>在 Flask 版本 0.9 中，这还会传递一个 <cite>exc</cite> 关键字参数，如果这个参数存在的话。
+这个参数是引发崩溃的异常的引用。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descclassname">flask.</tt><tt class="descname">appcontext_tearing_down</tt></dt>
+<dd><p>当应用环境崩溃时发送这个信号。这个信号总是会发送，甚至是因为一个异常引发的
+崩溃。侦听这个信号的函数会在常规崩溃处理器后被调用，但是你无法回馈这个信号。</p>
+<p>订阅示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">close_db_connection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_tearing_down</span>
+<span class="n">appcontext_tearing_down</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">close_db_connection</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这还会传递一个 <cite>exc</cite> 关键字参数，如果这个参数存在的话。这个参数是引发崩溃的
+异常的引用。</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

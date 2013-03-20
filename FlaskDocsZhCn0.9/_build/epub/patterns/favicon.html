@@ -1,0 +1,91 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>添加一个页面图标</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="streaming.html" title="流内容"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="mongokit.html" title="在 Flask 中使用 MongoKit"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>添加一个页面图标</h1>
+<p>一个“页面图标”是浏览器在标签或书签中使用的图标，它可以给你的网站加上一个唯一
+的标示，方便区别于其他网站。</p>
+<p>那么如何给一个 Flask 应用添加一个页面图标呢？首先，显而易见的，需要一个图标。
+图标应当是 16 X 16 像素的 ICO 格式文件。这不是规定的，但却是一个所有浏览器都
+支持的事实上的标准。把 ICO 文件命名为 <tt class="file docutils literal"><span class="pre">favicon.ico</span></tt> 并放入静态 文件目录
+中。</p>
+<p>现在我们要让浏览器能够找到你的图标，正确的做法是在你的 HTML 中添加一个链接。
+示例：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;shortcut icon&quot;</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">url_for</span><span class="o">(</span><span class="s1">&#39;static&#39;</span><span class="o">,</span> <span class="nv">filename</span><span class="o">=</span><span class="s1">&#39;favicon.ico&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>
+</pre></div>
+</div>
+<p>对于大多数浏览器来说，这样就完成任务了，但是一些老古董不支持这个标准。老的标准
+是把名为“ favicon.ico ”的图标放在服务器的根目录下。如果你的应用不是挂接在域的
+根目录下，那么你需要定义网页服务器在根目录下提供这个图标，否则就无计可施了。
+如果你的应用位于根目录下，那么你可以简单地进行重定向:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/favicon.ico&#39;</span><span class="p">,</span>
+                 <span class="n">redirect_to</span><span class="o">=</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;static&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;favicon.ico&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>如果想要保存额外的重定向请求，那么还可以使用
+<a class="reference internal" href="../api.html#flask.send_from_directory" title="flask.send_from_directory"><tt class="xref py py-func docutils literal"><span class="pre">send_from_directory()</span></tt></a> 函数来写一个视图:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">send_from_directory</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/favicon.ico&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">favicon</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">send_from_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="s">&#39;static&#39;</span><span class="p">),</span>
+                               <span class="s">&#39;favicon.ico&#39;</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="s">&#39;image/vnd.microsoft.icon&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例中的 MIME 类型可以省略，浏览器会自动猜测类型。但是我们在例子中明确定义了，
+省去了额外的猜测，反正这个类型是不变的。</p>
+<p>上例会通过你的应用来提供图标，如果可能的话，最好配置你的专用服务器来提供图标，
+配置方法参见网页服务器的文档。</p>
+<div class="section" id="id2">
+<h2>另见</h2>
+<ul class="simple">
+<li>Wikipedia 上的 <a class="reference external" href="http://en.wikipedia.org/wiki/Favicon">页面图标</a><span class="link-target"> [http://en.wikipedia.org/wiki/Favicon]</span> 词条</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

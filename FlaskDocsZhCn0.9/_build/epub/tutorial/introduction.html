@@ -1,0 +1,67 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Flaskr 介绍</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="folders.html" title="步骤 0 ：创建文件夹"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="教程"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flaskr">
+<span id="tutorial-introduction"></span><h1>Flaskr 介绍</h1>
+<p>我们把教程中的博客应用称为 flaskr ，当然你也可以随便取一个没有 web-2.0 气息的
+名字  ;)  它的基本功能如下：</p>
+<ol class="arabic simple">
+<li>让用户可以根据配置文件中的信息登录和注销。只支持一个用户。</li>
+<li>用户登录以后可以添加新的博客条目。条目由文本标题和支持 HTML 代码的内容组成。
+因为我们信任用户，所以不对内容中的 HTML 进行净化处理。</li>
+<li>页面以倒序（越新的在越上面）显示所有条目。并且用户登录以后可以在这个页面添加
+新的条目。</li>
+</ol>
+<p>我们直接在应用中使用 SQLite3 ，因为在这种规模的应用中 SQlite3 已经够用了。如果
+是大型应用，那么就有必要使用能够好的处理数据库连接的 <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a><span class="link-target"> [http://www.sqlalchemy.org/]</span> 了，它可以
+同时对应多种数据库，并做其他更多的事情。如果你的数据更适合使用 NoSQL 数据库，
+那么也可以考虑使用某种流行的 NoSQL 数据库。</p>
+<p>这是教程应用完工后的截图：</p>
+<img alt="screenshot of the final application" class="screenshot align-center" src="../_images/flaskr.png" />
+<p>下面请阅读 <a class="reference internal" href="folders.html#tutorial-folders"><em>步骤 0 ：创建文件夹</em></a> 。</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

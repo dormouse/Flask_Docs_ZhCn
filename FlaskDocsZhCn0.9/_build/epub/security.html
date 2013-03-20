@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Security Considerations</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="unicode.html" title="Unicode in Flask"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="htmlfaq.html" title="HTML/XHTML FAQ"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="security-considerations">
+<h1>Security Considerations</h1>
+<p>Web applications usually face all kinds of security problems and it&#8217;s very
+hard to get everything right.  Flask tries to solve a few of these things
+for you, but there are a couple more you have to take care of yourself.</p>
+<div class="section" id="cross-site-scripting-xss">
+<span id="xss"></span><h2>Cross-Site Scripting (XSS)</h2>
+<p>Cross site scripting is the concept of injecting arbitrary HTML (and with
+it JavaScript) into the context of a website.  To remedy this, developers
+have to properly escape text so that it cannot include arbitrary HTML
+tags.  For more information on that have a look at the Wikipedia article
+on <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-site_scripting">Cross-Site Scripting</a><span class="link-target"> [http://en.wikipedia.org/wiki/Cross-site_scripting]</span>.</p>
+<p>Flask configures Jinja2 to automatically escape all values unless
+explicitly told otherwise.  This should rule out all XSS problems caused
+in templates, but there are still other places where you have to be
+careful:</p>
+<ul class="simple">
+<li>generating HTML without the help of Jinja2</li>
+<li>calling <a class="reference internal" href="api.html#flask.Markup" title="flask.Markup"><tt class="xref py py-class docutils literal"><span class="pre">Markup</span></tt></a> on data submitted by users</li>
+<li>sending out HTML from uploaded files, never do that, use the
+<cite>Content-Disposition: attachment</cite> header to prevent that problem.</li>
+<li>sending out textfiles from uploaded files.  Some browsers are using
+content-type guessing based on the first few bytes so users could
+trick a browser to execute HTML.</li>
+</ul>
+<p>Another thing that is very important are unquoted attributes.  While
+Jinja2 can protect you from XSS issues by escaping HTML, there is one
+thing it cannot protect you from: XSS by attribute injection.  To counter
+this possible attack vector, be sure to always quote your attributes with
+either double or single quotes when using Jinja expressions in them:</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">href</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>the text<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>Why is this necessary?  Because if you would not be doing that, an
+attacker could easily inject custom JavaScript handlers.  For example an
+attacker could inject this piece of HTML+JavaScript:</p>
+<div class="highlight-html"><div class="highlight"><pre>onmouseover=alert(document.cookie)
+</pre></div>
+</div>
+<p>When the user would then move with the mouse over the link, the cookie
+would be presented to the user in an alert window.  But instead of showing
+the cookie to the user, a good attacker might also execute any other
+JavaScript code.  In combination with CSS injections the attacker might
+even make the element fill out the entire page so that the user would
+just have to have the mouse anywhere on the page to trigger the attack.</p>
+</div>
+<div class="section" id="cross-site-request-forgery-csrf">
+<h2>Cross-Site Request Forgery (CSRF)</h2>
+<p>Another big problem is CSRF.  This is a very complex topic and I won&#8217;t
+outline it here in detail just mention what it is and how to theoretically
+prevent it.</p>
+<p>If your authentication information is stored in cookies, you have implicit
+state management.  The state of &#8220;being logged in&#8221; is controlled by a
+cookie, and that cookie is sent with each request to a page.
+Unfortunately that includes requests triggered by 3rd party sites.  If you
+don&#8217;t keep that in mind, some people might be able to trick your
+application&#8217;s users with social engineering to do stupid things without
+them knowing.</p>
+<p>Say you have a specific URL that, when you sent <cite>POST</cite> requests to will
+delete a user&#8217;s profile (say <cite>http://example.com/user/delete</cite>).  If an
+attacker now creates a page that sends a post request to that page with
+some JavaScript they just has to trick some users to load that page and
+their profiles will end up being deleted.</p>
+<p>Imagine you were to run Facebook with millions of concurrent users and
+someone would send out links to images of little kittens.  When users
+would go to that page, their profiles would get deleted while they are
+looking at images of fluffy cats.</p>
+<p>How can you prevent that?  Basically for each request that modifies
+content on the server you would have to either use a one-time token and
+store that in the cookie <strong>and</strong> also transmit it with the form data.
+After receiving the data on the server again, you would then have to
+compare the two tokens and ensure they are equal.</p>
+<p>Why does Flask not do that for you?  The ideal place for this to happen is
+the form validation framework, which does not exist in Flask.</p>
+</div>
+<div class="section" id="json-security">
+<span id="id1"></span><h2>JSON Security</h2>
+<div class="admonition-ecmascript-5-changes admonition">
+<p class="first admonition-title">ECMAScript 5 Changes</p>
+<p class="last">Starting with ECMAScript 5 the behavior of literals changed.  Now they
+are not constructed with the constructor of <tt class="docutils literal"><span class="pre">Array</span></tt> and others, but
+with the builtin constructor of <tt class="docutils literal"><span class="pre">Array</span></tt> which closes this particular
+attack vector.</p>
+</div>
+<p>JSON itself is a high-level serialization format, so there is barely
+anything that could cause security problems, right?  You can&#8217;t declare
+recursive structures that could cause problems and the only thing that
+could possibly break are very large responses that can cause some kind of
+denial of service at the receiver&#8217;s side.</p>
+<p>However there is a catch.  Due to how browsers work the CSRF issue comes
+up with JSON unfortunately.  Fortunately there is also a weird part of the
+JavaScript specification that can be used to solve that problem easily and
+Flask is kinda doing that for you by preventing you from doing dangerous
+stuff.  Unfortunately that protection is only there for
+<a class="reference internal" href="api.html#flask.jsonify" title="flask.jsonify"><tt class="xref py py-func docutils literal"><span class="pre">jsonify()</span></tt></a> so you are still at risk when using other ways to
+generate JSON.</p>
+<p>So what is the issue and how to avoid it?  The problem are arrays at
+top-level in JSON.  Imagine you send the following data out in a JSON
+request.  Say that&#8217;s exporting the names and email addresses of all your
+friends for a part of the user interface that is written in JavaScript.
+Not very uncommon:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="s2">&quot;admin@localhost&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And it is doing that of course only as long as you are logged in and only
+for you.  And it is doing that for all <cite>GET</cite> requests to a certain URL,
+say the URL for that request is
+<tt class="docutils literal"><span class="pre">http://example.com/api/get_friends.json</span></tt>.</p>
+<p>So now what happens if a clever hacker is embedding this to his website
+and social engineers a victim to visiting his site:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span><span class="nt">&gt;</span>
+<span class="kd">var</span> <span class="nx">captured</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="kd">var</span> <span class="nx">oldArray</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">;</span>
+<span class="kd">function</span> <span class="nb">Array</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span> <span class="nx">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">capture</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">obj</span><span class="p">.</span><span class="nx">__defineSetter__</span><span class="p">(</span><span class="nx">id</span><span class="o">++</span><span class="p">,</span> <span class="nx">capture</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+      <span class="nx">captured</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+  <span class="p">};</span>
+  <span class="nx">capture</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span>
+  <span class="na">src=</span><span class="s">http://example.com/api/get_friends.json</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span><span class="nt">&gt;</span>
+<span class="nb">Array</span> <span class="o">=</span> <span class="nx">oldArray</span><span class="p">;</span>
+<span class="c1">// now we have all the data in the captured array.</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+<p>If you know a bit of JavaScript internals you might know that it&#8217;s
+possible to patch constructors and register callbacks for setters.  An
+attacker can use this (like above) to get all the data you exported in
+your JSON file.  The browser will totally ignore the <tt class="docutils literal"><span class="pre">application/json</span></tt>
+mimetype if <tt class="docutils literal"><span class="pre">text/javascript</span></tt> is defined as content type in the script
+tag and evaluate that as JavaScript.  Because top-level array elements are
+allowed (albeit useless) and we hooked in our own constructor, after that
+page loaded the data from the JSON response is in the <cite>captured</cite> array.</p>
+<p>Because it is a syntax error in JavaScript to have an object literal
+(<tt class="docutils literal"><span class="pre">{...}</span></tt>) toplevel an attacker could not just do a request to an
+external URL with the script tag to load up the data.  So what Flask does
+is to only allow objects as toplevel elements when using
+<a class="reference internal" href="api.html#flask.jsonify" title="flask.jsonify"><tt class="xref py py-func docutils literal"><span class="pre">jsonify()</span></tt></a>.  Make sure to do the same when using an ordinary
+JSON generate function.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

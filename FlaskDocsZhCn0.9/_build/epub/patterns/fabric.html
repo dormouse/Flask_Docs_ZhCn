@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>使用 Fabric 部署</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="sqlite3.html" title="在 Flask 中使用 SQLite 3"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="distribute.html" title="使用 Distribute 部署"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="fabric">
+<span id="fabric-deployment"></span><h1>使用 Fabric 部署</h1>
+<p><a class="reference external" href="http://fabfile.org/">Fabric</a><span class="link-target"> [http://fabfile.org/]</span> 是一个 Python 工具，与 Makefiles 类似，但是能够在远程服务器上执行
+命令。如果与适当的 Python 包（ <a class="reference internal" href="packages.html#larger-applications"><em>大型应用</em></a> ）与优良的配置（
+<a class="reference internal" href="../config.html#config"><em>配置管理</em></a> ）相结合那么 <cite>Fabric</cite> 将是在外部服务器上部署 Flask 的利器。</p>
+<p>在下文开始之前，有几点需要明确：</p>
+<ul class="simple">
+<li>Fabric 1.0 需要要被安装到本地。本教程假设使用的是最新版本的 Fabric 。</li>
+<li>应用已经是一个包，且有一个可用的 <cite>setup.py</cite> 文件（
+<a class="reference internal" href="distribute.html#distribute-deployment"><em>使用 Distribute 部署</em></a> ）。</li>
+<li>在下面的例子中，我们假设远程服务器使用 <cite>mod_wsgi</cite> 。当然，你可以使用你自己
+喜欢的服务器，但是在示例中我们选择 Apache + <cite>mod_wsgi</cite> ，因为它们设置方便，
+且在没有 root 权限情况下可以方便的重载应用。</li>
+</ul>
+<div class="section" id="fabfile">
+<h2>创建第一个 Fabfile</h2>
+<p>fabfile 是控制 Fabric 的东西，其文件名为 <cite>fabfile.py</cite> ，由 <cite>fab</cite> 命令执行。在
+这个文件中定义的所有函数都会被视作 <cite>fab</cite> 子命令。这些命令将会在一个或多个主机上
+运行。这些主机可以在 fabfile 中定义，也可以在命令行中定义。本例将在 fabfile 中
+定义主机。</p>
+<p>下面是第一个例子，比较级。它可以把当前的源代码上传至服务器，并安装到一个预先存在
+的 virtual 环境:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c"># 使用远程命令的用户名</span>
+<span class="n">env</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="s">&#39;appuser&#39;</span>
+<span class="c"># 执行命令的服务器</span>
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;server1.example.com&#39;</span><span class="p">,</span> <span class="s">&#39;server2.example.com&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">pack</span><span class="p">():</span>
+    <span class="c"># 创建一个新的分发源，格式为 tar 压缩包</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&#39;python setup.py sdist --formats=gztar&#39;</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="c"># 定义分发版本的名称和版本号</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">local</span><span class="p">(</span><span class="s">&#39;python setup.py --fullname&#39;</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c"># 把 tar 压缩包格式的源代码上传到服务器的临时文件夹</span>
+    <span class="n">put</span><span class="p">(</span><span class="s">&#39;dist/</span><span class="si">%s</span><span class="s">.tar.gz&#39;</span> <span class="o">%</span> <span class="n">dist</span><span class="p">,</span> <span class="s">&#39;/tmp/yourapplication.tar.gz&#39;</span><span class="p">)</span>
+    <span class="c"># 创建一个用于解压缩的文件夹，并进入该文件夹</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;mkdir /tmp/yourapplication&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="s">&#39;/tmp/yourapplication&#39;</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&#39;tar xzf /tmp/yourapplication.tar.gz&#39;</span><span class="p">)</span>
+        <span class="c"># 现在使用 virtual 环境的 Python 解释器来安装包</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&#39;/var/www/yourapplication/env/bin/python setup.py install&#39;</span><span class="p">)</span>
+    <span class="c"># 安装完成，删除文件夹</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;rm -rf /tmp/yourapplication /tmp/yourapplication.tar.gz&#39;</span><span class="p">)</span>
+    <span class="c"># 最后 touch .wsgi 文件，让 mod_wsgi 触发应用重载</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;touch /var/www/yourapplication.wsgi&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例中的注释详细，应当是容易理解的。以下是 fabric 提供的最常用命令的简要说明：</p>
+<ul class="simple">
+<li><cite>run</cite> - 在远程服务器上执行一个命令</li>
+<li><cite>local</cite> - 在本地机器上执行一个命令</li>
+<li><cite>put</cite> - 上传文件到远程服务器上</li>
+<li><cite>cd</cite> - 在服务器端改变目录。必须与 <cite>with</cite> 语句联合使用。</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>运行 Fabfile</h2>
+<p>那么如何运行 fabfile 呢？答案是使用 <cite>fab</cite> 命令。要在远程服务器上部署当前版本的
+代码可以使用这个命令:</p>
+<div class="highlight-python"><pre>$ fab pack deploy</pre>
+</div>
+<p>但是这个命令需要远程服务器上已经创建了 <tt class="docutils literal"><span class="pre">/var/www/yourapplication</span></tt> 文件夹，且
+<tt class="docutils literal"><span class="pre">/var/www/yourapplication/env</span></tt> 是一个 virtual 环境。更进一步，服务器上还没有
+创建配置文件和 <cite>.wsgi</cite> 文件。那么，我们如何在一个新的服务器上创建一个基础环境
+呢？</p>
+<p>这个问题取决于你要设置多少台服务器。如果只有一台应用服务器（多数情况下），那么
+在 fabfile 中创建命令有一点多余。当然，你可以这么做。这个命令可以称之为
+<cite>setup</cite> 或 <cite>bootstrap</cite> 。在使用命令时显式传递服务器名称:</p>
+<div class="highlight-python"><pre>$ fab -H newserver.example.com bootstrap</pre>
+</div>
+<p>设置一个新服务器大致有以下几个步骤：</p>
+<ol class="arabic">
+<li><p class="first">在 <tt class="docutils literal"><span class="pre">/var/www</span></tt> 创建目录结构:</p>
+<div class="highlight-python"><pre>$ mkdir /var/www/yourapplication
+$ cd /var/www/yourapplication
+$ virtualenv --distribute env</pre>
+</div>
+</li>
+<li><p class="first">上传一个新的 <cite>application.wsgi</cite> 文件和应用配置文件（如 <cite>application.cfg</cite> ）
+到服务器上。</p>
+</li>
+<li><p class="first">创建一个新的用于 <cite>yourapplication</cite> 的 Apache 配置并激活它。要确保激活
+<cite>.wsgi</cite> 文件变动监视，这样在 touch 的时候可以自动重载应用。（ 更多信息参见
+<a class="reference internal" href="../deploying/mod_wsgi.html#mod-wsgi-deployment"><em>mod_wsgi (Apache)</em></a> ）</p>
+</li>
+</ol>
+<p>现在的问题是： <cite>application.wsgi</cite> 和 <cite>application.cfg</cite> 文件从哪里来？</p>
+</div>
+<div class="section" id="wsgi">
+<h2>WSGI 文件</h2>
+<p>WSGI 文件必须导入应用，并且还必须设置一个环境变量用于告诉应用到哪里去搜索配置。
+示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;YOURAPPLICATION_CONFIG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;/var/www/yourapplication/application.cfg&#39;</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span>
+</pre></div>
+</div>
+<p>应用本身必须像下面这样初始化自己才会根据环境变量搜索配置:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;yourapplication.default_config&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_envvar</span><span class="p">(</span><span class="s">&#39;YOURAPPLICATION_CONFIG&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这个方法在 <a class="reference internal" href="../config.html#config"><em>配置管理</em></a> 一节已作了详细的介绍。</p>
+</div>
+<div class="section" id="id2">
+<h2>配置文件</h2>
+<p>上文已谈到，应用会根据 <cite>YOURAPPLICATION_CONFIG</cite> 环境变量找到正确的配置文件。
+因此我们应当把配置文件放在应用可以找到的地方。在不同的电脑上配置文件是不同的，
+所以一般我们不对配置文件作版本处理。</p>
+<p>一个流行的方法是在一个独立的版本控制仓库为不同的服务器保存不同的配置文件，然后
+在所有服务器进行检出。然后在需要的地方使用配置文件的符号链接（例如：
+<tt class="docutils literal"><span class="pre">/var/www/yourapplication</span></tt> ）。</p>
+<p>不管如何，我们这里只有一到两台服务器，因此我们可以预先手动上传配置文件。</p>
+</div>
+<div class="section" id="id3">
+<h2>第一次部署</h2>
+<p>现在我们可以进行第一次部署了。我已经设置好了服务器，因此服务器上应当已经有了
+virtual 环境和已激活的 apache 配置。现在我们可以打包应用并部署它了:</p>
+<div class="highlight-python"><pre>$ fab pack deploy</pre>
+</div>
+<p>Fabric 现在会连接所有服务器并运行 fabfile 中的所有命令。首先它会打包应用得到一个
+tar 压缩包。然后会执行分发，把源代码上传到所有服务器并安装。感谢 <cite>setup.py</cite>
+文件，所需要的依赖库会自动安装到 virtual 环境。</p>
+</div>
+<div class="section" id="id4">
+<h2>下一步</h2>
+<p>在前文的基础上，还有更多的方法可以全部署工作更加轻松：</p>
+<ul class="simple">
+<li>创建一个初始化新服务器的 <cite>bootstrap</cite> 命令。它可以初始化一个新的 virtual
+环境、正确设置 apache 等等。</li>
+<li>把配置文件放入一个独立的版本库中，把活动配置的符号链接放在适当的地方。</li>
+<li>还可以把应用代码放在一个版本库中，在服务器上检出最新版本后安装。这样你可以
+方便的回滚到老版本。</li>
+<li>挂接测试功能，方便部署到外部服务器进行测试。</li>
+</ul>
+<p>使用 Fabric 是一件有趣的事情。你会发现在电脑上打出 <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">deploy</span></tt> 是非常神奇的。
+你可以看到你的应用被部署到一个又一个服务器上。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

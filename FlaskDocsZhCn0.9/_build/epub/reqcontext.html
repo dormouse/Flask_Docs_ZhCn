@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>请求环境</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="blueprints.html" title="使用蓝图的模块化应用"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="appcontext.html" title="应用环境"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="request-context">
+<span id="id1"></span><h1>请求环境</h1>
+<p>本文讲述 Flask 0.7 版本的运行方式，与旧版本的运行方式基本相同，但也有一些细微的
+差别。</p>
+<p>建议你在阅读本文之前，先阅读 <a class="reference internal" href="appcontext.html#app-context"><em>应用环境</em></a> 。</p>
+<div class="section" id="id2">
+<h2>深入本地环境</h2>
+<p>假设有一个工具函数，这个函数返回用户重定向的 URL （包括 URL 的 <tt class="docutils literal"><span class="pre">next</span></tt> 参数、
+或 HTTP 推荐 和索引页面）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">url_for</span>
+
+<span class="k">def</span> <span class="nf">redirect_url</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;next&#39;</span><span class="p">)</span> <span class="ow">or</span> \
+           <span class="n">request</span><span class="o">.</span><span class="n">referrer</span> <span class="ow">or</span> \
+           <span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如上例所示，这个函数访问了请求对象。如果你在一个普通的 Python 解释器中运行这个
+函数，那么会看到如下异常：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">redirect_url</span><span class="p">()</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">AttributeError</span>: <span class="n">&#39;NoneType&#39; object has no attribute &#39;request&#39;</span>
+</pre></div>
+</div>
+<p>这是因为现在我们没有一个可以访问的请求。所以我们只能创建一个请求并绑定到当前
+环境中。 <a class="reference internal" href="api.html#flask.Flask.test_request_context" title="flask.Flask.test_request_context"><tt class="xref py py-attr docutils literal"><span class="pre">test_request_context</span></tt></a> 方法可以创建一个
+<a class="reference internal" href="api.html#flask.ctx.RequestContext" title="flask.ctx.RequestContext"><tt class="xref py py-class docutils literal"><span class="pre">RequestContext</span></tt></a> ：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">(</span><span class="s">&#39;/?next=http://example.com/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这个环境有两种使用方法：一种是使用 <cite>with</cite> 语句；另一种是调用
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.push" title="flask.ctx.RequestContext.push"><tt class="xref py py-meth docutils literal"><span class="pre">push()</span></tt></a> 和
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.pop" title="flask.ctx.RequestContext.pop"><tt class="xref py py-meth docutils literal"><span class="pre">pop()</span></tt></a> 方法：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>现在可以使用请求对象了：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">redirect_url</span><span class="p">()</span>
+<span class="go">u&#39;http://example.com/&#39;</span>
+</pre></div>
+</div>
+<p>直到你调用 <cite>pop</cite> ：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>可以把请求环境理解为一个堆栈，可以多次压入和弹出，可以方便地执行一个像内部
+重定向之类的东西。</p>
+<p>关于在 Python 解释器中使用请求环境的更多内容参见 <a class="reference internal" href="shell.html#shell"><em>在 Shell 中使用 Flask</em></a> 。</p>
+</div>
+<div class="section" id="id3">
+<h2>环境的工作原理</h2>
+<p>如果深入 Flask WSGI 应用内部，那么会找到类似如下代码:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">wsgi_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">):</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_context</span><span class="p">(</span><span class="n">environ</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_dispatch_request</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_exception</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">response</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="xref py py-meth docutils literal"><span class="pre">request_context()</span></tt> 方法返回一个新的
+<a class="reference internal" href="api.html#flask.ctx.RequestContext" title="flask.ctx.RequestContext"><tt class="xref py py-class docutils literal"><span class="pre">RequestContext</span></tt></a> 对象，并且使用 <cite>with</cite> 语句把这个对象绑定
+到环境。在 <cite>with</cite> 语句块中，在同一个线程中调用的所有东西可以访问全局请求
+（<a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-data docutils literal"><span class="pre">flask.request</span></tt></a> 或其他）。</p>
+<p>请求环境的工作方式就像一个堆栈，栈顶是当前活动请求。
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.push" title="flask.ctx.RequestContext.push"><tt class="xref py py-meth docutils literal"><span class="pre">push()</span></tt></a> 把环境压入堆栈中，而
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.pop" title="flask.ctx.RequestContext.pop"><tt class="xref py py-meth docutils literal"><span class="pre">pop()</span></tt></a> 把环境弹出。弹出的同时，会执行应用的
+<a class="reference internal" href="api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-func docutils literal"><span class="pre">teardown_request()</span></tt></a> 函数。</p>
+<p>另一件要注意的事情是：请求环境会在压入时自动创建一个
+<a class="reference internal" href="appcontext.html#app-context"><em>应用环境</em></a> 。在此之前，应用没有应用环境。</p>
+</div>
+<div class="section" id="callbacks-and-errors">
+<span id="id4"></span><h2>回调和错误处理</h2>
+<p>如果在请求处理的过程中发生错误，那么 Flask 会如何处理呢？自 Flask 0.7 版本之后，
+处理方式有所改变。这是为了更方便地反映到底发生了什么情况。新的处理方式非常简单：</p>
+<ol class="arabic simple">
+<li>在每个请求之前，会执行所有 <a class="reference internal" href="api.html#flask.Flask.before_request" title="flask.Flask.before_request"><tt class="xref py py-meth docutils literal"><span class="pre">before_request()</span></tt></a> 函数。如果
+其中一个函数返回一个响应，那么其他函数将不再调用。但是在任何情况下，这个
+返回值将会替代视图的返回值。</li>
+<li>如果 <a class="reference internal" href="api.html#flask.Flask.before_request" title="flask.Flask.before_request"><tt class="xref py py-meth docutils literal"><span class="pre">before_request()</span></tt></a> 函数均没有响应，那么就会进行正常的
+请求处理，匹配相应的视图，返回响应。</li>
+<li>接着，视图的返回值会转换为一个实际的响应对象并交给
+<a class="reference internal" href="api.html#flask.Flask.after_request" title="flask.Flask.after_request"><tt class="xref py py-meth docutils literal"><span class="pre">after_request()</span></tt></a> 函数处理。在处理过程中，这个对象可能会被
+替换或修改。</li>
+<li>请求处理的最后一环是执行 <a class="reference internal" href="api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-meth docutils literal"><span class="pre">teardown_request()</span></tt></a> 函数。这类
+函数在任何情况下都会被执行，甚至是在发生未处理异常或请求预处理器没有执行（
+例如在测试环境下，有时不想执行）的情况下。</li>
+</ol>
+<p>那么如果出错了会怎么样？在生产模式下，如果一个异常未被主要捕获处理，那么会调用
+500 内部服务器处理器。在开发模式下，引发的异常不再被进一步处理，会提交给 WSGI
+服务器。因此，需要使用交互调试器来查看调试信息。</p>
+<p>Flask 0.7 版本的重大变化是内部服务器错误不再由请求后回调函数来处理，并且请求后
+回调函数也不保证一定被执行。这样使得内部调试代码更整洁、更易懂和更容易定制。</p>
+<p>同时还引入了新的卸载函数，这个函数在请求结束时一定会执行。</p>
+</div>
+<div class="section" id="id5">
+<h2>卸载回调函数</h2>
+<p>卸载回调函数的特殊之处在于其调用的时机是不固定的。严格地说，调用时机取决于
+其绑定的 <a class="reference internal" href="api.html#flask.ctx.RequestContext" title="flask.ctx.RequestContext"><tt class="xref py py-class docutils literal"><span class="pre">RequestContext</span></tt></a> 对象的生命周期。当请求环境弹出时就
+会调用 <a class="reference internal" href="api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-meth docutils literal"><span class="pre">teardown_request()</span></tt></a> 函数。</p>
+<p>请求环境的生命周期是会变化的，当请求环境位于测试客户端中的 with 语句中或者在
+命令行下使用请求环境时，其生命周期会被延长。因此知道生命周期是否被延长是很重要
+的:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">test_client</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/foo&#39;</span><span class="p">)</span>
+    <span class="c"># 到这里还没有调用卸载函数。即使这时响应已经结束，并且已经</span>
+    <span class="c"># 获得响应对象，还是不会调用卸载函数。</span>
+
+<span class="c"># 只有到这里才会调用卸载函数。另外，如果另一个请求在客户端中被</span>
+<span class="c"># 激发，也会调用卸载函数。</span>
+</pre></div>
+</div>
+<p>在使用命令行时，可以清楚地看到运行方式：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@app.teardown_request</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">teardown_request</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="s">&#39;this runs after request&#39;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+<span class="go">this runs after request</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>记牢记：卸载函数在任何情况下都会被执行，甚至是在请求预处理回调函数没有执行，
+但是发生异常的情况下。有的测试系统可能会临时创建一个请求环境，但是不执行
+预处理器。请正确使用卸载处理器，确保它们不会执行失败。</p>
+</div>
+<div class="section" id="notes-on-proxies">
+<span id="id6"></span><h2>关于代理</h2>
+<p>部分 Flask 提供的对象是其他对象的代理。使用代理的原因是代理对象共享于不同的
+线程，它们在后台根据需要把实际的对象分配给不同的线程。</p>
+<p>多数情况下，你不需要关心这个。但是也有例外，在下列情况有下，知道对象是一个代理
+对象是有好处的：</p>
+<ul class="simple">
+<li>想要执行真正的实例检查的情况。因为代理对象不会假冒被代理对象的对象类型，
+因此，必须检查被代理的实际对象（参见下面的 <cite>_get_current_object</cite> ）。</li>
+<li>对象引用非常重要的情况（例如发送 <a class="reference internal" href="signals.html#signals"><em>信号</em></a> ）。</li>
+</ul>
+<p>如果想要访问被代理的对象，可以使用
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/local/#werkzeug.local.LocalProxy._get_current_object" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">_get_current_object()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/local/#werkzeug.local.LocalProxy._get_current_object]</span> 方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">_get_current_object</span><span class="p">()</span>
+<span class="n">my_signal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>出错时的环境保存</h2>
+<p>不管是否出错，在请求结束时，请求环境会被弹出，并且所有相关联的数据会被销毁。
+但是在开发过程中，可能需要在出现异常时保留相关信息。在 Flask 0.6 版本及更早的
+版本中，在发生异常时，请求环境不会被弹出，以便于交互调试器提供重要信息。</p>
+<p>自 Flask 0.7 版本开始，可以通过设置 <tt class="docutils literal"><span class="pre">PRESERVE_CONTEXT_ON_EXCEPTION</span></tt> 配置变量
+来更好地控制环境的保存。缺省情况下，这个配置变更与 <tt class="docutils literal"><span class="pre">DEBUG</span></tt> 变更关联。如果在
+调试模式下，那么环境会被保留，而在生产模式下则不保留。</p>
+<p>不要在生产环境下强制激活 <tt class="docutils literal"><span class="pre">PRESERVE_CONTEXT_ON_EXCEPTION</span></tt> ，因为这会在出现异常
+时导致应用内存溢出。但是在调试模式下使用这个变更是十分有用的，你可以获得在生产
+模式下出错时的环境。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

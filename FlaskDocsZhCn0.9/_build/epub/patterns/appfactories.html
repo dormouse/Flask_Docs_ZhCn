@@ -1,0 +1,108 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>应用工厂</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="appdispatch.html" title="应用调度"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="packages.html" title="大型应用"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="app-factories">
+<span id="id1"></span><h1>应用工厂</h1>
+<p>如果你已经在应用中使用了包和蓝图（ <a class="reference internal" href="../blueprints.html#blueprints"><em>使用蓝图的模块化应用</em></a> ），那么还有许多方法可以更
+进一步地改进你的应用。常用的方案是导入蓝图后创建应用对象，但是如果在一个函数中
+创建对象，那么就可以创建多个实例。</p>
+<p>那么这样做有什么用呢？</p>
+<ol class="arabic simple">
+<li>用于测试。可以针对不同的情况使用不同的配置来测试应用。</li>
+<li>用于多实例，如果你需要运行同一个应用的不同版本的话。当然你可以在服务器上
+使用不同配置运行多个相同应用，但是如果使用应用工厂，那么你可以只使用一个
+应用进程而得到多个应用实例，这样更容易操控。</li>
+</ol>
+<p>那么如何做呢？</p>
+<div class="section" id="id2">
+<h2>基础工厂</h2>
+<p>方法是在一个函数中设置应用，具体如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">config_filename</span><span class="p">):</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_pyfile</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">yourapplication.views.admin</span> <span class="kn">import</span> <span class="n">admin</span>
+    <span class="kn">from</span> <span class="nn">yourapplication.views.frontend</span> <span class="kn">import</span> <span class="n">frontend</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">admin</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">app</span>
+</pre></div>
+</div>
+<p>这个方法的缺点是在导入时无法在蓝图中使用应用对象。但是你可以在一个请求中使用它。
+如何通过配置来访问应用？使用 <a class="reference internal" href="../api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span><span class="p">,</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">render_template</span>
+<span class="n">admin</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s">&#39;/admin&#39;</span><span class="p">)</span>
+
+<span class="nd">@admin.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;INDEX_TEMPLATE&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>这里我们在配置中查找模板的名称。</p>
+</div>
+<div class="section" id="id3">
+<h2>使用应用</h2>
+<p>因此，要使用这样的应用就必须先创建它。下面是一个运行应用的示例 <cite>run.py</cite> 文件:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">create_app</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">(</span><span class="s">&#39;/path/to/config.cfg&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>改进工厂</h2>
+<p>上面的工厂函数还不是足够好，可以改进的地方主要有以下几点：</p>
+<ol class="arabic simple">
+<li>为了单元测试，要想办法传入配置，这样就不必在文件系统中创建配置文件。</li>
+<li>当设置应用时从蓝图调用一个函数，这样就可以有机会修改属性（如挂接请求前/后
+处理器等）。</li>
+<li>如果有必要的话，当创建一个应用时增加一个 WSGI 中间件。</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

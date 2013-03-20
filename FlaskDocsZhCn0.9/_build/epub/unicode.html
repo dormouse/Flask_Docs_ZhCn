@@ -1,0 +1,150 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Unicode in Flask</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="extensiondev.html" title="Flask Extension Development"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="security.html" title="Security Considerations"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="unicode-in-flask">
+<h1>Unicode in Flask</h1>
+<p>Flask like Jinja2 and Werkzeug is totally Unicode based when it comes to
+text.  Not only these libraries, also the majority of web related Python
+libraries that deal with text.  If you don&#8217;t know Unicode so far, you
+should probably read <a class="reference external" href="http://www.joelonsoftware.com/articles/Unicode.html">The Absolute Minimum Every Software Developer
+Absolutely, Positively Must Know About Unicode and Character Sets</a><span class="link-target"> [http://www.joelonsoftware.com/articles/Unicode.html]</span>.  This part of the
+documentation just tries to cover the very basics so that you have a
+pleasant experience with Unicode related things.</p>
+<div class="section" id="automatic-conversion">
+<h2>Automatic Conversion</h2>
+<p>Flask has a few assumptions about your application (which you can change
+of course) that give you basic and painless Unicode support:</p>
+<ul class="simple">
+<li>the encoding for text on your website is UTF-8</li>
+<li>internally you will always use Unicode exclusively for text except
+for literal strings with only ASCII character points.</li>
+<li>encoding and decoding happens whenever you are talking over a protocol
+that requires bytes to be transmitted.</li>
+</ul>
+<p>So what does this mean to you?</p>
+<p>HTTP is based on bytes.  Not only the protocol, also the system used to
+address documents on servers (so called URIs or URLs).  However HTML which
+is usually transmitted on top of HTTP supports a large variety of
+character sets and which ones are used, are transmitted in an HTTP header.
+To not make this too complex Flask just assumes that if you are sending
+Unicode out you want it to be UTF-8 encoded.  Flask will do the encoding
+and setting of the appropriate headers for you.</p>
+<p>The same is true if you are talking to databases with the help of
+SQLAlchemy or a similar ORM system.  Some databases have a protocol that
+already transmits Unicode and if they do not, SQLAlchemy or your other ORM
+should take care of that.</p>
+</div>
+<div class="section" id="the-golden-rule">
+<h2>The Golden Rule</h2>
+<p>So the rule of thumb: if you are not dealing with binary data, work with
+Unicode.  What does working with Unicode in Python 2.x mean?</p>
+<ul class="simple">
+<li>as long as you are using ASCII charpoints only (basically numbers,
+some special characters of latin letters without umlauts or anything
+fancy) you can use regular string literals (<tt class="docutils literal"><span class="pre">'Hello</span> <span class="pre">World'</span></tt>).</li>
+<li>if you need anything else than ASCII in a string you have to mark
+this string as Unicode string by prefixing it with a lowercase <cite>u</cite>.
+(like <tt class="docutils literal"><span class="pre">u'Hänsel</span> <span class="pre">und</span> <span class="pre">Gretel'</span></tt>)</li>
+<li>if you are using non-Unicode characters in your Python files you have
+to tell Python which encoding your file uses.  Again, I recommend
+UTF-8 for this purpose.  To tell the interpreter your encoding you can
+put the <tt class="docutils literal"><span class="pre">#</span> <span class="pre">-*-</span> <span class="pre">coding:</span> <span class="pre">utf-8</span> <span class="pre">-*-</span></tt> into the first or second line of
+your Python source file.</li>
+<li>Jinja is configured to decode the template files from UTF-8.  So make
+sure to tell your editor to save the file as UTF-8 there as well.</li>
+</ul>
+</div>
+<div class="section" id="encoding-and-decoding-yourself">
+<h2>Encoding and Decoding Yourself</h2>
+<p>If you are talking with a filesystem or something that is not really based
+on Unicode you will have to ensure that you decode properly when working
+with Unicode interface.  So for example if you want to load a file on the
+filesystem and embed it into a Jinja2 template you will have to decode it
+from the encoding of that file.  Here the old problem that text files do
+not specify their encoding comes into play.  So do yourself a favour and
+limit yourself to UTF-8 for text files as well.</p>
+<p>Anyways.  To load such a file with Unicode you can use the built-in
+<tt class="xref py py-meth docutils literal"><span class="pre">str.decode()</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">charset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To go from Unicode into a specific charset such as UTF-8 you can use the
+<tt class="xref py py-meth docutils literal"><span class="pre">unicode.encode()</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">contents</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">charset</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-editors">
+<h2>Configuring Editors</h2>
+<p>Most editors save as UTF-8 by default nowadays but in case your editor is
+not configured to do this you have to change it.  Here some common ways to
+set your editor to store as UTF-8:</p>
+<ul>
+<li><p class="first">Vim: put <tt class="docutils literal"><span class="pre">set</span> <span class="pre">enc=utf-8</span></tt> to your <tt class="docutils literal"><span class="pre">.vimrc</span></tt> file.</p>
+</li>
+<li><p class="first">Emacs: either use an encoding cookie or put this into your <tt class="docutils literal"><span class="pre">.emacs</span></tt>
+file:</p>
+<div class="highlight-python"><pre>(prefer-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)</pre>
+</div>
+</li>
+<li><p class="first">Notepad++:</p>
+<ol class="arabic simple">
+<li>Go to <em>Settings -&gt; Preferences ...</em></li>
+<li>Select the &#8220;New Document/Default Directory&#8221; tab</li>
+<li>Select &#8220;UTF-8 without BOM&#8221; as encoding</li>
+</ol>
+<p>It is also recommended to use the Unix newline format, you can select
+it in the same panel but this is not a requirement.</p>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

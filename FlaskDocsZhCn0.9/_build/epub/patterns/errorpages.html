@@ -1,0 +1,105 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>自定义出错页面</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="lazyloading.html" title="惰性载入视图"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="jquery.html" title="通过 jQuery 使用 AJAX"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>自定义出错页面</h1>
+<p>Flask 有一个方便的 <a class="reference internal" href="../api.html#flask.abort" title="flask.abort"><tt class="xref py py-func docutils literal"><span class="pre">abort()</span></tt></a> 函数，它可以通过一个 HTTP 出错代码退出
+一个请求。它还提供一个包含基本说明的出错页面，页面显示黑白的文本，很朴素。</p>
+<p>用户可以根据错误代码或多或少知道发生了什么错误。</p>
+<div class="section" id="id2">
+<h2>常见出错代码</h2>
+<p>以下出错代码是用户常见的，即使应用正常也会出现这些出错代码：</p>
+<dl class="docutils">
+<dt><em>404 Not Found</em></dt>
+<dd>这是一个古老的“朋友，你使用了一个错误的 URL ”信息。这个信息出现得如此
+频繁，以至于连刚上网的新手都知道 404 代表：该死的，我要看的东西不见了。
+一个好的做法是确保 404 页面上有一些真正有用的东西，至少要有一个返回首页
+的链接。</dd>
+<dt><em>403 Forbidden</em></dt>
+<dd>如果你的网站上有某种权限控制，那么当用户访问未获授权内容时应当发送 403
+代码。因此请确保当用户尝试访问未获授权内容时得到正确的反馈。</dd>
+<dt><em>410 Gone</em></dt>
+<dd>你知道 &#8220;404 Not Found&#8221; 有一个名叫 &#8220;410 Gone&#8221; 的兄弟吗？很少有人使用这个
+代码。如果资源以前曾经存在过，但是现在已经被删除了，那么就应该使用 410
+代码，而不是 404 。如果你不是在数据库中把文档永久地删除，而只是给文档打
+了一个删除标记，那么请为用户考虑，应当使用 410 代码，并显示信息告知用户
+要找的东西已经删除。</dd>
+<dt><em>500 Internal Server Error</em></dt>
+<dd>这个代码通常表示程序出错或服务器过载。强烈建议把这个页面弄得友好一点，
+因为你的应用 <em>迟早</em> 会出现故障的（参见 <a class="reference internal" href="../errorhandling.html#application-errors"><em>掌握应用错误</em></a> ）。</dd>
+</dl>
+</div>
+<div class="section" id="id3">
+<h2>出错处理器</h2>
+<p>一个出错处理器是一个函数，就像一个视图函数一样。与视图函数不同之处在于出错处理器
+在出现错误时被调用，且传递错误。错误大多数是一个
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/exceptions/#werkzeug.exceptions.HTTPException" title="(in Werkzeug v0.9)"><tt class="xref py py-exc docutils literal"><span class="pre">HTTPException</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/exceptions/#werkzeug.exceptions.HTTPException]</span> ，但是有一个例外：当出现内部服务器错误
+时会把异常实例传递给出错处理器。</p>
+<p>出错处理器使用 <a class="reference internal" href="../api.html#flask.Flask.errorhandler" title="flask.Flask.errorhandler"><tt class="xref py py-meth docutils literal"><span class="pre">errorhandler()</span></tt></a> 装饰器注册，注册时应提供异常的
+出代码。请记住， Flask <em>不会</em> 为你设置出错代码，因此请确保在返回响应时，同时提供
+HTTP 状态代码。</p>
+<p>以下是一个处理 &#8220;404 Page Not Found&#8221; 异常的示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span>
+
+<span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;404.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
+</pre></div>
+</div>
+<p>示例模板：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;layout.html&quot;</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">title</span> <span class="cp">%}</span>Page Not Found<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">body</span> <span class="cp">%}</span>
+  <span class="nt">&lt;h1&gt;</span>Page Not Found<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>What you were looking for is just not there.
+  <span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">url_for</span><span class="o">(</span><span class="s1">&#39;index&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>go somewhere nice<span class="nt">&lt;/a&gt;</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

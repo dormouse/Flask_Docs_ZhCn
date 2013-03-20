@@ -1,0 +1,111 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>大型应用</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="deploying/cgi.html" title="CGI"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="becomingbig">
+<span id="id1"></span><h1>大型应用</h1>
+<p>以下是一些建议，当你的代码库日益壮大或者应用需要规划时可以参考。</p>
+<div class="section" id="id2">
+<h2>阅读源代码</h2>
+<p>Werkzeug （ WSGI ）和 Jinja （模板）是两个被广泛使用的工具，而 Flask 起源就是
+用于展示如何基于这两个工具创建你自己的框架。随着不断地开发， Flask 被越来越多
+的人认可了。当你的代码库日益壮大时，不应当仅仅是使用 Flask ，而更应当理解它。
+阅读 Flask 的源代码吧。 Flask 的源代码阅读方便，文档公开，有利于你直接使用内部
+的 API 。 Flask 坚持把上游库的 API 文档化，并文档化自己内部的工具，方便按你的
+需要找到挂接点。</p>
+</div>
+<div class="section" id="id3">
+<h2>挂接，扩展</h2>
+<p><a class="reference internal" href="api.html#api"><em>API</em></a> 文档随处可见可用重载、挂接点和 <a class="reference internal" href="signals.html#signals"><em>信号</em></a> 。你可以定制类似请求
+或响应对象的自定义类。请深入研究你所使用的 API ，并在 Flask 发行版中有哪些可以
+立即使用的可定制部分。请研究你的哪些项目可以重构为工具集或 Flask 扩展。你可以在
+社区中探索许多 <cite>扩展 &lt;http://flask.pocoo.org/extensions/&gt;</cite> 。如果找不到满意的，
+那就写一个你自己的吧。</p>
+</div>
+<div class="section" id="id4">
+<h2>继承</h2>
+<p><a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 类有许多方法专门为继承而设计。你可通过继承
+<a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> （参见链接的方法文档）快速的添加或者定制行为，并把子类
+实例化为一个应用类。这种方法同样适用于 <a class="reference internal" href="patterns/appfactories.html#app-factories"><em>应用工厂</em></a> 。</p>
+</div>
+<div class="section" id="id5">
+<h2>用中间件包装</h2>
+<p><a class="reference internal" href="patterns/appdispatch.html#app-dispatch"><em>应用调度</em></a> 一文中详细阐述了如何使用中间件。你可以引入中间件来包装你的
+Flask 实例，在你的应用和 HTTP 服务器之间的层有所作为。
+Werkzeug 包含许多 <a class="reference external" href="http://werkzeug.pocoo.org/docs/middlewares/">中间件</a><span class="link-target"> [http://werkzeug.pocoo.org/docs/middlewares/]</span> 。</p>
+</div>
+<div class="section" id="id7">
+<h2>派生</h2>
+<p>如果以下建议都没有用，那么直接派生 Flask 吧。 Flask 的主要代码都在 Werkzeug 和
+Jinja2 这两个库内。这两个库起了主要作用。 Flask 只是把它们粘合在一起而已。对于
+一个项目来讲，底层框架的切入点很重要。因为如果不重视这一点，那么框架会变得非常
+复杂，势必带来陡峭的学习曲线，从而吓退用户。</p>
+<p>Flask 并不推崇唯一版本。许多人为了避免缺陷，都使用打过补丁或修改过的版本。这个
+理念在 Flask 的许可中也有所体现：你不必返回你对框架所做的修改。</p>
+<p>分支的缺点是大多数扩展都会失效，因为新的框架会使用不同的导入名称。更进一步：
+整合上游的变动将会变得十分复杂，上游变动越多，则整合越复杂。因此，创建分支一般
+是不得不为之的最后一招。</p>
+</div>
+<div class="section" id="id8">
+<h2>专家级的伸缩性</h2>
+<p>对于大多数网络应用来说，最复杂的莫过于对于用户量和数据量提供良好的伸缩性。
+Flask 本身具有良好的伸缩性，其伸缩性受限于你的应用代码、所使用的数据储存方式、
+Python 实现和应用所运行的服务器。</p>
+<p>如果服务器数量增加一倍，你的应用性能就增加一倍，那么就代表伸缩性好。如果伸缩性
+不好，那么即使增加服务器的数量，也不会得到更好的性能。伸缩性更差的甚至不支持增加
+第二台服务器。</p>
+<p>Flask 中唯一影响伸缩性的因素是环境本地代理。Flask 中的环境本地代理可以被定义为
+线程、进程或 greenlet 。如果你的服务器不支持这些，那么 Flask 就不能支持全局代理。
+但是，当今主流的服务器都支持线程、进程或 greenlet ，以提高并发性。 Flask 的基础
+库 Werkzeug 对于线程、进程或 greenlet 都能够提供良好的支持。</p>
+</div>
+<div class="section" id="id9">
+<h2>与社区沟通</h2>
+<p>不管你的代码库是否强大， Flask 开发者总是保持框架的可操作性。如果发现 Flask 有
+什么问题，请立即通过邮件列表或 IRC 与社区进行沟通。对于 Flask 及其扩展的开发都
+来说，提升其在大型应用中的功能的最佳途径是倾听用户的心声。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

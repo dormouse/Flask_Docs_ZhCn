@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Upgrading to Newer Releases</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="changelog.html" title="Flask Changelog"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="styleguide.html" title="Pocoo Styleguide"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="upgrading-to-newer-releases">
+<h1>Upgrading to Newer Releases</h1>
+<p>Flask itself is changing like any software is changing over time.  Most of
+the changes are the nice kind, the kind where you don&#8217;t have to change
+anything in your code to profit from a new release.</p>
+<p>However every once in a while there are changes that do require some
+changes in your code or there are changes that make it possible for you to
+improve your own code quality by taking advantage of new features in
+Flask.</p>
+<p>This section of the documentation enumerates all the changes in Flask from
+release to release and how you can change your code to have a painless
+updating experience.</p>
+<p>If you want to use the <cite>easy_install</cite> command to upgrade your Flask
+installation, make sure to pass it the <tt class="docutils literal"><span class="pre">-U</span></tt> parameter:</p>
+<div class="highlight-python"><pre>$ easy_install -U Flask</pre>
+</div>
+<div class="section" id="version-0-9">
+<h2>Version 0.9</h2>
+<p>The behavior of returning tuples from a function was simplified.  If you
+return a tuple it no longer defines the arguments for the response object
+you&#8217;re creating, it&#8217;s now always a tuple in the form <tt class="docutils literal"><span class="pre">(response,</span> <span class="pre">status,</span>
+<span class="pre">headers)</span></tt> where at least one item has to be provided.  If you depend on
+the old behavior, you can add it easily by subclassing Flask:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">TraditionalFlask</span><span class="p">(</span><span class="n">Flask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">make_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rv</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_class</span><span class="p">(</span><span class="o">*</span><span class="n">rv</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Flask</span><span class="o">.</span><span class="n">make_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you maintain an extension that was using <a class="reference internal" href="api.html#flask._request_ctx_stack" title="flask._request_ctx_stack"><tt class="xref py py-data docutils literal"><span class="pre">_request_ctx_stack</span></tt></a>
+before, please consider changing to <a class="reference internal" href="api.html#flask._app_ctx_stack" title="flask._app_ctx_stack"><tt class="xref py py-data docutils literal"><span class="pre">_app_ctx_stack</span></tt></a> if it makes
+sense for your extension.  For instance, the app context stack makes sense for
+extensions which connect to databases.  Using the app context stack instead of
+the request stack will make extensions more readily handle use cases outside of
+requests.</p>
+</div>
+<div class="section" id="version-0-8">
+<h2>Version 0.8</h2>
+<p>Flask introduced a new session interface system.  We also noticed that
+there was a naming collision between <cite>flask.session</cite> the module that
+implements sessions and <a class="reference internal" href="api.html#flask.session" title="flask.session"><tt class="xref py py-data docutils literal"><span class="pre">flask.session</span></tt></a> which is the global session
+object.  With that introduction we moved the implementation details for
+the session system into a new module called <tt class="xref py py-mod docutils literal"><span class="pre">flask.sessions</span></tt>.  If you
+used the previously undocumented session support we urge you to upgrade.</p>
+<p>If invalid JSON data was submitted Flask will now raise a
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/exceptions/#werkzeug.exceptions.BadRequest" title="(in Werkzeug v0.9)"><tt class="xref py py-exc docutils literal"><span class="pre">BadRequest</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/exceptions/#werkzeug.exceptions.BadRequest]</span> exception instead of letting the
+default <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#ValueError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#ValueError]</span> bubble up.  This has the advantage that you no
+longer have to handle that error to avoid an internal server error showing
+up for the user.  If you were catching this down explicitly in the past
+as <cite>ValueError</cite> you will need to change this.</p>
+<p>Due to a bug in the test client Flask 0.7 did not trigger teardown
+handlers when the test client was used in a with statement.  This was
+since fixed but might require some changes in your testsuites if you
+relied on this behavior.</p>
+</div>
+<div class="section" id="version-0-7">
+<h2>Version 0.7</h2>
+<p>In Flask 0.7 we cleaned up the code base internally a lot and did some
+backwards incompatible changes that make it easier to implement larger
+applications with Flask.  Because we want to make upgrading as easy as
+possible we tried to counter the problems arising from these changes by
+providing a script that can ease the transition.</p>
+<p>The script scans your whole application and generates an unified diff with
+changes it assumes are safe to apply.  However as this is an automated
+tool it won&#8217;t be able to find all use cases and it might miss some.  We
+internally spread a lot of deprecation warnings all over the place to make
+it easy to find pieces of code that it was unable to upgrade.</p>
+<p>We strongly recommend that you hand review the generated patchfile and
+only apply the chunks that look good.</p>
+<p>If you are using git as version control system for your project we
+recommend applying the patch with <tt class="docutils literal"><span class="pre">path</span> <span class="pre">-p1</span> <span class="pre">&lt;</span> <span class="pre">patchfile.diff</span></tt> and then
+using the interactive commit feature to only apply the chunks that look
+good.</p>
+<p>To apply the upgrade script do the following:</p>
+<ol class="arabic">
+<li><p class="first">Download the script: <a class="reference external" href="https://raw.github.com/mitsuhiko/flask/master/scripts/flask-07-upgrade.py">flask-07-upgrade.py</a><span class="link-target"> [https://raw.github.com/mitsuhiko/flask/master/scripts/flask-07-upgrade.py]</span></p>
+</li>
+<li><p class="first">Run it in the directory of your application:</p>
+<div class="highlight-python"><pre>python flask-07-upgrade.py &gt; patchfile.diff</pre>
+</div>
+</li>
+<li><p class="first">Review the generated patchfile.</p>
+</li>
+<li><p class="first">Apply the patch:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">patch</span> <span class="o">-</span><span class="n">p1</span> <span class="o">&lt;</span> <span class="n">patchfile</span><span class="o">.</span><span class="n">diff</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">If you were using per-module template folders you need to move some
+templates around.  Previously if you had a folder named <tt class="docutils literal"><span class="pre">templates</span></tt>
+next to a blueprint named <tt class="docutils literal"><span class="pre">admin</span></tt> the implicit template path
+automatically was <tt class="docutils literal"><span class="pre">admin/index.html</span></tt> for a template file called
+<tt class="docutils literal"><span class="pre">templates/index.html</span></tt>.  This no longer is the case.  Now you need
+to name the template <tt class="docutils literal"><span class="pre">templates/admin/index.html</span></tt>.  The tool will
+not detect this so you will have to do that on your own.</p>
+</li>
+</ol>
+<p>Please note that deprecation warnings are disabled by default starting
+with Python 2.7.  In order to see the deprecation warnings that might be
+emitted you have to enabled them with the <a class="reference external" href="http://docs.python.org/dev/library/warnings.html#warnings" title="(in Python v3.4)"><tt class="xref py py-mod docutils literal"><span class="pre">warnings</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/warnings.html#warnings]</span> module.</p>
+<p>If you are working with windows and you lack the <cite>patch</cite> command line
+utility you can get it as part of various Unix runtime environments for
+windows including cygwin, msysgit or ming32.  Also source control systems
+like svn, hg or git have builtin support for applying unified diffs as
+generated by the tool.  Check the manual of your version control system
+for more information.</p>
+<div class="section" id="bug-in-request-locals">
+<h3>Bug in Request Locals</h3>
+<p>Due to a bug in earlier implementations the request local proxies now
+raise a <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#RuntimeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#RuntimeError]</span> instead of an <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#AttributeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">AttributeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#AttributeError]</span> when they
+are unbound.  If you caught these exceptions with <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#AttributeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">AttributeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#AttributeError]</span>
+before, you should catch them with <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#RuntimeError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#RuntimeError]</span> now.</p>
+<p>Additionally the <a class="reference internal" href="api.html#flask.send_file" title="flask.send_file"><tt class="xref py py-func docutils literal"><span class="pre">send_file()</span></tt></a> function is now issuing
+deprecation warnings if you depend on functionality that will be removed
+in Flask 1.0.  Previously it was possible to use etags and mimetypes
+when file objects were passed.  This was unreliable and caused issues
+for a few setups.  If you get a deprecation warning, make sure to
+update your application to work with either filenames there or disable
+etag attaching and attach them yourself.</p>
+<p>Old code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="n">my_file_object</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="n">my_file_object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>New code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="n">my_file_object</span><span class="p">,</span> <span class="n">add_etags</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="upgrading-to-new-teardown-handling">
+<span id="id1"></span><h3>Upgrading to new Teardown Handling</h3>
+<p>We streamlined the behavior of the callbacks for request handling.  For
+things that modify the response the <a class="reference internal" href="api.html#flask.Flask.after_request" title="flask.Flask.after_request"><tt class="xref py py-meth docutils literal"><span class="pre">after_request()</span></tt></a>
+decorators continue to work as expected, but for things that absolutely
+must happen at the end of request we introduced the new
+<a class="reference internal" href="api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-meth docutils literal"><span class="pre">teardown_request()</span></tt></a> decorator.  Unfortunately that
+change also made after-request work differently under error conditions.
+It&#8217;s not consistently skipped if exceptions happen whereas previously it
+might have been called twice to ensure it is executed at the end of the
+request.</p>
+<p>If you have database connection code that looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.after_request</span>
+<span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">response</span>
+</pre></div>
+</div>
+<p>You are now encouraged to use this instead:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.teardown_request</span>
+<span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="n">exception</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;db&#39;</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>On the upside this change greatly improves the internal code flow and
+makes it easier to customize the dispatching and error handling.  This
+makes it now a lot easier to write unit tests as you can prevent closing
+down of database connections for a while.  You can take advantage of the
+fact that the teardown callbacks are called when the response context is
+removed from the stack so a test can query the database after request
+handling:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">test_client</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+    <span class="c"># g.db is still bound if there is such a thing</span>
+
+<span class="c"># and here it&#39;s gone</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="manual-error-handler-attaching">
+<h3>Manual Error Handler Attaching</h3>
+<p>While it is still possible to attach error handlers to
+<tt class="xref py py-attr docutils literal"><span class="pre">Flask.error_handlers</span></tt> it&#8217;s discouraged to do so and in fact
+deprecated.  In generaly we no longer recommend custom error handler
+attaching via assignments to the underlying dictionary due to the more
+complex internal handling to support arbitrary exception classes and
+blueprints.  See <tt class="xref py py-meth docutils literal"><span class="pre">Flask.errorhandler()</span></tt> for more information.</p>
+<p>The proper upgrade is to change this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">error_handlers</span><span class="p">[</span><span class="mi">403</span><span class="p">]</span> <span class="o">=</span> <span class="n">handle_error</span>
+</pre></div>
+</div>
+<p>Into this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">register_error_handler</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="n">handle_error</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively you should just attach the function with a decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_error</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>(Note that <tt class="xref py py-meth docutils literal"><span class="pre">register_error_handler()</span></tt> is new in Flask 0.7)</p>
+</div>
+<div class="section" id="blueprint-support">
+<h3>Blueprint Support</h3>
+<p>Blueprints replace the previous concept of “Modules” in Flask.  They
+provide better semantics for various features and work better with large
+applications.  The update script provided should be able to upgrade your
+applications automatically, but there might be some cases where it fails
+to upgrade.  What changed?</p>
+<ul class="simple">
+<li>Blueprints need explicit names.  Modules had an automatic name
+guesssing scheme where the shortname for the module was taken from the
+last part of the import module.  The upgrade script tries to guess
+that name but it might fail as this information could change at
+runtime.</li>
+<li>Blueprints have an inverse behavior for <tt class="xref py py-meth docutils literal"><span class="pre">url_for()</span></tt>.  Previously
+<tt class="docutils literal"><span class="pre">.foo</span></tt> told <tt class="xref py py-meth docutils literal"><span class="pre">url_for()</span></tt> that it should look for the endpoint
+<cite>foo</cite> on the application.  Now it means “relative to current module”.
+The script will inverse all calls to <tt class="xref py py-meth docutils literal"><span class="pre">url_for()</span></tt> automatically for
+you.  It will do this in a very eager way so you might end up with
+some unnecessary leading dots in your code if you&#8217;re not using
+modules.</li>
+<li>Blueprints do not automatically provide static folders.  They will
+also no longer automatically export templates from a folder called
+<cite>templates</cite> next to their location however but it can be enabled from
+the constructor.  Same with static files: if you want to continue
+serving static files you need to tell the constructor explicitly the
+path to the static folder (which can be relative to the blueprint&#8217;s
+module path).</li>
+<li>Rendering templates was simplified.  Now the blueprints can provide
+template folders which are added to a general template searchpath.
+This means that you need to add another subfolder with the blueprint&#8217;s
+name into that folder if you want <tt class="docutils literal"><span class="pre">blueprintname/template.html</span></tt> as
+the template name.</li>
+</ul>
+<p>If you continue to use the <cite>Module</cite> object which is deprecated, Flask will
+restore the previous behavior as good as possible.  However we strongly
+recommend upgrading to the new blueprints as they provide a lot of useful
+improvement such as the ability to attach a blueprint multiple times,
+blueprint specific error handlers and a lot more.</p>
+</div>
+</div>
+<div class="section" id="version-0-6">
+<h2>Version 0.6</h2>
+<p>Flask 0.6 comes with a backwards incompatible change which affects the
+order of after-request handlers.  Previously they were called in the order
+of the registration, now they are called in reverse order.  This change
+was made so that Flask behaves more like people expected it to work and
+how other systems handle request pre- and postprocessing.  If you
+depend on the order of execution of post-request functions, be sure to
+change the order.</p>
+<p>Another change that breaks backwards compatibility is that context
+processors will no longer override values passed directly to the template
+rendering function.  If for example <cite>request</cite> is as variable passed
+directly to the template, the default context processor will not override
+it with the current request object.  This makes it easier to extend
+context processors later to inject additional variables without breaking
+existing template not expecting them.</p>
+</div>
+<div class="section" id="version-0-5">
+<h2>Version 0.5</h2>
+<p>Flask 0.5 is the first release that comes as a Python package instead of a
+single module.  There were a couple of internal refactoring so if you
+depend on undocumented internal details you probably have to adapt the
+imports.</p>
+<p>The following changes may be relevant to your application:</p>
+<ul class="simple">
+<li>autoescaping no longer happens for all templates.  Instead it is
+configured to only happen on files ending with <tt class="docutils literal"><span class="pre">.html</span></tt>, <tt class="docutils literal"><span class="pre">.htm</span></tt>,
+<tt class="docutils literal"><span class="pre">.xml</span></tt> and <tt class="docutils literal"><span class="pre">.xhtml</span></tt>.  If you have templates with different
+extensions you should override the
+<a class="reference internal" href="api.html#flask.Flask.select_jinja_autoescape" title="flask.Flask.select_jinja_autoescape"><tt class="xref py py-meth docutils literal"><span class="pre">select_jinja_autoescape()</span></tt></a> method.</li>
+<li>Flask no longer supports zipped applications in this release.  This
+functionality might come back in future releases if there is demand
+for this feature.  Removing support for this makes the Flask internal
+code easier to understand and fixes a couple of small issues that make
+debugging harder than necessary.</li>
+<li>The <cite>create_jinja_loader</cite> function is gone.  If you want to customize
+the Jinja loader now, use the
+<a class="reference internal" href="api.html#flask.Flask.create_jinja_environment" title="flask.Flask.create_jinja_environment"><tt class="xref py py-meth docutils literal"><span class="pre">create_jinja_environment()</span></tt></a> method instead.</li>
+</ul>
+</div>
+<div class="section" id="version-0-4">
+<h2>Version 0.4</h2>
+<p>For application developers there are no changes that require changes in
+your code.  In case you are developing on a Flask extension however, and
+that extension has a unittest-mode you might want to link the activation
+of that mode to the new <tt class="docutils literal"><span class="pre">TESTING</span></tt> flag.</p>
+</div>
+<div class="section" id="version-0-3">
+<h2>Version 0.3</h2>
+<p>Flask 0.3 introduces configuration support and logging as well as
+categories for flashing messages.  All these are features that are 100%
+backwards compatible but you might want to take advantage of them.</p>
+<div class="section" id="configuration-support">
+<h3>Configuration Support</h3>
+<p>The configuration support makes it easier to write any kind of application
+that requires some sort of configuration.  (Which most likely is the case
+for any application out there).</p>
+<p>If you previously had code like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">DEBUG</span>
+<span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="n">SECRET_KEY</span>
+</pre></div>
+</div>
+<p>You no longer have to do that, instead you can just load a configuration
+into the config object.  How this works is outlined in <a class="reference internal" href="config.html#config"><em>配置管理</em></a>.</p>
+</div>
+<div class="section" id="logging-integration">
+<h3>Logging Integration</h3>
+<p>Flask now configures a logger for you with some basic and useful defaults.
+If you run your application in production and want to profit from
+automatic error logging, you might be interested in attaching a proper log
+handler.  Also you can start logging warnings and errors into the logger
+when appropriately.  For more information on that, read
+<a class="reference internal" href="errorhandling.html#application-errors"><em>掌握应用错误</em></a>.</p>
+</div>
+<div class="section" id="categories-for-flash-messages">
+<h3>Categories for Flash Messages</h3>
+<p>Flash messages can now have categories attached.  This makes it possible
+to render errors, warnings or regular messages differently for example.
+This is an opt-in feature because it requires some rethinking in the code.</p>
+<p>Read all about that in the <a class="reference internal" href="patterns/flashing.html#message-flashing-pattern"><em>消息闪现</em></a> pattern.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

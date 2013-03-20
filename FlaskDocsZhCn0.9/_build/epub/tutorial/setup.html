@@ -1,0 +1,112 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>步骤 2 ：应用构建代码</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="dbinit.html" title="步骤 3 ：创建数据库"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="schema.html" title="步骤 1 ：数据库模式"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-setup">
+<span id="id1"></span><h1>步骤 2 ：应用构建代码</h1>
+<p>现在我们已经准备好了数据库模式了，下面来创建应用模块。我们把模块命名为
+<cite>flaskr.py</cite> ，并放在 <cite>flaskr</cite> 文件夹中。为了方便初学者学习，我们把库的导入与
+相关配置放在了一起。对于小型应用来说，可以把配置直接放在模块中。但是更加清晰的
+方案是把配置放在一个独立的 <cite>.ini</cite> 或 <cite>.py</cite> 文件中，并在模块中导入配置的值。</p>
+<p>In <cite>flaskr.py</cite> 文件中:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># all the imports</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> \
+     <span class="n">abort</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">flash</span>
+
+<span class="c"># configuration</span>
+<span class="n">DATABASE</span> <span class="o">=</span> <span class="s">&#39;/tmp/flaskr.db&#39;</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="s">&#39;development key&#39;</span>
+<span class="n">USERNAME</span> <span class="o">=</span> <span class="s">&#39;admin&#39;</span>
+<span class="n">PASSWORD</span> <span class="o">=</span> <span class="s">&#39;default&#39;</span>
+</pre></div>
+</div>
+<p>接着创建真正的应用，并用同一文件中的配置来初始化，In <cite>flaskr.py</cite> 文件中:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># create our little application :)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api.html#flask.Config.from_object" title="flask.Config.from_object"><tt class="xref py py-meth docutils literal"><span class="pre">from_object()</span></tt></a> 会查看给定的对象（如果该对象是一个字符串就会
+直接导入它），搜索对象中所有变量名均为大字字母的变量。在我们的应用中，已经配置
+写在前面了。你可以把这些配置放到一个独立的文件中。</p>
+<p>通常，好的做法是从一个配置文件中导入配置，我们使用
+<a class="reference internal" href="../api.html#flask.Config.from_envvar" title="flask.Config.from_envvar"><tt class="xref py py-meth docutils literal"><span class="pre">from_envvar()</span></tt></a> 来完成这个工作，把上面的
+<a class="reference internal" href="../api.html#flask.Config.from_object" title="flask.Config.from_object"><tt class="xref py py-meth docutils literal"><span class="pre">from_object()</span></tt></a> 一行替换为:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_envvar</span><span class="p">(</span><span class="s">&#39;FLASKR_SETTINGS&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这样做就可以设置一个 <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">FLASKR_SETTINGS</span></tt> 的环境变量来指定一个配置文件，并
+根据该文件来重载缺省的配置。 silent 开关的作用是告诉 Flask 如果没有这个环境变量
+不要报错。</p>
+<p><cite>secret_key</cite> （密钥）用于保持客户端会话安全，请谨慎地选择密钥，并尽可能的使它
+复杂而且不容易被猜到。 DEBUG 标志用于开关交互调试器。因为调试模式允许用户执行
+服务器上的代码，所以 <em>永远不要在生产环境中打开调试模式</em> ！</p>
+<p>我们还添加了一个方便连接指定数据库的方法。这个方法可以用于在请求时打开连接，也
+可以用于 Python 交互终端或代码中。以后会派上用场。</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">connect_db</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;DATABASE&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>最后，在文件末尾添加以单机方式启动服务器的代码:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>到些为止，我们可以顺利运行应用了。输入以下命令开始运行:</p>
+<div class="highlight-python"><pre>python flaskr.py</pre>
+</div>
+<p>你会看到服务器已经运行的信息，其中包含应用访问地址。</p>
+<p>因为我们还没创建视图，所以当你在浏览器中访问这个地址时，会得到一个 404 页面未
+找到错误。很快我们就会谈到视图，但我们先要弄好数据库。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">外部可见的服务器</p>
+<p class="last">想让你的服务器被公开访问？详见 <a class="reference internal" href="../quickstart.html#public-server"><em>外部可见的服务器</em></a> 。</p>
+</div>
+<p>下面请阅读 <a class="reference internal" href="dbinit.html#tutorial-dbinit"><em>步骤 3 ：创建数据库</em></a> 。</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

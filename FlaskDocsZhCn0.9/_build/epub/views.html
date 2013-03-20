@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>可插拨视图</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="appcontext.html" title="应用环境"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="signals.html" title="信号"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="views">
+<span id="id1"></span><h1>可插拨视图</h1>
+<p class="versionadded">
+<span class="versionmodified">0.7 新版功能.</span></p>
+<p>Flask 0.7 版本引入了可插拨视图。可插拨视图基于使用类来代替函数，其灵感来自于
+Django 的通用视图。可插拨视图的主要用途是用可定制的、可插拨的视图来替代部分
+实现。</p>
+<div class="section" id="id2">
+<h2>基本原理</h2>
+<p>假设有一个函数用于从数据库中载入一个对象列表并在模板中渲染:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_users</span><span class="p">(</span><span class="n">page</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;users.html&#39;</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="n">users</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例简单而灵活。但是如果要把这个视图变成一个可以用于其他模型和模板的通用视图，
+那么这个视图还是不够灵活。因此，我们就需要引入可插拨的、基于类的视图。第一步，
+可以把它转换为一个基础视图:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask.views</span> <span class="kn">import</span> <span class="n">View</span>
+
+<span class="k">class</span> <span class="nc">ShowUsers</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">dispatch_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;users.html&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="n">users</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">ShowUsers</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="s">&#39;show_users&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>就如你所看到的，必须做的是创建一个 <a class="reference internal" href="api.html#flask.views.View" title="flask.views.View"><tt class="xref py py-class docutils literal"><span class="pre">flask.views.View</span></tt></a> 的子类，并且执行
+<a class="reference internal" href="api.html#flask.views.View.dispatch_request" title="flask.views.View.dispatch_request"><tt class="xref py py-meth docutils literal"><span class="pre">dispatch_request()</span></tt></a> 。然后必须通过使用
+<a class="reference internal" href="api.html#flask.views.View.as_view" title="flask.views.View.as_view"><tt class="xref py py-meth docutils literal"><span class="pre">as_view()</span></tt></a> 方法把类转换为实际视图函数。传递给函数的
+字符串是最终视图的名称。但是这本身没有什么帮助，所以让我们来小小地重构一下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask.views</span> <span class="kn">import</span> <span class="n">View</span>
+
+<span class="k">class</span> <span class="nc">ListView</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_template_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">render_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_template_name</span><span class="p">(),</span> <span class="o">**</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dispatch_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;objects&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objects</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">UserView</span><span class="p">(</span><span class="n">ListView</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_template_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;users.html&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>这样做对于示例中的小应用没有什么用途，但是可以足够清楚的解释基本原理。当你有
+一个基础视图类时，问题就来了：类的 <cite>self</cite> 指向什么？解决之道是：每当请求发出时
+就创建一个类的新实例，并且根据来自 URL 规则的参数调用
+<a class="reference internal" href="api.html#flask.views.View.dispatch_request" title="flask.views.View.dispatch_request"><tt class="xref py py-meth docutils literal"><span class="pre">dispatch_request()</span></tt></a> 方法。类本身根据参数实例化后传递给
+<a class="reference internal" href="api.html#flask.views.View.as_view" title="flask.views.View.as_view"><tt class="xref py py-meth docutils literal"><span class="pre">as_view()</span></tt></a> 函数。例如可以这样写一个类:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RenderTemplateView</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_name</span> <span class="o">=</span> <span class="n">template_name</span>
+    <span class="k">def</span> <span class="nf">dispatch_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然后可以这样注册:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/about&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">RenderTemplateView</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span>
+    <span class="s">&#39;about_page&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s">&#39;about.html&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>方法提示</h2>
+<p>可插拨视图可以像普通函数一样加入应用。加入的方式有两种，一种是使用
+<a class="reference internal" href="api.html#flask.Flask.route" title="flask.Flask.route"><tt class="xref py py-func docutils literal"><span class="pre">route()</span></tt></a> ，另一种是使用更好的
+<a class="reference internal" href="api.html#flask.Flask.add_url_rule" title="flask.Flask.add_url_rule"><tt class="xref py py-meth docutils literal"><span class="pre">add_url_rule()</span></tt></a> 。在加入的视图中应该提供所使用的 HTTP 方法的
+名称。提供名称的方法是使用 <a class="reference internal" href="api.html#flask.views.View.methods" title="flask.views.View.methods"><tt class="xref py py-attr docutils literal"><span class="pre">methods</span></tt></a> 属性:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyView</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">dispatch_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+            <span class="o">...</span>
+        <span class="o">...</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/myview&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">MyView</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="s">&#39;myview&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>基于方法调度</h2>
+<p>对于 REST 式的 API 来说，为每种 HTTP 方法提供相对应的不同函数显得尤为有用。使用
+<a class="reference internal" href="api.html#flask.views.MethodView" title="flask.views.MethodView"><tt class="xref py py-class docutils literal"><span class="pre">flask.views.MethodView</span></tt></a> 可以轻易做到这点。在这个类中，每个 HTTP 方法
+都映射到一个同名函数（函数名称为小写字母）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask.views</span> <span class="kn">import</span> <span class="n">MethodView</span>
+
+<span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="n">MethodView</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">from_form_data</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">)</span>
+        <span class="o">...</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">UserAPI</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="s">&#39;users&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>使用这种方式，不必提供 <a class="reference internal" href="api.html#flask.views.View.methods" title="flask.views.View.methods"><tt class="xref py py-attr docutils literal"><span class="pre">methods</span></tt></a> 属性，它会自动使用相应
+的类方法。</p>
+</div>
+<div class="section" id="id5">
+<h2>装饰视图</h2>
+<p>视图函数会被添加到路由系统中，而视图类则不会。因此视图类不需要装饰，只能以手工
+使用 <a class="reference internal" href="api.html#flask.views.View.as_view" title="flask.views.View.as_view"><tt class="xref py py-meth docutils literal"><span class="pre">as_view()</span></tt></a> 来装饰返回值:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">user_required</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks whether user is logged in or raises error 401.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+            <span class="n">abort</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="n">view</span> <span class="o">=</span> <span class="n">user_required</span><span class="p">(</span><span class="n">UserAPI</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="s">&#39;users&#39;</span><span class="p">))</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">view</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>自 Flask 0.8 版本开始，新加了一种选择：在视图类中定义装饰的列表:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="n">MethodView</span><span class="p">):</span>
+    <span class="n">decorators</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_required</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>请牢记：因为从调用者的角度来看，类的 self 被隐藏了，所以不能在类的方法上单独
+使用装饰器。</p>
+</div>
+<div class="section" id="api">
+<h2>用于 API 的方法视图</h2>
+<p>网络 API 经常直接对应 HTTP 变量，因此很有必要实现基于
+<a class="reference internal" href="api.html#flask.views.MethodView" title="flask.views.MethodView"><tt class="xref py py-class docutils literal"><span class="pre">MethodView</span></tt></a> 的 API 。即多数时候， API 需要把不同的 URL
+规则应用到同一个方法视图。例如，假设你需要这样使用一个 user 对象：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="22%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>URL</td>
+<td>方法</td>
+<td>说明</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">/users/</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">GET</span></tt></td>
+<td>给出一个包含所有用户的列表</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">/users/</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">POST</span></tt></td>
+<td>创建一个新用户</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">/users/&lt;id&gt;</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">GET</span></tt></td>
+<td>显示一个用户</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">/users/&lt;id&gt;</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">PUT</span></tt></td>
+<td>更新一个用户</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">/users/&lt;id&gt;</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">DELETE</span></tt></td>
+<td>删除一个用户</td>
+</tr>
+</tbody>
+</table>
+<p>那么如何使用 <a class="reference internal" href="api.html#flask.views.MethodView" title="flask.views.MethodView"><tt class="xref py py-class docutils literal"><span class="pre">MethodView</span></tt></a> 来实现呢？方法是使用多个规则对应
+到同一个视图。</p>
+<p>假设视图是这样的:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="n">MethodView</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># 返回一个包含所有用户的列表</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># 显示一个用户</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># 创建一个新用户</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="c"># 删除一个用户</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="c"># update a single user</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>那么如何把这个视图挂接到路由系统呢？方法是增加两个规则并为每个规则显式声明
+方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">user_view</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="s">&#39;user_api&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;user_id&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
+                 <span class="n">view_func</span><span class="o">=</span><span class="n">user_view</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">user_view</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">,])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/users/&lt;int:user_id&gt;&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">user_view</span><span class="p">,</span>
+                 <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>如果你有许多类似的 API ，那么可以代码如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">register_api</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">pk_type</span><span class="o">=</span><span class="s">&#39;int&#39;</span><span class="p">):</span>
+    <span class="n">view_func</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="n">pk</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
+                     <span class="n">view_func</span><span class="o">=</span><span class="n">view_func</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,])</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">view_func</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">,])</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">&lt;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">pk_type</span><span class="p">,</span> <span class="n">pk</span><span class="p">),</span> <span class="n">view_func</span><span class="o">=</span><span class="n">view_func</span><span class="p">,</span>
+                     <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">])</span>
+
+<span class="n">register_api</span><span class="p">(</span><span class="n">UserAPI</span><span class="p">,</span> <span class="s">&#39;user_api&#39;</span><span class="p">,</span> <span class="s">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="s">&#39;user_id&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

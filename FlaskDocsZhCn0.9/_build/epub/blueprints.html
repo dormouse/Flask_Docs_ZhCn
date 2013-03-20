@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>使用蓝图的模块化应用</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="extensions.html" title="Flask 扩展"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="reqcontext.html" title="请求环境"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="blueprints">
+<span id="id1"></span><h1>使用蓝图的模块化应用</h1>
+<p class="versionadded">
+<span class="versionmodified">0.7 新版功能.</span></p>
+<p>为了在一个或多个应用中，使应用模块化并且支持常用方案， Flask 引入了 <em>蓝图</em>
+概念。蓝图可以极大地简化大型应用并为扩展提供集中的注册入口。
+<tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt> 对象与 <tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt> 应用对象的工作方式类似，但不是一个真正
+的应用。它更像一个用于构建和扩展应用的 <em>蓝图</em> 。</p>
+<div class="section" id="id2">
+<h2>为什么使用蓝图？</h2>
+<p>Flask 中蓝图有以下用途：</p>
+<ul class="simple">
+<li>把一个应用分解为一套蓝图。这是针对大型应用的理想方案：一个项目可以实例化一个
+应用，初始化多个扩展，并注册许多蓝图。</li>
+<li>在一个应用的 URL 前缀和（或）子域上注册一个蓝图。 URL 前缀和（或）子域的参数
+成为蓝图中所有视图的通用视图参数（缺省情况下）。</li>
+<li>使用不同的 URL 规则在应用中多次注册蓝图。</li>
+<li>通过蓝图提供模板过滤器、静态文件、模板和其他工具。蓝图不必执行应用或视图
+函数。</li>
+<li>当初始化化一个 Flask 扩展时，为以上任意一种用途注册一个蓝图。</li>
+</ul>
+<p>Flask 中的蓝图不是一个可插拨的应用，因为它不是一个真正的应用，而是一套可以注册
+在应用中的操作，并且可以注册多次。那么为什么不使用多个应用对象呢？可以使用多个
+应用对象（参见 <a class="reference internal" href="patterns/appdispatch.html#app-dispatch"><em>应用调度</em></a> ），但是这样会导致每个应用都使用自己独立的
+配置，且只能在 WSGI 层中管理应用。</p>
+<p>而如果使用蓝图，那么应用会在 Flask 层中进行管理，共享配置，通过注册按需改变应用
+对象。蓝图的缺点是一旦应用被创建后，只有销毁整个应用对象才能注销蓝图。</p>
+</div>
+<div class="section" id="id3">
+<h2>蓝图的概念</h2>
+<p>蓝图的基本概念是：在蓝图被注册到应用之后，所要执行的操作的集合。当分配请求时，
+Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 URL 。</p>
+</div>
+<div class="section" id="id4">
+<h2>第一个蓝图</h2>
+<p>以下是一个最基本的蓝图示例。在这里，我们将使用蓝图来简单地渲染静态模板:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">abort</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">TemplateNotFound</span>
+
+<span class="n">simple_page</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;simple_page&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">,</span>
+                        <span class="n">template_folder</span><span class="o">=</span><span class="s">&#39;templates&#39;</span><span class="p">)</span>
+
+<span class="nd">@simple_page.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;page&#39;</span><span class="p">:</span> <span class="s">&#39;index&#39;</span><span class="p">})</span>
+<span class="nd">@simple_page.route</span><span class="p">(</span><span class="s">&#39;/&lt;page&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">page</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;pages/</span><span class="si">%s</span><span class="s">.html&#39;</span> <span class="o">%</span> <span class="n">page</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">TemplateNotFound</span><span class="p">:</span>
+        <span class="n">abort</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当你使用 <tt class="docutils literal"><span class="pre">&#64;simple_page.route</span></tt> 装饰器绑定一个函数时，蓝图会记录下所登记的
+<cite>show</cite> 函数。当以后在应用中注册蓝图时，这个函数会被注册到应用中。另外，它会把
+构建 <tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt> 时所使用的名称（在本例为 <tt class="docutils literal"><span class="pre">simple_page</span></tt> ）作为函数端点
+的前缀。</p>
+</div>
+<div class="section" id="id5">
+<h2>注册蓝图</h2>
+<p>可以这样注册蓝图:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">yourapplication.simple_page</span> <span class="kn">import</span> <span class="n">simple_page</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">simple_page</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>以下是注册蓝图后形成的规则:</p>
+<div class="highlight-python"><pre>[&lt;Rule '/static/&lt;filename&gt;' (HEAD, OPTIONS, GET) -&gt; static&gt;,
+ &lt;Rule '/&lt;page&gt;' (HEAD, OPTIONS, GET) -&gt; simple_page.show&gt;,
+ &lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; simple_page.show&gt;]</pre>
+</div>
+<p>第一条很明显，是来自于应用本身的用于静态文件的。后面两条是用于蓝图
+<tt class="docutils literal"><span class="pre">simple_page</span></tt> 的 <cite>show</cite> 函数的。你可以看到，它们的前缀都是蓝图的名称，并且
+使用一个点（ <tt class="docutils literal"><span class="pre">.</span></tt> ）来分隔。</p>
+<p>蓝图还可以挂接到不同的位置:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">simple_page</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s">&#39;/pages&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这样就会形成如下规则:</p>
+<div class="highlight-python"><pre>[&lt;Rule '/static/&lt;filename&gt;' (HEAD, OPTIONS, GET) -&gt; static&gt;,
+ &lt;Rule '/pages/&lt;page&gt;' (HEAD, OPTIONS, GET) -&gt; simple_page.show&gt;,
+ &lt;Rule '/pages/' (HEAD, OPTIONS, GET) -&gt; simple_page.show&gt;]</pre>
+</div>
+<p>总之，你可以多次注册蓝图，但是不一定每个蓝图都能正确响应。是否能够多次注册实际
+上取决于你的蓝图是如何编写的，是否能根据不同的位置做出正确的响应。</p>
+</div>
+<div class="section" id="id6">
+<h2>蓝图资源</h2>
+<p>蓝图还可以用于提供资源。有时候，我们仅仅是为了使用一些资源而使用蓝图。</p>
+<div class="section" id="id7">
+<h3>蓝图资源文件夹</h3>
+<p>和普通应用一样，蓝图一般都放在一个文件夹中。虽然多个蓝图可以共存于同一个文件夹
+中，但是最好不要这样做。</p>
+<p>文件夹由 <tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt> 的第二个参数指定，通常为 <cite>__name__</cite> 。这个参数指定
+与蓝图相关的逻辑 Python 模块或包。如果这个参数指向的是实际的 Python 包（文件
+系统中的一个文件夹），那么它就是资源文件夹。如果是一个模块，那么这个模块包含的
+包就是资源文件夹。可以通过  <tt class="xref py py-attr docutils literal"><span class="pre">Blueprint.root_path</span></tt> 属性来查看蓝图的资源
+文件夹:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">simple_page</span><span class="o">.</span><span class="n">root_path</span>
+<span class="go">&#39;/Users/username/TestProject/yourapplication&#39;</span>
+</pre></div>
+</div>
+<p>可以使用 <tt class="xref py py-meth docutils literal"><span class="pre">open_resource()</span></tt> 函数快速打开这个文件夹中的资源:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">simple_page</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="s">&#39;static/style.css&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>静态文件</h3>
+<p>蓝图的第三个参数是 <cite>static_folder</cite> 。这个参数用以指定蓝图的静态文件所在的
+文件夹，它可以是一个绝对路径也可以是相对路径。:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">admin</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">,</span> <span class="n">static_folder</span><span class="o">=</span><span class="s">&#39;static&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>缺省情况下，路径最右端的部分是在 URL 中暴露的部分。上例中的文件夹为
+<tt class="docutils literal"><span class="pre">static</span></tt> ，那么 URL 应该是蓝图加上 <tt class="docutils literal"><span class="pre">/static</span></tt> 。蓝图注册为 <tt class="docutils literal"><span class="pre">/admin</span></tt> ，那么
+静态文件夹就是 <tt class="docutils literal"><span class="pre">/admin/static</span></tt> 。</p>
+<p>端点的名称是 <cite>blueprint_name.static</cite> ，因此你可以使用和应用中的文件夹一样的方法
+来生成其 URL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;admin.static&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;style.css&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>模板</h3>
+<p>如果你想使用蓝图来暴露模板，那么可以使用 <tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt> 的
+<cite>template_folder</cite> 参数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">admin</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">,</span> <span class="n">template_folder</span><span class="o">=</span><span class="s">&#39;templates&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>和静态文件一样，指向蓝图资源文件夹的路径可以是绝对的也可以是相对的。蓝图中的
+模板文件夹会被添加到模板搜索路径中，但其优先级低于实际应用的模板文件夹。这样在
+实际应用中可以方便地重载蓝图提供的模板。</p>
+<p>假设你的蓝图便于 <tt class="docutils literal"><span class="pre">yourapplication/admin</span></tt> 中，要渲染的模板是
+<tt class="docutils literal"><span class="pre">'admin/index.html'</span></tt> ， <cite>template_folder</cite> 参数值为 <tt class="docutils literal"><span class="pre">templates</span></tt> ，那么真正的
+模板文件为： <tt class="docutils literal"><span class="pre">yourapplication/admin/templates/admin/index.html</span></tt> 。</p>
+</div>
+</div>
+<div class="section" id="url">
+<h2>创建 URL</h2>
+<p>如果要创建页面链接，可以和通常一样使用
+<tt class="xref py py-func docutils literal"><span class="pre">url_for()</span></tt> 函数，只是要把蓝图名称作为端点的前缀，并且用一个点（ <tt class="docutils literal"><span class="pre">.</span></tt> ）来
+分隔:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;admin.index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>另外，如果在一个蓝图的视图函数或者被渲染的模板中需要链接同一个蓝图中的其他
+端点，那么使用相对重定向，只使用一个点使用为前缀:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;.index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如果当前请求被分配到 admi 蓝图端点时，上例会链接到 <tt class="docutils literal"><span class="pre">admin.index</span></tt> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

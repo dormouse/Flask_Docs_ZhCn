@@ -1,0 +1,425 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Flask Extension Development</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="styleguide.html" title="Pocoo Styleguide"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="unicode.html" title="Unicode in Flask"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flask-extension-development">
+<span id="extension-dev"></span><h1>Flask Extension Development</h1>
+<p>Flask, being a microframework, often requires some repetitive steps to get
+a third party library working.  Because very often these steps could be
+abstracted to support multiple projects the <a class="reference external" href="http://flask.pocoo.org/extensions/">Flask Extension Registry</a><span class="link-target"> [http://flask.pocoo.org/extensions/]</span>
+was created.</p>
+<p>If you want to create your own Flask extension for something that does not
+exist yet, this guide to extension development will help you get your
+extension running in no time and to feel like users would expect your
+extension to behave.</p>
+<div class="section" id="anatomy-of-an-extension">
+<h2>Anatomy of an Extension</h2>
+<p>Extensions are all located in a package called <tt class="docutils literal"><span class="pre">flask_something</span></tt>
+where &#8220;something&#8221; is the name of the library you want to bridge.  So for
+example if you plan to add support for a library named <cite>simplexml</cite> to
+Flask, you would name your extension&#8217;s package <tt class="docutils literal"><span class="pre">flask_simplexml</span></tt>.</p>
+<p>The name of the actual extension (the human readable name) however would
+be something like &#8220;Flask-SimpleXML&#8221;.  Make sure to include the name
+&#8220;Flask&#8221; somewhere in that name and that you check the capitalization.
+This is how users can then register dependencies to your extension in
+their <cite>setup.py</cite> files.</p>
+<p>Flask sets up a redirect package called <tt class="xref py py-data docutils literal"><span class="pre">flask.ext</span></tt> where users
+should import the extensions from.  If you for instance have a package
+called <tt class="docutils literal"><span class="pre">flask_something</span></tt> users would import it as
+<tt class="docutils literal"><span class="pre">flask.ext.something</span></tt>.  This is done to transition from the old
+namespace packages.  See <a class="reference internal" href="#ext-import-transition"><em>Extension Import Transition</em></a> for more details.</p>
+<p>But how do extensions look like themselves?  An extension has to ensure
+that it works with multiple Flask application instances at once.  This is
+a requirement because many people will use patterns like the
+<a class="reference internal" href="patterns/appfactories.html#app-factories"><em>应用工厂</em></a> pattern to create their application as needed to aid
+unittests and to support multiple configurations.  Because of that it is
+crucial that your application supports that kind of behavior.</p>
+<p>Most importantly the extension must be shipped with a <cite>setup.py</cite> file and
+registered on PyPI.  Also the development checkout link should work so
+that people can easily install the development version into their
+virtualenv without having to download the library by hand.</p>
+<p>Flask extensions must be licensed under a BSD, MIT or more liberal license
+to be able to be enlisted in the Flask Extension Registry.  Keep in mind
+that the Flask Extension Registry is a moderated place and libraries will
+be reviewed upfront if they behave as required.</p>
+</div>
+<div class="section" id="hello-flaskext">
+<h2>&#8220;Hello Flaskext!&#8221;</h2>
+<p>So let&#8217;s get started with creating such a Flask extension.  The extension
+we want to create here will provide very basic support for SQLite3.</p>
+<p>First we create the following folder structure:</p>
+<div class="highlight-python"><pre>flask-sqlite3/
+    flask_sqlite3.py
+    LICENSE
+    README</pre>
+</div>
+<p>Here&#8217;s the contents of the most important files:</p>
+<div class="section" id="setup-py">
+<h3>setup.py</h3>
+<p>The next file that is absolutely required is the <cite>setup.py</cite> file which is
+used to install your Flask extension.  The following contents are
+something you can work with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Flask-SQLite3</span>
+<span class="sd">-------------</span>
+
+<span class="sd">This is the description for that library</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">&#39;Flask-SQLite3&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s">&#39;1.0&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s">&#39;http://example.com/flask-sqlite3/&#39;</span><span class="p">,</span>
+    <span class="n">license</span><span class="o">=</span><span class="s">&#39;BSD&#39;</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="s">&#39;Your Name&#39;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s">&#39;your-email@example.com&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&#39;Very short description&#39;</span><span class="p">,</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">,</span>
+    <span class="n">py_modules</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;flask_sqlite3&#39;</span><span class="p">],</span>
+    <span class="c"># if you would be using a package instead use packages instead</span>
+    <span class="c"># of py_modules:</span>
+    <span class="c"># packages=[&#39;flask_sqlite3&#39;],</span>
+    <span class="n">zip_safe</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">include_package_data</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">platforms</span><span class="o">=</span><span class="s">&#39;any&#39;</span><span class="p">,</span>
+    <span class="n">install_requires</span><span class="o">=</span><span class="p">[</span>
+        <span class="s">&#39;Flask&#39;</span>
+    <span class="p">],</span>
+    <span class="n">classifiers</span><span class="o">=</span><span class="p">[</span>
+        <span class="s">&#39;Environment :: Web Environment&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Intended Audience :: Developers&#39;</span><span class="p">,</span>
+        <span class="s">&#39;License :: OSI Approved :: BSD License&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Operating System :: OS Independent&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Programming Language :: Python&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Topic :: Internet :: WWW/HTTP :: Dynamic Content&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Topic :: Software Development :: Libraries :: Python Modules&#39;</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>That&#8217;s a lot of code but you can really just copy/paste that from existing
+extensions and adapt.</p>
+</div>
+<div class="section" id="flask-sqlite3-py">
+<h3>flask_sqlite3.py</h3>
+<p>Now this is where your extension code goes.  But how exactly should such
+an extension look like?  What are the best practices?  Continue reading
+for some insight.</p>
+</div>
+</div>
+<div class="section" id="initializing-extensions">
+<h2>Initializing Extensions</h2>
+<p>Many extensions will need some kind of initialization step.  For example,
+consider an application that&#8217;s currently connecting to SQLite like the
+documentation suggests (<a class="reference internal" href="patterns/sqlite3.html#sqlite3"><em>在 Flask 中使用 SQLite 3</em></a>).  So how does the extension
+know the name of the application object?</p>
+<p>Quite simple: you pass it to it.</p>
+<p>There are two recommended ways for an extension to initialize:</p>
+<p>initialization functions:</p>
+<blockquote>
+<div>If your extension is called <cite>helloworld</cite> you might have a function
+called <tt class="docutils literal"><span class="pre">init_helloworld(app[,</span> <span class="pre">extra_args])</span></tt> that initializes the
+extension for that application.  It could attach before / after
+handlers etc.</div></blockquote>
+<p>classes:</p>
+<blockquote>
+<div>Classes work mostly like initialization functions but can later be
+used to further change the behavior.  For an example look at how the
+<a class="reference external" href="http://packages.python.org/Flask-OAuth/">OAuth extension</a><span class="link-target"> [http://packages.python.org/Flask-OAuth/]</span> works: there is an <cite>OAuth</cite> object that provides
+some helper functions like <cite>OAuth.remote_app</cite> to create a reference to
+a remote application that uses OAuth.</div></blockquote>
+<p>What to use depends on what you have in mind.  For the SQLite 3 extension
+we will use the class-based approach because it will provide users with an
+object that handles opening and closing database connections.</p>
+<p>What&#8217;s important about classes is that they encourage to be shared around
+on module level.  In that case, the object itself must not under any
+circumstances store any application specific state and must be shareable
+between different application.</p>
+</div>
+<div class="section" id="the-extension-code">
+<h2>The Extension Code</h2>
+<p>Here&#8217;s the contents of the <cite>flask_sqlite3.py</cite> for copy/paste:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sqlite3</span>
+
+<span class="c"># Find the stack on which we want to store the database connection.</span>
+<span class="c"># Starting with Flask 0.9, the _app_ctx_stack is the correct one,</span>
+<span class="c"># before that we need to use the _request_ctx_stack.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">_app_ctx_stack</span> <span class="k">as</span> <span class="n">stack</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">_request_ctx_stack</span> <span class="k">as</span> <span class="n">stack</span>
+
+
+<span class="k">class</span> <span class="nc">SQLite3</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;SQLITE3_DATABASE&#39;</span><span class="p">,</span> <span class="s">&#39;:memory:&#39;</span><span class="p">)</span>
+        <span class="c"># Use the newstyle teardown_appcontext if it&#39;s available,</span>
+        <span class="c"># otherwise fall back to the request context</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s">&#39;teardown_appcontext&#39;</span><span class="p">):</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">teardown_appcontext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">teardown</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">teardown_request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">teardown</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SQLITE3_DATABASE&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">top</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="s">&#39;sqlite3_db&#39;</span><span class="p">):</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">sqlite3_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">top</span>
+        <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="s">&#39;sqlite3_db&#39;</span><span class="p">):</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">sqlite3_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">sqlite3_db</span>
+</pre></div>
+</div>
+<p>So here&#8217;s what these lines of code do:</p>
+<ol class="arabic">
+<li><p class="first">The <tt class="docutils literal"><span class="pre">__init__</span></tt> method takes an optional app object and, if supplied, will
+call <tt class="docutils literal"><span class="pre">init_app</span></tt>.</p>
+</li>
+<li><p class="first">The <tt class="docutils literal"><span class="pre">init_app</span></tt> method exists so that the <tt class="docutils literal"><span class="pre">SQLite3</span></tt> object can be
+instantiated without requiring an app object.  This method supports the
+factory pattern for creating applications.  The <tt class="docutils literal"><span class="pre">init_app</span></tt> will set the
+configuration for the database, defaulting to an in memory database if
+no configuration is supplied.  In addition, the <tt class="docutils literal"><span class="pre">init_app</span></tt> method attaches
+the <tt class="docutils literal"><span class="pre">teardown</span></tt> handler.  It will try to use the newstyle app context
+handler and if it does not exist, falls back to the request context
+one.</p>
+</li>
+<li><p class="first">Next, we define a <tt class="docutils literal"><span class="pre">connect</span></tt> method that opens a database connection.</p>
+</li>
+<li><p class="first">Finally, we add a <tt class="docutils literal"><span class="pre">connection</span></tt> property that on first access opens
+the database connection and stores it on the context.  This is also
+the recommended way to handling resources: fetch resources lazily the
+first time they are used.</p>
+<p>Note here that we&#8217;re attaching our database connection to the top
+application context via <tt class="docutils literal"><span class="pre">_app_ctx_stack.top</span></tt>. Extensions should use
+the top context for storing their own information with a sufficiently
+complex name.  Note that we&#8217;re falling back to the
+<tt class="docutils literal"><span class="pre">_request_ctx_stack.top</span></tt> if the application is using an older
+version of Flask that does not support it.</p>
+</li>
+</ol>
+<p>So why did we decide on a class-based approach here?  Because using our
+extension looks something like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_sqlite3</span> <span class="kn">import</span> <span class="n">SQLite3</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_pyfile</span><span class="p">(</span><span class="s">&#39;the-config.cfg&#39;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">SQLite3</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can then use the database from views like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_all</span><span class="p">():</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Likewise if you are outside of a request but you are using Flask 0.9 or
+later with the app context support, you can use the database in the same
+way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At the end of the <cite>with</cite> block the teardown handles will be executed
+automatically.</p>
+<p>Additionally, the <tt class="docutils literal"><span class="pre">init_app</span></tt> method is used to support the factory pattern
+for creating apps:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">db</span> <span class="o">=</span> <span class="n">Sqlite3</span><span class="p">()</span>
+<span class="c"># Then later on.</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">(</span><span class="s">&#39;the-config.cfg&#39;</span><span class="p">)</span>
+<span class="n">db</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Keep in mind that supporting this factory pattern for creating apps is required
+for approved flask extensions (described below).</p>
+<div class="admonition-note-on-init-app admonition">
+<p class="first admonition-title">Note on <tt class="docutils literal"><span class="pre">init_app</span></tt></p>
+<p>As you noticed, <tt class="docutils literal"><span class="pre">init_app</span></tt> does not assign <tt class="docutils literal"><span class="pre">app</span></tt> to <tt class="docutils literal"><span class="pre">self</span></tt>.  This
+is intentional!  Class based Flask extensions must only store the
+application on the object when the application was passed to the
+constructor.  This tells the extension: I am not interested in using
+multiple applications.</p>
+<p class="last">When the extension needs to find the current application and it does
+not have a reference to it, it must either use the
+<a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> context local or change the API in a way
+that you can pass the application explicitly.</p>
+</div>
+</div>
+<div class="section" id="using-app-ctx-stack">
+<h2>Using _app_ctx_stack</h2>
+<p>In the example above, before every request, a <tt class="docutils literal"><span class="pre">sqlite3_db</span></tt> variable is
+assigned to <tt class="docutils literal"><span class="pre">_app_ctx_stack.top</span></tt>.  In a view function, this variable is
+accessible using the <tt class="docutils literal"><span class="pre">connection</span></tt> property of <tt class="docutils literal"><span class="pre">SQLite3</span></tt>.  During the
+teardown of a request, the <tt class="docutils literal"><span class="pre">sqlite3_db</span></tt> connection is closed.  By using
+this pattern, the <em>same</em> connection to the sqlite3 database is accessible
+to anything that needs it for the duration of the request.</p>
+<p>If the <a class="reference internal" href="api.html#flask._app_ctx_stack" title="flask._app_ctx_stack"><tt class="xref py py-data docutils literal"><span class="pre">_app_ctx_stack</span></tt></a> does not exist because the user uses
+an old version of Flask, it is recommended to fall back to
+<a class="reference internal" href="api.html#flask._request_ctx_stack" title="flask._request_ctx_stack"><tt class="xref py py-data docutils literal"><span class="pre">_request_ctx_stack</span></tt></a> which is bound to a request.</p>
+</div>
+<div class="section" id="teardown-behavior">
+<h2>Teardown Behavior</h2>
+<p><em>This is only relevant if you want to support Flask 0.6 and older</em></p>
+<p>Due to the change in Flask 0.7 regarding functions that are run at the end
+of the request your extension will have to be extra careful there if it
+wants to continue to support older versions of Flask.  The following
+pattern is a good way to support both:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">_request_ctx_stack</span><span class="o">.</span><span class="n">top</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">sqlite3_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">response</span>
+
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s">&#39;teardown_request&#39;</span><span class="p">):</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">teardown_request</span><span class="p">(</span><span class="n">close_connection</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">after_request</span><span class="p">(</span><span class="n">close_connection</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Strictly speaking the above code is wrong, because teardown functions are
+passed the exception and typically don&#8217;t return anything.  However because
+the return value is discarded this will just work assuming that the code
+in between does not touch the passed parameter.</p>
+</div>
+<div class="section" id="learn-from-others">
+<h2>Learn from Others</h2>
+<p>This documentation only touches the bare minimum for extension
+development.  If you want to learn more, it&#8217;s a very good idea to check
+out existing extensions on the <a class="reference external" href="http://flask.pocoo.org/extensions/">Flask Extension Registry</a><span class="link-target"> [http://flask.pocoo.org/extensions/]</span>.  If you feel
+lost there is still the <a class="reference external" href="http://flask.pocoo.org/mailinglist/">mailinglist</a><span class="link-target"> [http://flask.pocoo.org/mailinglist/]</span> and the <a class="reference external" href="http://flask.pocoo.org/community/irc/">IRC channel</a><span class="link-target"> [http://flask.pocoo.org/community/irc/]</span> to get some
+ideas for nice looking APIs.  Especially if you do something nobody before
+you did, it might be a very good idea to get some more input.  This not
+only to get an idea about what people might want to have from an
+extension, but also to avoid having multiple developers working on pretty
+much the same side by side.</p>
+<p>Remember: good API design is hard, so introduce your project on the
+mailinglist, and let other developers give you a helping hand with
+designing the API.</p>
+<p>The best Flask extensions are extensions that share common idioms for the
+API.  And this can only work if collaboration happens early.</p>
+</div>
+<div class="section" id="approved-extensions">
+<h2>Approved Extensions</h2>
+<p>Flask also has the concept of approved extensions.  Approved extensions
+are tested as part of Flask itself to ensure extensions do not break on
+new releases.  These approved extensions are listed on the <a class="reference external" href="http://flask.pocoo.org/extensions/">Flask
+Extension Registry</a><span class="link-target"> [http://flask.pocoo.org/extensions/]</span> and marked appropriately.  If you want your own
+extension to be approved you have to follow these guidelines:</p>
+<ol class="arabic simple" start="0">
+<li>An approved Flask extension requires a maintainer. In the event an
+extension author would like to move beyond the project, the project should
+find a new maintainer including full source hosting transition and PyPI
+access.  If no maintainer is available, give access to the Flask core team.</li>
+<li>An approved Flask extension must provide exactly one package or module
+named <tt class="docutils literal"><span class="pre">flask_extensionname</span></tt>.  They might also reside inside a
+<tt class="docutils literal"><span class="pre">flaskext</span></tt> namespace packages though this is discouraged now.</li>
+<li>It must ship a testing suite that can either be invoked with <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt>
+or <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">test</span></tt>.  For test suites invoked with <tt class="docutils literal"><span class="pre">make</span>
+<span class="pre">test</span></tt> the extension has to ensure that all dependencies for the test
+are installed automatically.  If tests are invoked with <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span>
+<span class="pre">test</span></tt>, test dependencies can be specified in the <cite>setup.py</cite> file.  The
+test suite also has to be part of the distribution.</li>
+<li>APIs of approved extensions will be checked for the following
+characteristics:<ul>
+<li>an approved extension has to support multiple applications
+running in the same Python process.</li>
+<li>it must be possible to use the factory pattern for creating
+applications.</li>
+</ul>
+</li>
+<li>The license must be BSD/MIT/WTFPL licensed.</li>
+<li>The naming scheme for official extensions is <em>Flask-ExtensionName</em> or
+<em>ExtensionName-Flask</em>.</li>
+<li>Approved extensions must define all their dependencies in the
+<cite>setup.py</cite> file unless a dependency cannot be met because it is not
+available on PyPI.</li>
+<li>The extension must have documentation that uses one of the two Flask
+themes for Sphinx documentation.</li>
+<li>The setup.py description (and thus the PyPI description) has to
+link to the documentation, website (if there is one) and there
+must be a link to automatically install the development version
+(<tt class="docutils literal"><span class="pre">PackageName==dev</span></tt>).</li>
+<li>The <tt class="docutils literal"><span class="pre">zip_safe</span></tt> flag in the setup script must be set to <tt class="docutils literal"><span class="pre">False</span></tt>,
+even if the extension would be safe for zipping.</li>
+<li>An extension currently has to support Python 2.5, 2.6 as well as
+Python 2.7</li>
+</ol>
+</div>
+<div class="section" id="extension-import-transition">
+<span id="ext-import-transition"></span><h2>Extension Import Transition</h2>
+<p>For a while we recommended using namespace packages for Flask extensions.
+This turned out to be problematic in practice because many different
+competing namespace package systems exist and pip would automatically
+switch between different systems and this caused a lot of problems for
+users.</p>
+<p>Instead we now recommend naming packages <tt class="docutils literal"><span class="pre">flask_foo</span></tt> instead of the now
+deprecated <tt class="docutils literal"><span class="pre">flaskext.foo</span></tt>.  Flask 0.8 introduces a redirect import
+system that lets uses import from <tt class="docutils literal"><span class="pre">flask.ext.foo</span></tt> and it will try
+<tt class="docutils literal"><span class="pre">flask_foo</span></tt> first and if that fails <tt class="docutils literal"><span class="pre">flaskext.foo</span></tt>.</p>
+<p>Flask extensions should urge users to import from <tt class="docutils literal"><span class="pre">flask.ext.foo</span></tt>
+instead of <tt class="docutils literal"><span class="pre">flask_foo</span></tt> or <tt class="docutils literal"><span class="pre">flaskext_foo</span></tt> so that extensions can
+transition to the new package name without affecting users.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

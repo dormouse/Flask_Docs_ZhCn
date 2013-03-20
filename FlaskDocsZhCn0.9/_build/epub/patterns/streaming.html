@@ -1,0 +1,118 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>流内容</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="deferredcallbacks.html" title="延迟的请求回调"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="favicon.html" title="添加一个页面图标"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>流内容</h1>
+<p>有时候你会需要把大量数据传送到客户端，不在内存中保存这些数据。当你想把运行中产生
+的数据不经过文件系统，而是直接发送给客户端时，应当怎么做呢？</p>
+<p>答案是使用生成器和直接响应。</p>
+<div class="section" id="id2">
+<h2>基本用法</h2>
+<p>下面是一个在运行中产生大量 CSV 数据的基本视图函数。其技巧是调用一个内联函数生成
+数据，把这个函数传递给一个响应对象:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Response</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/large.csv&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">generate_large_csv</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">iter_all_rows</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s">&#39;text/csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>每个 <tt class="docutils literal"><span class="pre">yield</span></tt> 表达式被直接传送给浏览器。现在有一些 WSGI 中间件可能会打断流
+内容，因此在使用分析器或者其他工具的调试环境中要小心一些。</p>
+</div>
+<div class="section" id="id3">
+<h2>模板中的流内容</h2>
+<p>Jinja2 模板引擎也支持分片渲染模板。这个功能不是直接被 Flask 支持的，因为它太
+特殊了，但是你可以方便地自已来做:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Response</span>
+
+<span class="k">def</span> <span class="nf">stream_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">):</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">update_template_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">jinja_env</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">)</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">rv</span><span class="o">.</span><span class="n">enable_buffering</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rv</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/my-large-page.html&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">render_large_template</span><span class="p">():</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">iter_all_rows</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">stream_template</span><span class="p">(</span><span class="s">&#39;the_template.html&#39;</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>上例的技巧是从 Jinja2 环境中获得应用的模板对象，并调用
+<tt class="xref py py-meth docutils literal"><span class="pre">stream()</span></tt> 来代替 <tt class="xref py py-meth docutils literal"><span class="pre">render()</span></tt> ，返回
+一个流对象来代替一个字符串。由于我们绕过了 Flask 的模板渲染函数使用了模板对象
+本身，因此我们需要调用 <a class="reference internal" href="../api.html#flask.Flask.update_template_context" title="flask.Flask.update_template_context"><tt class="xref py py-meth docutils literal"><span class="pre">update_template_context()</span></tt></a> ，以确保
+更新被渲染的内容。这样，模板遍历流内容。由于每次产生内容后，服务器都会把内容
+发送给客户端，因此可能需要缓存来保存内容。我们使用了
+<tt class="docutils literal"><span class="pre">rv.enable_buffering(size)</span></tt> 来进行缓存。 <tt class="docutils literal"><span class="pre">5</span></tt> 是一个比较明智的缺省值。</p>
+</div>
+<div class="section" id="id4">
+<h2>环境中的流内容</h2>
+<p class="versionadded">
+<span class="versionmodified">0.9 新版功能.</span></p>
+<p>注意，当你生成流内容时，请求环境已经在函数执行时消失了。 Flask 0.9 为你提供了
+一点帮助，让你可以在生成器运行期间保持请求环境:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">stream_with_context</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">Response</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/stream&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">streamed_response</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="s">&#39;Hello &#39;</span>
+        <span class="k">yield</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">yield</span> <span class="s">&#39;!&#39;</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">stream_with_context</span><span class="p">(</span><span class="n">generate</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>如果没有使用 <a class="reference internal" href="../api.html#flask.stream_with_context" title="flask.stream_with_context"><tt class="xref py py-func docutils literal"><span class="pre">stream_with_context()</span></tt></a> 函数，那么就会引发
+<tt class="xref py py-class docutils literal"><span class="pre">RuntimeError</span></tt> 错误。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

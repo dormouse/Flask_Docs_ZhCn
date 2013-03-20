@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>惰性载入视图</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="mongokit.html" title="在 Flask 中使用 MongoKit"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="errorpages.html" title="自定义出错页面"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>惰性载入视图</h1>
+<p>Flask 通常使用装饰器。装饰器简单易用，只要把 URL 放在相应的函数的前面就可以了。
+但是这种方式有一个缺点：使用装饰器的代码必须预先导入，否则 Flask 就无法真正找到
+你的函数。</p>
+<p>当你必须快速导入应用时，这就会成为一个问题。在 Google App Engine 或其他系统中，
+必须快速导入应用。因此，如果你的应用存在这个问题，那么必须使用集中 URL 映射。</p>
+<p><a class="reference internal" href="../api.html#flask.Flask.add_url_rule" title="flask.Flask.add_url_rule"><tt class="xref py py-meth docutils literal"><span class="pre">add_url_rule()</span></tt></a> 函数用于集中 URL 映射，与使用装饰器不同的是你
+需要一个设置应用所有 URL 的专门文件。</p>
+<div class="section" id="url">
+<h2>转换为集中 URL 映射</h2>
+<p>假设有如下应用:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>为了集中映射，我们创建一个不使用装饰器的文件（ <cite>views.py</cite> ）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>在另一个文件中集中映射函数与 URL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">views</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">views</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">views</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>延迟载入</h2>
+<p>至此，我们只是把视图与路由分离，但是模块还是预先载入了。理想的方式是按需载入
+视图。下面我们使用一个类似函数的辅助类来实现按需载入:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">import_string</span><span class="p">,</span> <span class="n">cached_property</span>
+
+<span class="k">class</span> <span class="nc">LazyView</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">import_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">import_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_name</span> <span class="o">=</span> <span class="n">import_name</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">import_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">import_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例中最重要的是正确设置 <cite>__module__</cite> 和 <cite>__name__</cite> ，它被用于在不提供 URL 规则
+的情况下正确命名 URL 规则。</p>
+<p>然后可以这样集中定义 URL 规则:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">yourapplication.helpers</span> <span class="kn">import</span> <span class="n">LazyView</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span>
+                 <span class="n">view_func</span><span class="o">=</span><span class="n">LazyView</span><span class="p">(</span><span class="s">&#39;yourapplication.views.index&#39;</span><span class="p">))</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">,</span>
+                 <span class="n">view_func</span><span class="o">=</span><span class="n">LazyView</span><span class="p">(</span><span class="s">&#39;yourapplication.views.user&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>还可以进一步优化代码：写一个函数调用 <a class="reference internal" href="../api.html#flask.Flask.add_url_rule" title="flask.Flask.add_url_rule"><tt class="xref py py-meth docutils literal"><span class="pre">add_url_rule()</span></tt></a> ，加上
+应用前缀和点符号:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="n">url_rule</span><span class="p">,</span> <span class="n">import_name</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+    <span class="n">view</span> <span class="o">=</span> <span class="n">LazyView</span><span class="p">(</span><span class="s">&#39;yourapplication.&#39;</span> <span class="o">+</span> <span class="n">import_name</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="n">url_rule</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">view</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+<span class="n">url</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;views.index&#39;</span><span class="p">)</span>
+<span class="n">url</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;views.user&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>有一件事情要牢记：请求前和请求后处理器必须在第一个请求前导入。</p>
+<p>其余的装饰器可以同样用上述方法改写。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

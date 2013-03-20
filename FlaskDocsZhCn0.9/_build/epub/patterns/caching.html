@@ -1,0 +1,101 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>缓存</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="viewdecorators.html" title="视图装饰器"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="fileuploads.html" title="上传文件"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="caching-pattern">
+<span id="id1"></span><h1>缓存</h1>
+<p>当你的应用变慢的时候，可以考虑加入缓存。至少这是最简单的加速方法。缓存有什么用？
+假设有一个函数耗时较长，但是这个函数在五分钟前返回的结果还是正确的。那么我们就
+可以考虑把这个函数的结果在缓存中存放一段时间。</p>
+<p>Flask 本身不提供缓存，但是它的基础库之一 Werkzeug 有一些非常基本的缓存支持。它
+支持多种缓存后端，通常你需要使用的是 memcached 服务器。</p>
+<div class="section" id="id2">
+<h2>设置一个缓存</h2>
+<p>与创建 <a class="reference internal" href="../api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 对象类似，你需要创建一个缓存对象并保持它。如果你
+正在使用开发服务器，那么你可以创建一个
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.SimpleCache" title="(in Werkzeug v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">SimpleCache</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.SimpleCache]</span> 对象。这个对象提供简单的缓存，它把
+缓存项目保存在 Python 解释器的内存中:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.contrib.cache</span> <span class="kn">import</span> <span class="n">SimpleCache</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">SimpleCache</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>如果你要使用 memcached ，那么请确保有 memcache 模块支持（你可以从
+<a class="reference external" href="http://pypi.python.org/">PyPI</a><span class="link-target"> [http://pypi.python.org/]</span> 获得模块）和一个正在运行的 memcached 服务器。
+连接 memcached 服务器示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.contrib.cache</span> <span class="kn">import</span> <span class="n">MemcachedCache</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">MemcachedCache</span><span class="p">([</span><span class="s">&#39;127.0.0.1:11211&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>如果你正在使用 App Engine ，那么你可以方便地连接到 App Engine memcache 服务器:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.contrib.cache</span> <span class="kn">import</span> <span class="n">GAEMemcachedCache</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">GAEMemcachedCache</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>使用缓存</h2>
+<p>现在的问题是如何使用缓存呢？有两个非常重要的操作：
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.get" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.get]</span> 和
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.set" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">set()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.set]</span> 。下面展示如何使用它们：</p>
+<p><a class="reference external" href="http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.get" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.get]</span> 用于从缓存中获得项目，调用时使用
+一个字符串作为键名。如果项目存在，那么就会返回这个项目，否则返回 <cite>None</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rv</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;my-item&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.set" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">set()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/contrib/cache/#werkzeug.contrib.cache.BaseCache.set]</span> 用于把项目添加到缓存中。第一个参数
+是键名，第二个参数是键值。还可以提供一个超时参数，当超过时间后项目会自动删除。</p>
+<p>下面是一个完整的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_my_item</span><span class="p">():</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;my-item&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">calculate_value</span><span class="p">()</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;my-item&#39;</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rv</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>
