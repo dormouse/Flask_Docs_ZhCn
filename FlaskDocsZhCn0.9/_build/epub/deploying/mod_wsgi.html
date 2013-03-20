@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mod_wsgi (Apache)</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="wsgi-standalone.html" title="独立 WSGI 容器"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="部署方式"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">部署方式</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="mod-wsgi-apache">
+<span id="mod-wsgi-deployment"></span><h1>mod_wsgi (Apache)</h1>
+<p>如果你正在使用 <a class="reference external" href="http://httpd.apache.org/">Apache</a><span class="link-target"> [http://httpd.apache.org/]</span> 网络服务器，那么建议使用 <a class="reference external" href="http://code.google.com/p/modwsgi/">mod_wsgi</a><span class="link-target"> [http://code.google.com/p/modwsgi/]</span> 。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">小心</p>
+<p class="last">请务必把 <tt class="docutils literal"><span class="pre">app.run()</span></tt> 放在 <tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></tt> 内部或者放在单独
+的文件中，这样可以保证它不会被调用。因为，每调用一次就会开启一个本地 WSGI
+服务器。当我们使用 mod_wsgi 部署应用时，不需要使用本地服务器。</p>
+</div>
+<div class="section" id="mod-wsgi">
+<h2>安装 <cite>mod_wsgi</cite></h2>
+<p>可以使用包管理器或编译的方式安装 <cite>mod_wsgi</cite> 。在 UNIX 系统中如何使用源代码安装
+请阅读 mod_wsgi <a class="reference external" href="http://code.google.com/p/modwsgi/wiki/QuickInstallationGuide">安装介绍</a><span class="link-target"> [http://code.google.com/p/modwsgi/wiki/QuickInstallationGuide]</span> 。</p>
+<p>如果你使用的是 Ubuntu/Debian ，那么可以使用如下命令安装：</p>
+<div class="highlight-text"><div class="highlight"><pre># apt-get install libapache2-mod-wsgi
+</pre></div>
+</div>
+<p>在 FreeBSD 系统中，可以通过编译 <cite>www/mod_wsgi</cite> port 或使用 pkg_add 来安装
+<cite>mod_wsgi</cite> ：</p>
+<div class="highlight-text"><div class="highlight"><pre># pkg_add -r mod_wsgi
+</pre></div>
+</div>
+<p>如果你使用 pkgsrc ，那么可以通过编译 <cite>www/ap2-wsgi</cite> 包来安装 <cite>mod_wsgi</cite> 。</p>
+<p>如果你遇到子进程段错误的话，不要理它，重启服务器就可以了。</p>
+</div>
+<div class="section" id="wsgi">
+<h2>创建一个 <cite>.wsgi</cite> 文件</h2>
+<p>为了运行应用，你需要一个 <cite>yourapplication.wsgi</cite> 文件。这个文件包含 <cite>mod_wsgi</cite>
+开始时需要运行的代码，通过代码可以获得应用对象。文件中的 <cite>application</cite> 对象就
+是以后要使用的应用。</p>
+<p>对于大多数应用来说，文件包含以下内容就可以了:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span> <span class="k">as</span> <span class="n">application</span>
+</pre></div>
+</div>
+<p>如果你的应用没有创建函数，只是一个独立的实例，那么可以直接把实例导入为
+<cite>application</cite> 。</p>
+<p>把文件放在一个以后可以找得到的地方（例如 <cite>/var/www/yourapplication</cite> ），并确保
+<cite>yourapplication</cite> 和所有需要使用的库都位于 pythonpath 中。如果你不想在整个系统
+中安装，建议使用 <a class="reference external" href="http://pypi.python.org/pypi/virtualenv">virtual python</a><span class="link-target"> [http://pypi.python.org/pypi/virtualenv]</span> 实例。请记住，最好把应用安装到虚拟环境中。
+有一个可选项是在 <cite>.wsgi</cite> 文件中，在导入前加入路径:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;/path/to/the/application&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>配置 Apache</h2>
+<p>最后一件事是为你的应用创建一个 Apache 配置文件。基于安全原因，在下例中我们告诉
+<cite>mod_wsgi</cite> 使用另外一个用户运行应用：</p>
+<div class="highlight-apache"><div class="highlight"><pre><span class="nt">&lt;VirtualHost</span> <span class="s">*</span><span class="nt">&gt;</span>
+    <span class="nb">ServerName</span> example.com
+
+    <span class="nb">WSGIDaemonProcess</span> yourapplication <span class="k">user</span>=user1 <span class="k">group</span>=group1 threads=5
+    <span class="nb">WSGIScriptAlias</span> / <span class="sx">/var/www/yourapplication/yourapplication.wsgi</span>
+
+    <span class="nt">&lt;Directory</span> <span class="s">/var/www/yourapplication</span><span class="nt">&gt;</span>
+        <span class="nb">WSGIProcessGroup</span> yourapplication
+        <span class="nb">WSGIApplicationGroup</span> %{GLOBAL}
+        <span class="nb">Order</span> deny,allow
+        <span class="nb">Allow</span> from <span class="k">all</span>
+    <span class="nt">&lt;/Directory&gt;</span>
+<span class="nt">&lt;/VirtualHost&gt;</span>
+</pre></div>
+</div>
+<p>更多信息参见 <a class="reference external" href="http://code.google.com/p/modwsgi/wiki/">mod_wsgi 维基</a><span class="link-target"> [http://code.google.com/p/modwsgi/wiki/]</span> 。</p>
+</div>
+<div class="section" id="id5">
+<h2>故障排除</h2>
+<p>如果你的应用无法运行，请按以下指导排除故障：</p>
+<dl class="docutils">
+<dt><strong>问题：</strong> 应用无法运行，出错记录显示 SystemExit ignored</dt>
+<dd>应用文件中有 <tt class="docutils literal"><span class="pre">app.run()</span></tt> 调用，但没有放在 <tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></tt>
+块内。要么把这个调用放入块内，要么把它放在一个单独的 <cite>run.py</cite> 文件中。</dd>
+<dt><strong>问题：</strong> 权限错误</dt>
+<dd>有可以是因为使用了错误的用户运行应用。请检查用户及其所在的组
+（ <cite>WSGIDaemonProcess</cite> 的 <tt class="docutils literal"><span class="pre">user</span></tt> 和 <tt class="docutils literal"><span class="pre">group</span></tt> 参数）是否有权限访问应用
+文件夹。</dd>
+<dt><strong>问题：</strong> 打印时应用歇菜</dt>
+<dd><p class="first">请记住 mod_wsgi 不允许使用 <a class="reference external" href="http://docs.python.org/dev/library/sys.html#sys.stdout" title="(in Python v3.4)"><tt class="xref py py-data docutils literal"><span class="pre">sys.stdout</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/sys.html#sys.stdout]</span> 和 <a class="reference external" href="http://docs.python.org/dev/library/sys.html#sys.stderr" title="(in Python v3.4)"><tt class="xref py py-data docutils literal"><span class="pre">sys.stderr</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/sys.html#sys.stderr]</span> 。把
+<cite>WSGIRestrictStdout</cite> 设置为 <tt class="docutils literal"><span class="pre">off</span></tt> 可以去掉这个保护：</p>
+<div class="highlight-apache"><div class="highlight"><pre><span class="nb">WSGIRestrictStdout</span> <span class="k">Off</span>
+</pre></div>
+</div>
+<p>或者你可以在 .wsgi 文件中把标准输出替换为其他的流:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>问题：</strong> 访问资源时遇到 IO 错误</dt>
+<dd><p class="first">你的应用可能是一个独立的 .py 文件，且你把它符号连接到了 site-packages
+文件夹。这样是不对的，你应当要么把文件夹放到 pythonpath 中，要么把你的应用
+转换为一个包。</p>
+<p class="last">产生这种错误的原因是对于非安装包来说，模块的文件名用于定位资源，如果使用
+符号连接的话就会定位到错误的文件名。</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id6">
+<h2>支持自动重载</h2>
+<p>为了辅助部署工具，你可以激活自动重载。这样，一旦 <cite>.wsgi</cite> 文件有所变动，
+<cite>mod_wsgi</cite> 就会自动重新转入所有守护进程。</p>
+<p>在 <cite>Directory</cite> 一节中加入以下指令就可以实现自动重载：</p>
+<div class="highlight-apache"><div class="highlight"><pre><span class="nb">WSGIScriptReloading</span> <span class="k">On</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>使用虚拟环境</h2>
+<p>使用虚拟环境的优点是不必全局安装应用所需要的依赖，这样我们就可以更好地按照自己
+的需要进行控制。如果要在虚拟环境下使用 mod_wsgi ，那么我们要对 <cite>.wsgi</cite> 略作
+改变。</p>
+<p>在你的 <cite>.wsgi</cite> 文件顶部加入下列内容:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">activate_this</span> <span class="o">=</span> <span class="s">&#39;/path/to/env/bin/activate_this.py&#39;</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="n">activate_this</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">__file__</span><span class="o">=</span><span class="n">activate_this</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>以上代码会根据虚拟环境的设置载入相关路径。请记住路径必须是绝对路径。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>配置管理</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="signals.html" title="信号"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="errorhandling.html" title="掌握应用错误"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="config">
+<span id="id1"></span><h1>配置管理</h1>
+<p class="versionadded">
+<span class="versionmodified">0.3 新版功能.</span></p>
+<p>应用总是需要一定的配置的。根据应用环境不同，会需要不同的配置。比如开关调试
+模式、设置密钥以及其他依赖于环境的东西。</p>
+<p>Flask 的设计思路是在应用开始时载入配置。你可以在代码中直接硬编码写入配置，对于
+许多小应用来说这不一写是一件坏事，但是还有更好的方法。</p>
+<p>不管你使用何种方式载入配置，都可以使用 <a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 的
+<a class="reference internal" href="api.html#flask.Flask.config" title="flask.Flask.config"><tt class="xref py py-attr docutils literal"><span class="pre">config</span></tt></a> 属性来操作配置的值。 Flask 本身就使用这个对象来保存
+一些配置，扩展也可以使用这个对象保存配置。同时这也是你保存配置的地方。</p>
+<div class="section" id="id2">
+<h2>配置入门</h2>
+<p><a class="reference internal" href="api.html#flask.Flask.config" title="flask.Flask.config"><tt class="xref py py-attr docutils literal"><span class="pre">config</span></tt></a> 实质上是一个字典的子类，可以像字典一样操作:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;DEBUG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>某些配置值还转移到了 <a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-attr docutils literal"><span class="pre">Flask</span></tt></a> 对象中，可以直接通过
+<a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-attr docutils literal"><span class="pre">Flask</span></tt></a> 来操作:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>一次更新多个配置值可以使用 <a class="reference external" href="http://docs.python.org/dev/library/stdtypes.html#dict.update" title="(in Python v3.4)"><tt class="xref py py-meth docutils literal"><span class="pre">dict.update()</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/stdtypes.html#dict.update]</span> 方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">DEBUG</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">SECRET_KEY</span><span class="o">=</span><span class="s">&#39;...&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>内置配置变量</h2>
+<p>以下配置变量由 Flask 内部使用：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<td>开关调试模式</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">TESTING</span></tt></td>
+<td>开关测试模式</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PROPAGATE_EXCEPTIONS</span></tt></td>
+<td>显式开关异常的传播。当 <cite>TESTING</cite> 或
+<cite>DEBUG</cite> 为真时，总是开启的。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PRESERVE_CONTEXT_ON_EXCEPTION</span></tt></td>
+<td>缺省情况下，如果应用在调试模式下运行，
+那么请求环境在发生异常时不会被弹出，以
+方便调试器内省数据。可以通过这个配置来
+禁止这样做。还可以使用这个配置强制不执行
+调试，这样可能有助于调试生产应用（风险
+大）。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SECRET_KEY</span></tt></td>
+<td>密钥</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SESSION_COOKIE_NAME</span></tt></td>
+<td>会话 cookie 的名称</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SESSION_COOKIE_DOMAIN</span></tt></td>
+<td>会话 cookie 的域。如果没有配置，那么
+<tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> 的所有子域都可以使用
+这个 cookie 。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SESSION_COOKIE_PATH</span></tt></td>
+<td>会话 cookie 的路径。如果没有配置，那么
+所有 <tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt> 都可以使用
+cookie 。如果没有设置
+<tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt> ，那么 <tt class="docutils literal"><span class="pre">'/'</span></tt> 可以
+使用 cookie 。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SESSION_COOKIE_HTTPONLY</span></tt></td>
+<td>设置 cookie 的 httponly 标志，缺省为
+<cite>True</cite> 。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SESSION_COOKIE_SECURE</span></tt></td>
+<td>设置 cookie 的安全标志，缺省为
+<cite>False</cite> 。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PERMANENT_SESSION_LIFETIME</span></tt></td>
+<td>常驻会话的存活期，其值是一个
+<a class="reference external" href="http://docs.python.org/dev/library/datetime.html#datetime.timedelta" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">datetime.timedelta</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/datetime.html#datetime.timedelta]</span> 对象。
+自 Flask 0.8 开始，其值可以是一个整数，
+表示秒数。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">USE_X_SENDFILE</span></tt></td>
+<td>开关 x-sendfile</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">LOGGER_NAME</span></tt></td>
+<td>日志记录器的名称</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></td>
+<td>服务器的名称和端口号，用于支持子域（如：
+<tt class="docutils literal"><span class="pre">'myapp.dev:5000'</span></tt> ）。注意设置为
+“ localhost ”没有用，因为 localhost 不
+支持子域。设置了 <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> 后，在
+缺省情况下会启用使用应用环境而不使用请求
+环境的 URL 生成。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt></td>
+<td>如果应用不占用整个域或子域，那么可以用
+这个配置来设定应用的路径。这个配置还用作
+会话 cookie 的路径。如果使用了整个域，
+那么这个配置的值应当为 <tt class="docutils literal"><span class="pre">None</span></tt> 。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">MAX_CONTENT_LENGTH</span></tt></td>
+<td>这个配置的值单位为字节，如果设置了，那么
+Flask 会拒绝超过设定长度的请求，返回一个
+413 状态码。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SEND_FILE_MAX_AGE_DEFAULT</span></tt></td>
+<td><a class="reference internal" href="api.html#flask.Flask.send_static_file" title="flask.Flask.send_static_file"><tt class="xref py py-meth docutils literal"><span class="pre">send_static_file()</span></tt></a> （
+缺省静态文件处理器）和
+<a class="reference internal" href="api.html#flask.send_file" title="flask.send_file"><tt class="xref py py-func docutils literal"><span class="pre">send_file()</span></tt></a> 使用的缺省缓存
+最大存活期控制，以秒为单位。把
+<a class="reference internal" href="api.html#flask.Flask.get_send_file_max_age" title="flask.Flask.get_send_file_max_age"><tt class="xref py py-meth docutils literal"><span class="pre">get_send_file_max_age()</span></tt></a>
+分别挂勾到 <a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 或
+<a class="reference internal" href="api.html#flask.Blueprint" title="flask.Blueprint"><tt class="xref py py-class docutils literal"><span class="pre">Blueprint</span></tt></a> 上，可以重载每个
+文件的值。缺省值为 43200 （ 12 小时）。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">TRAP_HTTP_EXCEPTIONS</span></tt></td>
+<td>如果设置为 <tt class="docutils literal"><span class="pre">True</span></tt> ，那么 Flask 将不
+执行 HTTP 异常的错误处理，而是把它像其它
+异常同样对待并把它压入异常堆栈。当你在
+必须查找出一个 HTTP 异常来自哪里的情况下
+这个 配置比较有用。</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">TRAP_BAD_REQUEST_ERRORS</span></tt></td>
+<td>Werkzeug 用于处理请求特殊数据的内部数据
+结构会引发坏请求异常。同样，许多操作为了
+一致性会使用一个坏请求隐藏操作失败。在
+这种情况下，这个配置可以在调试时辨别到底
+为什么会失败。如果这个配置设为
+<tt class="docutils literal"><span class="pre">True</span></tt> ，那么就只能得到一个普通的反馈。</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PREFERRED_URL_SCHEME</span></tt></td>
+<td>在没有可用的模式的情况下， URL 生成所
+使用的 URL 模式。缺省值为 <tt class="docutils literal"><span class="pre">http</span></tt> 。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-server-name admonition">
+<p class="first admonition-title">关于 <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> 的更多说明</p>
+<p><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> 配置用于支持子域。如果要使用子域，那么就需要这个配置。因为
+Flask 在不知道真正服务器名称的情况下无法得知子域。这个配置也用于会话
+cookie 。</p>
+<p class="last">请记住，不仅 Flask 是在使用子域时有这样的问题，你的浏览器同样如此。大多数
+现代浏览器不会允许在没有点的服务器名称上设置跨子域 cookie 。因此，如果你的
+服务器名称是 <tt class="docutils literal"><span class="pre">'localhost'</span></tt> ，那么你将不能为 <tt class="docutils literal"><span class="pre">'localhost'</span></tt> 和所有子域设置
+cookie 。在这种情况下请选择一个其他服务器名称，如
+<tt class="docutils literal"><span class="pre">'myapplication.local'</span></tt> 。并且把名称加上要使用的子域写入主机配置中或者设置
+一个本地 <a class="reference external" href="https://www.isc.org/software/bind">bind</a><span class="link-target"> [https://www.isc.org/software/bind]</span> 。</p>
+</div>
+<p class="versionadded">
+<span class="versionmodified">0.4 新版功能: </span><tt class="docutils literal"><span class="pre">LOGGER_NAME</span></tt></p>
+<p class="versionadded">
+<span class="versionmodified">0.5 新版功能: </span><tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt></p>
+<p class="versionadded">
+<span class="versionmodified">0.6 新版功能: </span><tt class="docutils literal"><span class="pre">MAX_CONTENT_LENGTH</span></tt></p>
+<p class="versionadded">
+<span class="versionmodified">0.7 新版功能: </span><tt class="docutils literal"><span class="pre">PROPAGATE_EXCEPTIONS</span></tt>, <tt class="docutils literal"><span class="pre">PRESERVE_CONTEXT_ON_EXCEPTION</span></tt></p>
+<p class="versionadded">
+<span class="versionmodified">0.8 新版功能: </span><tt class="docutils literal"><span class="pre">TRAP_BAD_REQUEST_ERRORS</span></tt>, <tt class="docutils literal"><span class="pre">TRAP_HTTP_EXCEPTIONS</span></tt>,
+<tt class="docutils literal"><span class="pre">APPLICATION_ROOT</span></tt>, <tt class="docutils literal"><span class="pre">SESSION_COOKIE_DOMAIN</span></tt>,
+<tt class="docutils literal"><span class="pre">SESSION_COOKIE_PATH</span></tt>, <tt class="docutils literal"><span class="pre">SESSION_COOKIE_HTTPONLY</span></tt>,
+<tt class="docutils literal"><span class="pre">SESSION_COOKIE_SECURE</span></tt></p>
+<p class="versionadded">
+<span class="versionmodified">0.9 新版功能: </span><tt class="docutils literal"><span class="pre">PREFERRED_URL_SCHEME</span></tt></p>
+</div>
+<div class="section" id="id4">
+<h2>使用配置文件</h2>
+<p>如果把配置放在一个单独的文件中会更有用。理想情况下配置文件应当放在应用包的
+外面。这样可以在修改配置文件时不影响应用的打包与分发（
+<a class="reference internal" href="patterns/distribute.html#distribute-deployment"><em>使用 Distribute 部署</em></a> ）。</p>
+<p>因此，常见用法如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;yourapplication.default_settings&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_envvar</span><span class="p">(</span><span class="s">&#39;YOURAPPLICATION_SETTINGS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>首先从 <cite>yourapplication.default_settings</cite> 模块载入配置，然后根据
+<span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">YOURAPPLICATION_SETTINGS</span></tt> 环境变量所指向的文件的内容重载配置的值。在
+启动服务器前，在 Linux 或 OS X 操作系统中，这个环境变量可以在终端中使用
+export 命令来设置:</p>
+<div class="highlight-python"><pre>$ export YOURAPPLICATION_SETTINGS=/path/to/settings.cfg
+$ python run-app.py
+ * Running on http://127.0.0.1:5000/
+ * Restarting with reloader...</pre>
+</div>
+<p>在 Windows 系统中使用内置的 <cite>set</cite> 来代替:</p>
+<div class="highlight-python"><pre>&gt;set YOURAPPLICATION_SETTINGS=\path\to\settings.cfg</pre>
+</div>
+<p>配置文件本身实质是 Python 文件。只有全部是大写字母的变量才会被配置对象所使用。
+因此请确保使用大写字母。</p>
+<p>一个配置文件的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># 配置示例</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="s">&#39;?</span><span class="se">\xbf</span><span class="s">,</span><span class="se">\xb4\x8d\xa3</span><span class="s">&quot;&lt;</span><span class="se">\x9c\xb0</span><span class="s">@</span><span class="se">\x0f</span><span class="s">5</span><span class="se">\xab</span><span class="s">,w</span><span class="se">\xee\x8d</span><span class="s">$0</span><span class="se">\x13\x8b</span><span class="s">83&#39;</span>
+</pre></div>
+</div>
+<p>请确保尽早载入配置，以便于扩展在启动时可以访问相关配置。除了从文件载入配置外，
+配置对象还有其他方法可以载入配置，详见 <a class="reference internal" href="api.html#flask.Config" title="flask.Config"><tt class="xref py py-class docutils literal"><span class="pre">Config</span></tt></a> 对象的文档。</p>
+</div>
+<div class="section" id="id5">
+<h2>配置的最佳实践</h2>
+<p>前述的方法的缺点是测试有一点点麻烦。通常解决这个问题没有标准答案，但有些好的
+好的建议：</p>
+<ol class="arabic simple">
+<li>在一个函数中创建你的应用并注册“蓝图”。这样就可以使用不同配置创建多个
+实例，极大方便单元测试。你可以按需载入配置。</li>
+<li>不要编写在导入时就访问配置的代码。如果你限制自己只能通过请求访问代码，那么
+你可以以后按需配置对象。</li>
+</ol>
+</div>
+<div class="section" id="id6">
+<h2>开发/生产</h2>
+<p>大多数应用需要一个以上的配置。最起码需要一个配置用于生产服务器，另一个配置用于
+开发。应对这种情况的最简单的方法总是载入一个缺省配置，并把这个缺省配置作为版本
+控制的一部分。然后，把需要重载的配置，如前文所述，放在一个独立的文件中:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;yourapplication.default_settings&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_envvar</span><span class="p">(</span><span class="s">&#39;YOURAPPLICATION_SETTINGS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然后你只要增加一个独立的 <cite>config.py</cite> 文件并导出
+<tt class="docutils literal"><span class="pre">YOURAPPLICATION_SETTINGS=/path/to/config.py</span></tt> 就可了。当然还有其他方法可选，
+例如可以使用导入或子类。</p>
+<p>在 Django 应用中，通常的做法是在文件的开关增加
+<tt class="docutils literal"><span class="pre">from</span> <span class="pre">yourapplication.default_settings</span> <span class="pre">import</span> <span class="pre">*</span></tt> 进行显式地导入，然后手工重载
+配置。你还可以通过检查一个 <tt class="docutils literal"><span class="pre">YOURAPPLICATION_MODE</span></tt> 之类的环境变量（变量值设置
+为 <cite>production</cite> 或 <cite>development</cite> 等等）来导入不同的配置文件。</p>
+<p>一个有趣的方案是使用类和类的继承来配置:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">TESTING</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">DATABASE_URI</span> <span class="o">=</span> <span class="s">&#39;sqlite://:memory:&#39;</span>
+
+<span class="k">class</span> <span class="nc">ProductionConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
+    <span class="n">DATABASE_URI</span> <span class="o">=</span> <span class="s">&#39;mysql://user@localhost/foo&#39;</span>
+
+<span class="k">class</span> <span class="nc">DevelopmentConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
+    <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="k">class</span> <span class="nc">TestingConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
+    <span class="n">TESTING</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>如果要使用这样的方案，那么必须使用
+<a class="reference internal" href="api.html#flask.Config.from_object" title="flask.Config.from_object"><tt class="xref py py-meth docutils literal"><span class="pre">from_object()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;configmodule.ProductionConfig&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>配置的方法多种多样，由你定度。以下是一些建议：</p>
+<ul class="simple">
+<li>在版本控制中保存一个缺省配置。要么在应用中使用这些缺省配置，要么先导入缺省
+配置然后用你自己的配置文件来重载缺省配置。</li>
+<li>使用一个环境变量来切换不同的配置。这样就可以在 Python 解释器外进行切换，而
+根本不用改动代码，使开发和部署更方便，更快捷。如果你经常在不同的项目间
+切换，那么你甚至可以创建代码来激活 virtualenv 并导出开发配置。</li>
+<li>在生产应用中使用 <a class="reference external" href="http://fabfile.org/">fabric</a><span class="link-target"> [http://fabfile.org/]</span> 之类的工具，向服务器分别传送代码和配置。更多细节
+参见 <a class="reference internal" href="patterns/fabric.html#fabric-deployment"><em>使用 Fabric 部署</em></a> 方案。</li>
+</ul>
+</div>
+<div class="section" id="instance-folders">
+<span id="id7"></span><h2>实例文件夹</h2>
+<p class="versionadded">
+<span class="versionmodified">0.8 新版功能.</span></p>
+<p>Flask 0.8 引入了实例文件夹。 Flask 花了很长时间才能够直接使用应用文件夹的路径（
+通过 <tt class="xref py py-attr docutils literal"><span class="pre">Flask.root_path</span></tt> ）。这也是许多开发者载入应用文件夹外的配置的方法。
+不幸的是这种方法只能用于应用不是一个包的情况下，即根路径指向包的内容的情况。</p>
+<p>Flask 0.8 引入了一个新的属性： <tt class="xref py py-attr docutils literal"><span class="pre">Flask.instance_path</span></tt> 。它指向一个新名词：
+“实例文件夹”。实例文件夹应当处于版本控制中并进行特殊部署。这个文件夹特别适合
+存放需要在应用运行中改变的东西或者配置文件。</p>
+<p>可以要么在创建 Flask 应用时显式地提供实例文件夹的路径，要么让 Flask 自动探测
+实例文件夹。显式定义使用 <cite>instance_path</cite> 参数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="n">instance_path</span><span class="o">=</span><span class="s">&#39;/path/to/instance/folder&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>请记住，这里提供的路径 <em>必须</em> 是绝对路径。</p>
+<p>如果 <cite>instance_path</cite> 参数没有提供，那么会使用以下缺省位置：</p>
+<ul>
+<li><p class="first">未安装的模块:</p>
+<div class="highlight-python"><pre>/myapp.py
+/instance</pre>
+</div>
+</li>
+<li><p class="first">未安装的包:</p>
+<div class="highlight-python"><pre>/myapp
+    /__init__.py
+/instance</pre>
+</div>
+</li>
+<li><p class="first">已安装的模块或包:</p>
+<div class="highlight-python"><pre>$PREFIX/lib/python2.X/site-packages/myapp
+$PREFIX/var/myapp-instance</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">$PREFIX</span></tt> 是你的 Python 安装的前缀。可能是 <tt class="docutils literal"><span class="pre">/usr</span></tt> 或你的 virtualenv 的
+路径。可以通过打印 <tt class="docutils literal"><span class="pre">sys.prefix</span></tt> 的值来查看当前的前缀的值。</p>
+</li>
+</ul>
+<p>既然可以通过使用配置对象来根据关联文件名从文件中载入配置，那么就可以通过改变与
+实例路径相关联的文件名来按需要载入不同配置。在配置文件中的关联路径的行为可以在
+“关联到应用的根路径”（缺省的）和 “关联到实例文件夹”之间变换，具体通过应用
+构建函数中的 <cite>instance_relative_config</cite> 来实现:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="n">instance_relative_config</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>以下是一个完整的配置 Flask 的例子，从一个模块预先载入配置，然后从配置文件夹中的
+一个配置文件（如果这个文件存在的话）载入要重载的配置:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="n">instance_relative_config</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;yourapplication.default_settings&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_pyfile</span><span class="p">(</span><span class="s">&#39;application.cfg&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>通过 <tt class="xref py py-attr docutils literal"><span class="pre">Flask.instance_path</span></tt> 可以找到实例文件夹的路径。
+Flask 还提供一个打开实例文件夹中的文件的快捷方法：
+<tt class="xref py py-meth docutils literal"><span class="pre">Flask.open_instance_resource()</span></tt> 。</p>
+<p>举例说明:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">instance_path</span><span class="p">,</span> <span class="s">&#39;application.cfg&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c"># 或者通过使用 open_instance_resource:</span>
+<span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">open_instance_resource</span><span class="p">(</span><span class="s">&#39;application.cfg&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

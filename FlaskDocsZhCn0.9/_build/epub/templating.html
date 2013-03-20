@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>模板</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="testing.html" title="测试 Flask 应用"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="tutorial/testing.html" title="额外赠送：测试应用"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>模板</h1>
+<p>Flask 使用 Jinja2 作为默认模板引擎。你完全可以使用其它模板引擎。但是不管你使用
+哪种模板引擎，都必须安装 Jinja2 。因为使用 Jinja2 可以让 Flask 使用更多依赖于
+这个模板引擎的扩展。</p>
+<p>本文只是简单介绍如何在 Flask 中使用 Jinja2 。如果要详细了解这个模板引擎的语法，
+请查阅 <a class="reference external" href="http://jinja.pocoo.org/2/documentation/templates">Jinja2 模板官方文档</a><span class="link-target"> [http://jinja.pocoo.org/2/documentation/templates]</span> 。</p>
+<div class="section" id="jinja">
+<h2>Jinja 设置</h2>
+<p>在 Flask 中， Jinja2 默认配置如下：</p>
+<ul class="simple">
+<li>在扩展名为 <tt class="docutils literal"><span class="pre">.html</span></tt> 、 <tt class="docutils literal"><span class="pre">.htm</span></tt> 、 <tt class="docutils literal"><span class="pre">.xml</span></tt> 和 <tt class="docutils literal"><span class="pre">.xhtml</span></tt> 的模板中开启自动
+转义。</li>
+<li>在模板中可以使用 <tt class="docutils literal"><span class="pre">{%</span> <span class="pre">autoescape</span> <span class="pre">%}</span></tt> 来手动设置是否转义。</li>
+<li>Flask 在 Jinja2 环境中加入一些全局函数和辅助对象，以增强模板的功能。</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>标准环境</h2>
+<p>缺省情况下，以下全局变更可以在 Jinja2 模板中使用：</p>
+<dl class="data">
+<dt>
+<tt class="descname">config</tt></dt>
+<dd><p>当前配置对象 （ <tt class="xref py py-data docutils literal"><span class="pre">flask.config</span></tt> ）</p>
+<p class="versionadded">
+<span class="versionmodified">0.6 新版功能.</span></p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descname">request</tt></dt>
+<dd><p>当前请求对象 （ <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">flask.request</span></tt></a> ）</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descname">session</tt></dt>
+<dd><p>当前会话对象 （ <a class="reference internal" href="api.html#flask.session" title="flask.session"><tt class="xref py py-class docutils literal"><span class="pre">flask.session</span></tt></a> ）</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<tt class="descname">g</tt></dt>
+<dd><p>请求绑定的全局变量 （ <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">flask.g</span></tt></a> ）</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">url_for</tt><big>(</big><big>)</big></dt>
+<dd><p><a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">flask.url_for()</span></tt></a> 函数。</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">get_flashed_messages</tt><big>(</big><big>)</big></dt>
+<dd><p><a class="reference internal" href="api.html#flask.get_flashed_messages" title="flask.get_flashed_messages"><tt class="xref py py-func docutils literal"><span class="pre">flask.get_flashed_messages()</span></tt></a> 函数。</p>
+</dd></dl>
+
+<div class="admonition-jinja admonition">
+<p class="first admonition-title">Jinja 环境行为</p>
+<p>这些添加到环境中的变量不是全局变量。与真正的全局变量不同的是这些变量在已导入
+的模板的环境中是不可见的。这样做是基于性能的原因，同时也考虑让代码更有条理。</p>
+<p>那么对你来说又有什么意义呢？假设你需要导入一个宏，这个宏需要访问请求对象，
+那么你有两个选择：</p>
+<ol class="arabic simple">
+<li>显式地把请求或都该请求有用的属性作为参数传递给宏。</li>
+<li>导入 &#8220;with context&#8221; 宏。</li>
+</ol>
+<p>导入方式如下：</p>
+<div class="last highlight-jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">from</span> <span class="s1">&#39;_helpers.html&#39;</span> <span class="k">import</span> <span class="nv">my_macro</span> <span class="k">with context</span> <span class="cp">%}</span><span class="x"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>标准过滤器</h2>
+<p>在 Flask 中的模板中添加了以下 Jinja2 本身没有的过滤器：</p>
+<dl class="function">
+<dt>
+<tt class="descname">tojson</tt><big>(</big><big>)</big></dt>
+<dd><p>这个函数可以把对象转换为 JSON 格式。如果你要动态生成 JavaScript ，那么这个
+函数非常有用。</p>
+<p>注意，在 <cite>script</cite> 标记内部不能转义，因此如果要在 <cite>script</cite> 标记内部使用这个
+函数必须用 <tt class="docutils literal"><span class="pre">|safe</span></tt> 关闭转义：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">text/javascript</span><span class="nt">&gt;</span>
+    <span class="nx">doSomethingWith</span><span class="p">(</span><span class="cp">{{</span> <span class="nv">user.username</span><span class="o">|</span><span class="nf">tojson</span><span class="o">|</span><span class="nf">safe</span> <span class="cp">}}</span><span class="p">);</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">|tojson</span></tt> 过滤器会自动处理正斜杠。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id4">
+<h2>控制自动转义</h2>
+<p>自动转义是指自动对特殊字符进行转义。特殊字符是指 HTML （ 或 XML 和 XHTML ）中的
+<tt class="docutils literal"><span class="pre">&amp;</span></tt> 、 <tt class="docutils literal"><span class="pre">&gt;</span></tt> 、 <tt class="docutils literal"><span class="pre">&lt;</span></tt> 、 <tt class="docutils literal"><span class="pre">&quot;</span></tt> 和 <tt class="docutils literal"><span class="pre">'</span></tt> 。因为这些特殊字符代表了特殊的意思，
+所以如果要在文本中使用它们就必须把它们替换为“实体”。如果不转义，那么用户就
+无法使用这些字符，而且还会带来安全问题。（参见 <a class="reference internal" href="security.html#xss"><em>Cross-Site Scripting (XSS)</em></a> ）</p>
+<p>有时候，如需要直接把 HTML 植入页面的时候，可能会需要在模板中关闭自动转义功能。
+这个可以直接植入的 HTML 一般来自安全的来源，例如一个把标记语言转换为 HTML 的
+转换器。</p>
+<p>有三种方法可以控制自动转义：</p>
+<ul class="simple">
+<li>在 Python 代码中，可以在把 HTML 字符串传递给模板之前，用
+<a class="reference internal" href="api.html#flask.Markup" title="flask.Markup"><tt class="xref py py-class docutils literal"><span class="pre">Markup</span></tt></a> 对象封装。一般情况下推荐使用这个方法。</li>
+<li>在模板中，使用 <tt class="docutils literal"><span class="pre">|safe</span></tt> 过滤器显式把一个字符串标记为安全的 HTML
+（例如： <tt class="docutils literal"><span class="pre">{{</span> <span class="pre">myvariable|safe</span> <span class="pre">}}</span></tt> ）。</li>
+<li>临时关闭整个系统的自动转义。</li>
+</ul>
+<p>在模板中关闭自动转义系统可以使用 <tt class="docutils literal"><span class="pre">{%</span> <span class="pre">autoescape</span> <span class="pre">%}</span></tt> 块：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">autoescape</span> <span class="kp">false</span> <span class="cp">%}</span>
+    <span class="nt">&lt;p&gt;</span>autoescaping is disabled here
+    <span class="nt">&lt;p&gt;</span><span class="cp">{{</span> <span class="nv">will_not_be_escaped</span> <span class="cp">}}</span>
+<span class="cp">{%</span> <span class="k">endautoescape</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>在这样做的时候，要非常小心块中的变量的安全性。</p>
+</div>
+<div class="section" id="registering-filters">
+<span id="id5"></span><h2>注册过滤器</h2>
+<p>有两种方法可以在 Jinja2 中注册你自己的过滤器。要么手动把它们放入应用的
+<a class="reference internal" href="api.html#flask.Flask.jinja_env" title="flask.Flask.jinja_env"><tt class="xref py py-attr docutils literal"><span class="pre">jinja_env</span></tt></a> 中，要么使用
+<a class="reference internal" href="api.html#flask.Flask.template_filter" title="flask.Flask.template_filter"><tt class="xref py py-meth docutils literal"><span class="pre">template_filter()</span></tt></a> 装饰器。</p>
+<p>下面两个例子功能相同，都是倒序一个对象:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.template_filter</span><span class="p">(</span><span class="s">&#39;reverse&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">reverse_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">reverse_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">app</span><span class="o">.</span><span class="n">jinja_env</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="s">&#39;reverse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reverse_filter</span>
+</pre></div>
+</div>
+<p>装饰器的参数是可选的，如果不给出就使用函数名作为过滤器名。一旦注册完成后，你就
+可以在模板中像 Jinja2 的内建过滤器一样使用过滤器了。例如，假设在环境中你有一个
+名为 <cite>mylist</cite> 的 Pyhton 列表:</p>
+<div class="highlight-python"><pre>{% for x in mylist | reverse %}
+{% endfor %}</pre>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>环境处理器</h2>
+<p>环境处理器的作用是把新的变量自动引入模板环境中。环境处理器在模板被渲染前运行，
+因此可以把新的变量自动引入模板环境中。它是一个函数，返回值是一个字典。在应用的
+所有模板中，这个字典将与模板环境合并:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.context_processor</span>
+<span class="k">def</span> <span class="nf">inject_user</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上例中的环境处理器创建了一个值为 <cite>g.user</cite> 的 <cite>user</cite> 变量，并把这个变量加入了
+模板环境中。这个例子只是用于说明工作原理，不是非常有用，因为在模板中， <cite>g</cite> 总是
+存在的。</p>
+<p>传递值不仅仅局限于变量，还可以传递函数（ Python 提供传递函数的功能）:</p>
+<div class="highlight-python"><pre>@app.context_processor
+def utility_processor():
+    def format_price(amount, currency=u'€'):
+        return u'{0:.2f}{1}.format(amount, currency)
+    return dict(format_price=format_price)</pre>
+</div>
+<p>上例中的环境处理器把 <cite>format_price</cite> 函数传递给了所有模板:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{{</span> <span class="n">format_price</span><span class="p">(</span><span class="mf">0.33</span><span class="p">)</span> <span class="p">}}</span>
+</pre></div>
+</div>
+<p>你还可以把 <cite>format_price</cite> 创建为一个模板过滤器（参见
+<a class="reference internal" href="#registering-filters"><em>注册过滤器</em></a> ），这里只是演示如何在一个环境处理器中传递函数。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

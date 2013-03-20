@@ -1,0 +1,104 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>应用环境</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="reqcontext.html" title="请求环境"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="views.html" title="可插拨视图"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="app-context">
+<span id="id1"></span><h1>应用环境</h1>
+<p class="versionadded">
+<span class="versionmodified">0.9 新版功能.</span></p>
+<p>Flask 的设计思路之一是代码有两种不同的运行“状态”。一种是“安装”状态，从
+<tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt> 对象被实例化后开始，到第一个请求到来之前。在这种状态下，以下规则
+成立：</p>
+<ul class="simple">
+<li>可以安全地修改应用对象。</li>
+<li>还没有请求需要处理。</li>
+<li>没有应用对象的引用，因此无法修改应用对象。</li>
+</ul>
+<p>相反，在请求处理时，以下规则成立：</p>
+<ul class="simple">
+<li>当请求活动时，本地环境对象 （ <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-data docutils literal"><span class="pre">flask.request</span></tt></a> 或其他对象）指向当前
+请求。</li>
+<li>这些本地环境对象可以任意修改。</li>
+</ul>
+<p>除了上述两种状态之外，还有位于两者之间的第三种状态。这种状态下，你正在处理应用，
+但是没有活动的请求。就类似于，你座在 Python 交互终端前，与应用或一个命令行程序
+互动。</p>
+<p>应用环境是 <a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> 本地环境的源动力。</p>
+<div class="section" id="id2">
+<h2>应用环境的作用</h2>
+<p>应用环境存在的主要原因是，以前过多的功能依赖于请求环境，缺乏更好的处理方案。
+Flask 的一个重要设计原则是可以在同一个 Pyhton 进程中运行多个应用。</p>
+<p>那么，代码如何找到“正确”的应用呢？以前我们推荐显式地传递应用，但是有可能会
+引发库与库之间的干扰。</p>
+<p>问题的解决方法是使用 <a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> 代理。
+<a class="reference internal" href="api.html#flask.current_app" title="flask.current_app"><tt class="xref py py-data docutils literal"><span class="pre">current_app</span></tt></a> 是绑定到当前请求的应用的引用。但是没有请求的情况下
+使用请求环境是一件奢侈在事情，于是就引入了应用环境。</p>
+</div>
+<div class="section" id="id3">
+<h2>创建一个应用环境</h2>
+<p>创建应用环境有两种方法。一种是隐式的：当一个请求环境被创建时，如果有需要就会
+相应创建一个应用环境。因此，你可以忽略应用环境的存在，除非你要使用它。</p>
+<p>另一种是显式的，使用 <a class="reference internal" href="api.html#flask.Flask.app_context" title="flask.Flask.app_context"><tt class="xref py py-meth docutils literal"><span class="pre">app_context()</span></tt></a> 方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">current_app</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
+    <span class="c"># 在本代码块中， current_app 指向应用。</span>
+    <span class="k">print</span> <span class="n">current_app</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+<p>在 <tt class="docutils literal"><span class="pre">SERVER_NAME</span></tt> 被设置的情况下，应用环境还被 <a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">url_for()</span></tt></a> 函数
+使用。这样可以让你在没有请求的情况下生成 URL 。</p>
+</div>
+<div class="section" id="id4">
+<h2>环境的作用域</h2>
+<p>应用环境按需创建和消灭，它从来不在线程之间移动，也不被不同请求共享。因此，它是
+一个存放数据库连接信息和其他信息的好地方。内部的栈对象被称为
+<a class="reference internal" href="api.html#flask._app_ctx_stack" title="flask._app_ctx_stack"><tt class="xref py py-data docutils literal"><span class="pre">flask._app_ctx_stack</span></tt></a> 。扩展可以在栈的最顶端自由储存信息，前提是使用唯一
+的名称。</p>
+<p>更多信息参见 <a class="reference internal" href="extensiondev.html#extension-dev"><em>Flask Extension Development</em></a> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

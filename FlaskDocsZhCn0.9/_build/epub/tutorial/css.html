@@ -1,0 +1,74 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>步骤 7 ：添加样式</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="testing.html" title="额外赠送：测试应用"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="步骤 6 ：模板"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-css">
+<span id="id1"></span><h1>步骤 7 ：添加样式</h1>
+<p>现在万事俱备，只剩给应用添加一些样式了。只要把以下内容保存为 <cite>static</cite> 文件夹中
+的 <cite>style.css</cite> 文件就行了：</p>
+<div class="highlight-css"><div class="highlight"><pre><span class="nt">body</span>            <span class="p">{</span> <span class="k">font-family</span><span class="o">:</span> <span class="k">sans-serif</span><span class="p">;</span> <span class="k">background</span><span class="o">:</span> <span class="m">#eee</span><span class="p">;</span> <span class="p">}</span>
+<span class="nt">a</span><span class="o">,</span> <span class="nt">h1</span><span class="o">,</span> <span class="nt">h2</span>       <span class="p">{</span> <span class="k">color</span><span class="o">:</span> <span class="m">#377BA8</span><span class="p">;</span> <span class="p">}</span>
+<span class="nt">h1</span><span class="o">,</span> <span class="nt">h2</span>          <span class="p">{</span> <span class="k">font-family</span><span class="o">:</span> <span class="s1">&#39;Georgia&#39;</span><span class="o">,</span> <span class="k">serif</span><span class="p">;</span> <span class="k">margin</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span> <span class="p">}</span>
+<span class="nt">h1</span>              <span class="p">{</span> <span class="k">border-bottom</span><span class="o">:</span> <span class="m">2px</span> <span class="k">solid</span> <span class="m">#eee</span><span class="p">;</span> <span class="p">}</span>
+<span class="nt">h2</span>              <span class="p">{</span> <span class="k">font-size</span><span class="o">:</span> <span class="m">1.2em</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="nc">.page</span>           <span class="p">{</span> <span class="k">margin</span><span class="o">:</span> <span class="m">2em</span> <span class="k">auto</span><span class="p">;</span> <span class="k">width</span><span class="o">:</span> <span class="m">35em</span><span class="p">;</span> <span class="k">border</span><span class="o">:</span> <span class="m">5px</span> <span class="k">solid</span> <span class="m">#ccc</span><span class="p">;</span>
+                  <span class="k">padding</span><span class="o">:</span> <span class="m">0.8em</span><span class="p">;</span> <span class="k">background</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.entries</span>        <span class="p">{</span> <span class="k">list-style</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span> <span class="k">margin</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.entries</span> <span class="nt">li</span>     <span class="p">{</span> <span class="k">margin</span><span class="o">:</span> <span class="m">0.8em</span> <span class="m">1.2em</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.entries</span> <span class="nt">li</span> <span class="nt">h2</span>  <span class="p">{</span> <span class="k">margin-left</span><span class="o">:</span> <span class="m">-1em</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.add-entry</span>      <span class="p">{</span> <span class="k">font-size</span><span class="o">:</span> <span class="m">0.9em</span><span class="p">;</span> <span class="k">border-bottom</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#ccc</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.add-entry</span> <span class="nt">dl</span>   <span class="p">{</span> <span class="k">font-weight</span><span class="o">:</span> <span class="k">bold</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.metanav</span>        <span class="p">{</span> <span class="k">text-align</span><span class="o">:</span> <span class="k">right</span><span class="p">;</span> <span class="k">font-size</span><span class="o">:</span> <span class="m">0.8em</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span> <span class="m">0.3em</span><span class="p">;</span>
+                  <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">1em</span><span class="p">;</span> <span class="k">background</span><span class="o">:</span> <span class="m">#fafafa</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.flash</span>          <span class="p">{</span> <span class="k">background</span><span class="o">:</span> <span class="m">#CEE5F5</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span> <span class="m">0.5em</span><span class="p">;</span>
+                  <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#AACBE2</span><span class="p">;</span> <span class="p">}</span>
+<span class="nc">.error</span>          <span class="p">{</span> <span class="k">background</span><span class="o">:</span> <span class="m">#F0D6D6</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span> <span class="m">0.5em</span><span class="p">;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>下面请阅读 <a class="reference internal" href="testing.html#tutorial-testing"><em>额外赠送：测试应用</em></a> 。</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

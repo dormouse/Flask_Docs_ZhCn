@@ -1,0 +1,111 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>在 Shell 中使用 Flask</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="patterns/index.html" title="Flask 方案"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="extensions.html" title="Flask 扩展"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="shell-flask">
+<span id="shell"></span><h1>在 Shell 中使用 Flask</h1>
+<p class="versionadded">
+<span class="versionmodified">0.3 新版功能.</span></p>
+<p>喜欢 Python 的原因之一是交互式的 shell ，它可以让你实时运行 Python 命令，并且
+立即得到结果。 Flask 本身不带交互 shell ，因为它不需要特定的前期设置，只要在
+shell 中导入你的应用就可以开始使用了。</p>
+<p>有些辅助工具可以让你在 shell 中更舒服。在交互终端中最大的问题是你不会像浏览器
+一样触发一个请求，这就意味着无法使用 <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> 和 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-data docutils literal"><span class="pre">request</span></tt></a>
+等对象。那么如何在 shell 中测试依赖这些对象的代码呢？</p>
+<p>这里有一些有用的辅助函数。请记住，这些辅助函数不仅仅只能用于 shell ，还可以用于
+单元测试和其他需要假冒请求环境的情况下。</p>
+<p>在读下去之前最好你已经读过 <a class="reference internal" href="reqcontext.html#request-context"><em>请求环境</em></a> 一节。</p>
+<div class="section" id="id1">
+<h2>创建一个请求环境</h2>
+<p>在 shell 中创建一个正确的请求环境的最简便的方法是使用
+<a class="reference internal" href="api.html#flask.Flask.test_request_context" title="flask.Flask.test_request_context"><tt class="xref py py-attr docutils literal"><span class="pre">test_request_context</span></tt></a> 方法。这个方法会创建一个
+<a class="reference internal" href="api.html#flask.ctx.RequestContext" title="flask.ctx.RequestContext"><tt class="xref py py-class docutils literal"><span class="pre">RequestContext</span></tt></a> ：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>通常你会使用 <cite>with</cite> 语句来激活请求对象，但是在 shell 中，可以简便地手动使用
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.push" title="flask.ctx.RequestContext.push"><tt class="xref py py-meth docutils literal"><span class="pre">push()</span></tt></a> 和
+<a class="reference internal" href="api.html#flask.ctx.RequestContext.pop" title="flask.ctx.RequestContext.pop"><tt class="xref py py-meth docutils literal"><span class="pre">pop()</span></tt></a> 方法：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>从这里开始，直到调用 <cite>pop</cite> 之前，你可以使用请求对象：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>发送请求前/后动作</h2>
+<p>仅仅创建一个请求环境还是不够的，需要在请求前运行的代码还是没有运行。比如，在
+请求前可以会需要转接数据库，或者把用户信息储存在 <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> 对象中。</p>
+<p>使用 <a class="reference internal" href="api.html#flask.Flask.preprocess_request" title="flask.Flask.preprocess_request"><tt class="xref py py-meth docutils literal"><span class="pre">preprocess_request()</span></tt></a> 可以方便地模拟请求前/后动作：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">preprocess_request</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>请记住， <a class="reference internal" href="api.html#flask.Flask.preprocess_request" title="flask.Flask.preprocess_request"><tt class="xref py py-meth docutils literal"><span class="pre">preprocess_request()</span></tt></a> 函数可以会返回一个响应对象。
+如果返回的话请忽略它。</p>
+<p>如果要关闭一个请求，那么你需要在请求后函数（由
+<a class="reference internal" href="api.html#flask.Flask.process_response" title="flask.Flask.process_response"><tt class="xref py py-meth docutils literal"><span class="pre">process_response()</span></tt></a> 触发）作用于响应对象前关闭：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">process_response</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">response_class</span><span class="p">())</span>
+<span class="go">&lt;Response 0 bytes [200 OK]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="api.html#flask.Flask.teardown_request" title="flask.Flask.teardown_request"><tt class="xref py py-meth docutils literal"><span class="pre">teardown_request()</span></tt></a> 函数会在环境弹出后自动执行。我们可以使用
+这些函数来销毁请求环境所需要使用的资源（如数据库连接）。</p>
+</div>
+<div class="section" id="id3">
+<h2>在 Shell 中玩得更爽</h2>
+<p>如果你喜欢在 shell 中的感觉，那么你可以创建一个导入有关东西的模块，在模块中还
+可以定义一些辅助方法，如初始化数据库或者删除表等等。假设这个模块名为
+<cite>shelltools</cite> ，那么在开始时你可以：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">shelltools</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

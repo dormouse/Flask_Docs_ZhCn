@@ -1,0 +1,145 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>使用 WTForms 进行表单验证</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="templateinheritance.html" title="模板继承"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="viewdecorators.html" title="视图装饰器"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="wtforms">
+<h1>使用 WTForms 进行表单验证</h1>
+<p>当你必须处理浏览器提交的表单数据时，视图代码很快会变得难以阅读。有一些库可以
+简化这个工作，其中之一便是 <a class="reference external" href="http://wtforms.simplecodes.com/">WTForms</a><span class="link-target"> [http://wtforms.simplecodes.com/]</span> ，下面我们将介绍这个库。如果你必须处理
+许多表单，那么应当尝试使用这个库。</p>
+<p>如果要使用 WTForms ，那么首先要把表单定义为类。我推荐把应用分割为多个模块（
+<a class="reference internal" href="packages.html#larger-applications"><em>大型应用</em></a> ），并为表单添加一个独立的模块。</p>
+<div class="admonition-wtforms admonition">
+<p class="first admonition-title">使用一个扩展获得大部分 WTForms 的功能</p>
+<p class="last"><a class="reference external" href="http://packages.python.org/Flask-WTF/">Flask-WTF</a><span class="link-target"> [http://packages.python.org/Flask-WTF/]</span> 扩展可以实现本方案的所有功能，并且还提供一些小的辅助工具。使用
+这个扩展可以更好的使用表单和 Flask 。你可以从 <a class="reference external" href="http://pypi.python.org/pypi/Flask-WTF">PyPI</a><span class="link-target"> [http://pypi.python.org/pypi/Flask-WTF]</span> 获得这个扩展。</p>
+</div>
+<div class="section" id="id1">
+<h2>表单</h2>
+<p>下面是一个典型的注册页面的示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">wtforms</span> <span class="kn">import</span> <span class="n">Form</span><span class="p">,</span> <span class="n">BooleanField</span><span class="p">,</span> <span class="n">TextField</span><span class="p">,</span> <span class="n">PasswordField</span><span class="p">,</span> <span class="n">validators</span>
+
+<span class="k">class</span> <span class="nc">RegistrationForm</span><span class="p">(</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">TextField</span><span class="p">(</span><span class="s">&#39;Username&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">25</span><span class="p">)])</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">TextField</span><span class="p">(</span><span class="s">&#39;Email Address&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">35</span><span class="p">)])</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">PasswordField</span><span class="p">(</span><span class="s">&#39;New Password&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="n">validators</span><span class="o">.</span><span class="n">Required</span><span class="p">(),</span>
+        <span class="n">validators</span><span class="o">.</span><span class="n">EqualTo</span><span class="p">(</span><span class="s">&#39;confirm&#39;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s">&#39;Passwords must match&#39;</span><span class="p">)</span>
+    <span class="p">])</span>
+    <span class="n">confirm</span> <span class="o">=</span> <span class="n">PasswordField</span><span class="p">(</span><span class="s">&#39;Repeat Password&#39;</span><span class="p">)</span>
+    <span class="n">accept_tos</span> <span class="o">=</span> <span class="n">BooleanField</span><span class="p">(</span><span class="s">&#39;I accept the TOS&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">Required</span><span class="p">()])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>视图</h2>
+<p>在视图函数中，表单用法示例如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/register&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">register</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">RegistrationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span> <span class="ow">and</span> <span class="n">form</span><span class="o">.</span><span class="n">validate</span><span class="p">():</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">username</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="n">form</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">flash</span><span class="p">(</span><span class="s">&#39;Thanks for registering&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;register.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>注意，这里我们默认视图使用了 SQLAlchemy （ <a class="reference internal" href="sqlalchemy.html#sqlalchemy-pattern"><em>在 Flask 中使用 SQLAlchemy</em></a> ），当然这
+不是必须的。请根据你的实际情况修改代码。</p>
+<p>请记住以下几点：</p>
+<ol class="arabic simple">
+<li>如果数据是通过 HTTP <cite>POST</cite> 方法提交的，请根据 <tt class="xref py py-attr docutils literal"><span class="pre">form</span></tt> 的
+值创建表单。如果是通过 <cite>GET</cite> 方法提交的，则相应的是
+<tt class="xref py py-attr docutils literal"><span class="pre">args</span></tt> 。</li>
+<li>调用 <tt class="xref py py-func docutils literal"><span class="pre">validate()</span></tt> 函数来验证数据。如果验证通过，则
+函数返回 <cite>True</cite> ，否则返回 <cite>False</cite> 。</li>
+<li>通过 <cite>form.&lt;NAME&gt;.data</cite> 可以访问表单中单个值。</li>
+</ol>
+</div>
+<div class="section" id="id3">
+<h2>模板中的表单</h2>
+<p>现在我们来看看模板。把表单传递给模板后就可以轻松渲染它们了。看一看下面的示例
+模板就可以知道有多轻松了。 WTForms 替我们完成了一半表单生成工作。为了做得更好，
+我们可以写一个宏，通过这个宏渲染带有一个标签的字段和错误列表（如果有的话）。</p>
+<p>以下是一个使用宏的示例 <cite>_formhelpers.html</cite> 模板：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">macro</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">field</span><span class="o">)</span> <span class="cp">%}</span>
+  <span class="nt">&lt;dt&gt;</span><span class="cp">{{</span> <span class="nv">field.label</span> <span class="cp">}}</span>
+  <span class="nt">&lt;dd&gt;</span><span class="cp">{{</span> <span class="nv">field</span><span class="o">(**</span><span class="nv">kwargs</span><span class="o">)|</span><span class="nf">safe</span> <span class="cp">}}</span>
+  <span class="cp">{%</span> <span class="k">if</span> <span class="nv">field.errors</span> <span class="cp">%}</span>
+    <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">errors</span><span class="nt">&gt;</span>
+    <span class="cp">{%</span> <span class="k">for</span> <span class="nv">error</span> <span class="k">in</span> <span class="nv">field.errors</span> <span class="cp">%}</span>
+      <span class="nt">&lt;li&gt;</span><span class="cp">{{</span> <span class="nv">error</span> <span class="cp">}}</span><span class="nt">&lt;/li&gt;</span>
+    <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+  <span class="nt">&lt;/dd&gt;</span>
+<span class="cp">{%</span> <span class="k">endmacro</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>上例中的宏接受一堆传递给 WTForm 字段函数的参数，为我们渲染字段。参数会作为 HTML
+属性插入。例如你可以调用 <tt class="docutils literal"><span class="pre">render_field(form.username,</span> <span class="pre">class='username')</span></tt> 来
+为输入元素添加一个类。注意： WTForms 返回标准的 Python unicode 字符串，因此我们
+必须使用 <cite>|safe</cite> 过滤器告诉 Jinja2 这些数据已经经过 HTML 转义了。</p>
+<p>以下是使用了上面的 <cite>_formhelpers.html</cite> 的 <cite>register.html</cite> 模板：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">from</span> <span class="s2">&quot;_formhelpers.html&quot;</span> <span class="k">import</span> <span class="nv">render_field</span> <span class="cp">%}</span>
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">post</span> <span class="na">action=</span><span class="s">&quot;/register&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;dl&gt;</span>
+    <span class="cp">{{</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">form.username</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">form.email</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">form.password</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">form.confirm</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">render_field</span><span class="o">(</span><span class="nv">form.accept_tos</span><span class="o">)</span> <span class="cp">}}</span>
+  <span class="nt">&lt;/dl&gt;</span>
+  <span class="nt">&lt;p&gt;&lt;input</span> <span class="na">type=</span><span class="s">submit</span> <span class="na">value=</span><span class="s">Register</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>更多关于 WTForms 的信息请移步 <a class="reference external" href="http://wtforms.simplecodes.com/">WTForms 官方网站</a><span class="link-target"> [http://wtforms.simplecodes.com/]</span> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

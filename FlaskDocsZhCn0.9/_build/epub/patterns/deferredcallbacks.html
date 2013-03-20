@@ -1,0 +1,104 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>延迟的请求回调</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../deploying/index.html" title="部署方式"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="streaming.html" title="流内容"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="deferred-callbacks">
+<span id="id1"></span><h1>延迟的请求回调</h1>
+<p>Flask 的设计思路之一是：响应对象创建后被传递给一串回调函数，这些回调函数可以修改
+或替换响应对象。当请求处理开始的时候，响应对象还没有被创建。响应对象是由一个视图
+函数或者系统中的其他组件按需创建的。</p>
+<p>但是当响应对象还没有创建时，我们如何修改响应对象呢？比如在一个请求前函数中，我们
+需要根据响应对象设置一个 cookie 。</p>
+<p>通常我们选择避开这种情形。例如可以尝试把应用逻辑移动到请求后函数中。但是，有时候
+这个方法让人不爽，或者让代码变得很丑陋。</p>
+<p>变通的方法是把一堆回调函数贴到 <a class="reference internal" href="../api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> 对象上，然后在请求结束时调用这些
+回调函数。这样你就可以在应用的任意地方延迟回调函数的执行。</p>
+<div class="section" id="id2">
+<h2>装饰器</h2>
+<p>下面的装饰器是一个关键，它在 <a class="reference internal" href="../api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> 对象上注册一个函数列表:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">g</span>
+
+<span class="k">def</span> <span class="nf">after_this_request</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;after_request_callbacks&#39;</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">after_request_callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">after_request_callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>调用延迟的回调函数</h2>
+<p>至此，通过使用 <cite>after_this_request</cite> 装饰器，使得函数在请求结束时可以被调用。现在
+我们来实现这个调用过程。我们把这些函数注册为
+<a class="reference internal" href="../api.html#flask.Flask.after_request" title="flask.Flask.after_request"><tt class="xref py py-meth docutils literal"><span class="pre">after_request()</span></tt></a> 回调函数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.after_request</span>
+<span class="k">def</span> <span class="nf">call_after_request_callbacks</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;after_request_callbacks&#39;</span><span class="p">,</span> <span class="p">()):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>一个实例</h2>
+<p>现在我们可以方便地随时随地为特定请求注册一个函数，让这个函数在请求结束时被调用。
+例如，你可以在请求前函数中把用户的当前语言记录到 cookie 中:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="nd">@app.before_request</span>
+<span class="k">def</span> <span class="nf">detect_user_language</span><span class="p">():</span>
+    <span class="n">language</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_lang&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">language</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">language</span> <span class="o">=</span> <span class="n">guess_language_from_request</span><span class="p">()</span>
+        <span class="nd">@after_this_request</span>
+        <span class="k">def</span> <span class="nf">remember_language</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s">&#39;user_lang&#39;</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">language</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>步骤 5 ：视图函数</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="templates.html" title="步骤 6 ：模板"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="dbcon.html" title="步骤 4 ：请求数据库连接"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-views">
+<span id="id1"></span><h1>步骤 5 ：视图函数</h1>
+<p>现在数据库连接弄好了，接站开始写视图函数。我们共需要四个视图函数：</p>
+<div class="section" id="id2">
+<h2>显示条目</h2>
+<p>这个视图显示所有数据库中的条目。它绑定应用的根地址，并从数据库中读取 title 和
+text 字段。 id 最大的记录（最新的条目）在最上面。从指针返回的记录集是一个包含
+select 语句查询结果的元组。对于教程应用这样的小应用，做到这样就已经够好了。但是
+你可能想要把结果转换为字典，具体做法参见 <a class="reference internal" href="../patterns/sqlite3.html#easy-querying"><em>简化查询</em></a> 中的例子。</p>
+<p>这个视图会把条目作为字典传递给 <cite>show_entries.html</cite> 模板，并返回渲染结果:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_entries</span><span class="p">():</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&#39;select title, text from entries order by id desc&#39;</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">text</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;show_entries.html&#39;</span><span class="p">,</span> <span class="n">entries</span><span class="o">=</span><span class="n">entries</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>添加一个新条目</h2>
+<p>这个视图可以让一个登录后的用户添加一个新条目。本视图只响应 <cite>POST</cite> 请求，真正的
+表单显示在 <cite>show_entries</cite> 页面中。如果一切顺利，那么会 <a class="reference internal" href="../api.html#flask.flash" title="flask.flash"><tt class="xref py py-func docutils literal"><span class="pre">flash()</span></tt></a>
+一个消息给下一个请求并重定义回到 <cite>show_entries</cite> 页面:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/add&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">add_entry</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logged_in&#39;</span><span class="p">):</span>
+        <span class="n">abort</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&#39;insert into entries (title, text) values (?, ?)&#39;</span><span class="p">,</span>
+                 <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;text&#39;</span><span class="p">]])</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">flash</span><span class="p">(</span><span class="s">&#39;New entry was successfully posted&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;show_entries&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>注意，我们本视图中检查了用户是否已经登录（即检查会话中是否有 <cite>logged_in</cite> 键，且
+对应的值是否为 <cite>True</cite> ）。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">安全性建议</p>
+<p class="last">请向示例代码一样确保在构建 SQL 语句时使用问号。否则当你使用字符串构建 SQL 时
+容易遭到 SQL 注射攻击。更多内容参见 <a class="reference internal" href="../patterns/sqlite3.html#sqlite3"><em>在 Flask 中使用 SQLite 3</em></a> 。</p>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>登录和注销</h2>
+<p>这些函数用于用户登录和注销。登录视图根据配置中的用户名和密码验证用户并在会话中
+设置 <cite>logged_in</cite> 键值。如果用户通过验证，键值设为 <cite>True</cite> ，然后用户被重定向到
+<cite>show_entries</cite> 页面。另外闪现一个信息，告诉用户已登录成功。如果出现错误，模板
+会提示错误信息，并让用户重新登录:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;USERNAME&#39;</span><span class="p">]:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="s">&#39;Invalid username&#39;</span>
+        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;PASSWORD&#39;</span><span class="p">]:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="s">&#39;Invalid password&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">session</span><span class="p">[</span><span class="s">&#39;logged_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">flash</span><span class="p">(</span><span class="s">&#39;You were logged in&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;show_entries&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;login.html&#39;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>登录视图则正好相反，把键值从会话中删除。在这里我们使用了一个小技巧：如果你使用
+字典的 <a class="reference external" href="http://docs.python.org/dev/library/stdtypes.html#dict.pop" title="(in Python v3.4)"><tt class="xref py py-meth docutils literal"><span class="pre">pop()</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/stdtypes.html#dict.pop]</span> 方法并且传递了第二个参数（键的缺省值），那么当字典中有
+这个键时就会删除这个键，否则什么也不做。这样做的好处是我们不用检查用户是否已经
+登录了。</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/logout&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;logged_in&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">flash</span><span class="p">(</span><span class="s">&#39;You were logged out&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;show_entries&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>下面请阅读 <a class="reference internal" href="templates.html#tutorial-templates"><em>步骤 6 ：模板</em></a> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

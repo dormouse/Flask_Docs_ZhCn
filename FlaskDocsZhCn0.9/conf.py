@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Flask documentation build configuration file, created by
@@ -205,7 +206,15 @@ latex_elements = {
     'fontpkg':      r'\usepackage{mathpazo}',
     'papersize':    'a4paper',
     'pointsize':    '12pt',
-    'preamble':     r'\usepackage{flaskstyle}'
+    'preamble':     r'''
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{xeCJK}
+\setCJKmainfont{WenQuanYi Micro Hei}
+\setCJKmonofont[Scale=0.9]{WenQuanYi Micro Hei Mono}
+\setCJKsansfont[Scale=0.9]{WenQuanYi Micro Hei Mono}
+\setCJKfamilyfont{wqy_micro}{WenQuanYi Micro Hei}
+'''
 }
 latex_use_parts = True
 

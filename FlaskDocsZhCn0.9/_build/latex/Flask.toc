@@ -1,0 +1,351 @@
+\contentsline {part}{I\hspace {1em}用户指南}{1}{part.1}
+\contentsline {chapter}{\numberline {1}前言}{5}{chapter.1}
+\contentsline {section}{\numberline {1.1}“微”是什么意思？}{5}{section.1.1}
+\contentsline {section}{\numberline {1.2}配置和惯例}{5}{section.1.2}
+\contentsline {section}{\numberline {1.3}Flask 可持续发展}{5}{section.1.3}
+\contentsline {chapter}{\numberline {2}针对高级程序员的前言}{7}{chapter.2}
+\contentsline {section}{\numberline {2.1}Flask 中的本地线程对象}{7}{section.2.1}
+\contentsline {section}{\numberline {2.2}做网络开发时要谨慎}{7}{section.2.2}
+\contentsline {section}{\numberline {2.3}Python 3 的情况}{8}{section.2.3}
+\contentsline {chapter}{\numberline {3}安装}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}virtualenv}{9}{section.3.1}
+\contentsline {section}{\numberline {3.2}系统全局安装}{10}{section.3.2}
+\contentsline {section}{\numberline {3.3}生活在边缘}{10}{section.3.3}
+\contentsline {section}{\numberline {3.4}在 Windows 系统中使用 \emph {pip} 和 \emph {distribute}}{11}{section.3.4}
+\contentsline {chapter}{\numberline {4}快速上手}{13}{chapter.4}
+\contentsline {section}{\numberline {4.1}一个最小的应用}{13}{section.4.1}
+\contentsline {section}{\numberline {4.2}调试模式}{14}{section.4.2}
+\contentsline {section}{\numberline {4.3}路由}{15}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}变更规则}{16}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}URL 构建}{17}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}HTTP 方法}{17}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}静态文件}{18}{section.4.4}
+\contentsline {section}{\numberline {4.5}渲染模板}{19}{section.4.5}
+\contentsline {section}{\numberline {4.6}操作请求数据}{20}{section.4.6}
+\contentsline {subsection}{\numberline {4.6.1}本地环境}{20}{subsection.4.6.1}
+\contentsline {subsection}{\numberline {4.6.2}请求对象}{21}{subsection.4.6.2}
+\contentsline {subsection}{\numberline {4.6.3}文件上传}{21}{subsection.4.6.3}
+\contentsline {subsection}{\numberline {4.6.4}Cookies}{22}{subsection.4.6.4}
+\contentsline {section}{\numberline {4.7}重定向和错误}{23}{section.4.7}
+\contentsline {section}{\numberline {4.8}关于响应}{24}{section.4.8}
+\contentsline {section}{\numberline {4.9}会话}{24}{section.4.9}
+\contentsline {section}{\numberline {4.10}消息闪现}{25}{section.4.10}
+\contentsline {section}{\numberline {4.11}日志}{26}{section.4.11}
+\contentsline {section}{\numberline {4.12}集成 WSGI 中间件}{26}{section.4.12}
+\contentsline {section}{\numberline {4.13}部署到一个网络服务器}{26}{section.4.13}
+\contentsline {chapter}{\numberline {5}教程}{27}{chapter.5}
+\contentsline {section}{\numberline {5.1}Flaskr 介绍}{27}{section.5.1}
+\contentsline {section}{\numberline {5.2}步骤 0 ：创建文件夹}{28}{section.5.2}
+\contentsline {section}{\numberline {5.3}步骤 1 ：数据库模式}{29}{section.5.3}
+\contentsline {section}{\numberline {5.4}步骤 2 ：应用构建代码}{29}{section.5.4}
+\contentsline {section}{\numberline {5.5}步骤 3 ：创建数据库}{30}{section.5.5}
+\contentsline {section}{\numberline {5.6}步骤 4 ：请求数据库连接}{31}{section.5.6}
+\contentsline {section}{\numberline {5.7}步骤 5 ：视图函数}{32}{section.5.7}
+\contentsline {subsection}{\numberline {5.7.1}显示条目}{32}{subsection.5.7.1}
+\contentsline {subsection}{\numberline {5.7.2}添加一个新条目}{33}{subsection.5.7.2}
+\contentsline {subsection}{\numberline {5.7.3}登录和注销}{33}{subsection.5.7.3}
+\contentsline {section}{\numberline {5.8}步骤 6 ：模板}{34}{section.5.8}
+\contentsline {subsection}{\numberline {5.8.1}layout.html}{34}{subsection.5.8.1}
+\contentsline {subsection}{\numberline {5.8.2}show\_entries.html}{35}{subsection.5.8.2}
+\contentsline {subsection}{\numberline {5.8.3}login.html}{35}{subsection.5.8.3}
+\contentsline {section}{\numberline {5.9}步骤 7 ：添加样式}{36}{section.5.9}
+\contentsline {section}{\numberline {5.10}额外赠送：测试应用}{36}{section.5.10}
+\contentsline {chapter}{\numberline {6}模板}{37}{chapter.6}
+\contentsline {section}{\numberline {6.1}Jinja 设置}{37}{section.6.1}
+\contentsline {section}{\numberline {6.2}标准环境}{37}{section.6.2}
+\contentsline {section}{\numberline {6.3}标准过滤器}{38}{section.6.3}
+\contentsline {section}{\numberline {6.4}控制自动转义}{38}{section.6.4}
+\contentsline {section}{\numberline {6.5}注册过滤器}{39}{section.6.5}
+\contentsline {section}{\numberline {6.6}环境处理器}{39}{section.6.6}
+\contentsline {chapter}{\numberline {7}测试 Flask 应用}{41}{chapter.7}
+\contentsline {section}{\numberline {7.1}应用}{41}{section.7.1}
+\contentsline {section}{\numberline {7.2}测试骨架}{41}{section.7.2}
+\contentsline {section}{\numberline {7.3}第一个测试}{42}{section.7.3}
+\contentsline {section}{\numberline {7.4}登录和注销}{43}{section.7.4}
+\contentsline {section}{\numberline {7.5}测试增加条目功能}{44}{section.7.5}
+\contentsline {section}{\numberline {7.6}其他测试技巧}{44}{section.7.6}
+\contentsline {section}{\numberline {7.7}保持环境}{45}{section.7.7}
+\contentsline {section}{\numberline {7.8}访问和修改会话}{45}{section.7.8}
+\contentsline {chapter}{\numberline {8}掌握应用错误}{47}{chapter.8}
+\contentsline {section}{\numberline {8.1}报错邮件}{47}{section.8.1}
+\contentsline {section}{\numberline {8.2}日志文件}{48}{section.8.2}
+\contentsline {section}{\numberline {8.3}控制日志格式}{49}{section.8.3}
+\contentsline {subsection}{\numberline {8.3.1}电子邮件}{49}{subsection.8.3.1}
+\contentsline {subsection}{\numberline {8.3.2}日志文件}{49}{subsection.8.3.2}
+\contentsline {subsection}{\numberline {8.3.3}复杂日志格式}{49}{subsection.8.3.3}
+\contentsline {section}{\numberline {8.4}其他库}{50}{section.8.4}
+\contentsline {chapter}{\numberline {9}排除应用错误}{51}{chapter.9}
+\contentsline {section}{\numberline {9.1}有疑问时，请手动运行}{51}{section.9.1}
+\contentsline {section}{\numberline {9.2}使用调试器}{51}{section.9.2}
+\contentsline {chapter}{\numberline {10}配置管理}{53}{chapter.10}
+\contentsline {section}{\numberline {10.1}配置入门}{53}{section.10.1}
+\contentsline {section}{\numberline {10.2}内置配置变量}{53}{section.10.2}
+\contentsline {section}{\numberline {10.3}使用配置文件}{55}{section.10.3}
+\contentsline {section}{\numberline {10.4}配置的最佳实践}{56}{section.10.4}
+\contentsline {section}{\numberline {10.5}开发/生产}{56}{section.10.5}
+\contentsline {section}{\numberline {10.6}实例文件夹}{57}{section.10.6}
+\contentsline {chapter}{\numberline {11}信号}{59}{chapter.11}
+\contentsline {section}{\numberline {11.1}订阅信号}{59}{section.11.1}
+\contentsline {section}{\numberline {11.2}创建信号}{60}{section.11.2}
+\contentsline {section}{\numberline {11.3}发送信号}{61}{section.11.3}
+\contentsline {section}{\numberline {11.4}信号与 Flask 的请求环境}{61}{section.11.4}
+\contentsline {section}{\numberline {11.5}信号订阅装饰器}{62}{section.11.5}
+\contentsline {section}{\numberline {11.6}核心信号}{62}{section.11.6}
+\contentsline {chapter}{\numberline {12}可插拨视图}{65}{chapter.12}
+\contentsline {section}{\numberline {12.1}基本原理}{65}{section.12.1}
+\contentsline {section}{\numberline {12.2}方法提示}{66}{section.12.2}
+\contentsline {section}{\numberline {12.3}基于方法调度}{67}{section.12.3}
+\contentsline {section}{\numberline {12.4}装饰视图}{67}{section.12.4}
+\contentsline {section}{\numberline {12.5}用于 API 的方法视图}{68}{section.12.5}
+\contentsline {chapter}{\numberline {13}应用环境}{71}{chapter.13}
+\contentsline {section}{\numberline {13.1}应用环境的作用}{71}{section.13.1}
+\contentsline {section}{\numberline {13.2}创建一个应用环境}{72}{section.13.2}
+\contentsline {section}{\numberline {13.3}环境的作用域}{72}{section.13.3}
+\contentsline {chapter}{\numberline {14}请求环境}{73}{chapter.14}
+\contentsline {section}{\numberline {14.1}深入本地环境}{73}{section.14.1}
+\contentsline {section}{\numberline {14.2}环境的工作原理}{74}{section.14.2}
+\contentsline {section}{\numberline {14.3}回调和错误处理}{74}{section.14.3}
+\contentsline {section}{\numberline {14.4}卸载回调函数}{75}{section.14.4}
+\contentsline {section}{\numberline {14.5}关于代理}{76}{section.14.5}
+\contentsline {section}{\numberline {14.6}出错时的环境保存}{76}{section.14.6}
+\contentsline {chapter}{\numberline {15}使用蓝图的模块化应用}{77}{chapter.15}
+\contentsline {section}{\numberline {15.1}为什么使用蓝图？}{77}{section.15.1}
+\contentsline {section}{\numberline {15.2}蓝图的概念}{78}{section.15.2}
+\contentsline {section}{\numberline {15.3}第一个蓝图}{78}{section.15.3}
+\contentsline {section}{\numberline {15.4}注册蓝图}{78}{section.15.4}
+\contentsline {section}{\numberline {15.5}蓝图资源}{79}{section.15.5}
+\contentsline {subsection}{\numberline {15.5.1}蓝图资源文件夹}{79}{subsection.15.5.1}
+\contentsline {subsection}{\numberline {15.5.2}静态文件}{79}{subsection.15.5.2}
+\contentsline {subsection}{\numberline {15.5.3}模板}{80}{subsection.15.5.3}
+\contentsline {section}{\numberline {15.6}创建 URL}{80}{section.15.6}
+\contentsline {chapter}{\numberline {16}Flask 扩展}{81}{chapter.16}
+\contentsline {section}{\numberline {16.1}查找扩展}{81}{section.16.1}
+\contentsline {section}{\numberline {16.2}使用扩展}{81}{section.16.2}
+\contentsline {section}{\numberline {16.3}Flask 0.8 以前的版本}{81}{section.16.3}
+\contentsline {chapter}{\numberline {17}在 Shell 中使用 Flask}{83}{chapter.17}
+\contentsline {section}{\numberline {17.1}创建一个请求环境}{83}{section.17.1}
+\contentsline {section}{\numberline {17.2}发送请求前/后动作}{84}{section.17.2}
+\contentsline {section}{\numberline {17.3}在 Shell 中玩得更爽}{84}{section.17.3}
+\contentsline {chapter}{\numberline {18}Flask 方案}{85}{chapter.18}
+\contentsline {section}{\numberline {18.1}大型应用}{85}{section.18.1}
+\contentsline {subsection}{\numberline {18.1.1}简单的包}{85}{subsection.18.1.1}
+\contentsline {subsection}{\numberline {18.1.2}使用蓝图}{87}{subsection.18.1.2}
+\contentsline {section}{\numberline {18.2}应用工厂}{87}{section.18.2}
+\contentsline {subsection}{\numberline {18.2.1}基础工厂}{87}{subsection.18.2.1}
+\contentsline {subsection}{\numberline {18.2.2}使用应用}{88}{subsection.18.2.2}
+\contentsline {subsection}{\numberline {18.2.3}改进工厂}{88}{subsection.18.2.3}
+\contentsline {section}{\numberline {18.3}应用调度}{88}{section.18.3}
+\contentsline {subsection}{\numberline {18.3.1}说明}{88}{subsection.18.3.1}
+\contentsline {subsection}{\numberline {18.3.2}组合应用}{89}{subsection.18.3.2}
+\contentsline {subsection}{\numberline {18.3.3}根据子域调度}{89}{subsection.18.3.3}
+\contentsline {subsection}{\numberline {18.3.4}根据路径调度}{91}{subsection.18.3.4}
+\contentsline {section}{\numberline {18.4}URL 处理器}{91}{section.18.4}
+\contentsline {subsection}{\numberline {18.4.1}国际化的应用 URL}{92}{subsection.18.4.1}
+\contentsline {subsection}{\numberline {18.4.2}国际化的蓝图 URL}{93}{subsection.18.4.2}
+\contentsline {section}{\numberline {18.5}使用 Distribute 部署}{94}{section.18.5}
+\contentsline {subsection}{\numberline {18.5.1}基础设置脚本}{94}{subsection.18.5.1}
+\contentsline {subsection}{\numberline {18.5.2}分发资源}{95}{subsection.18.5.2}
+\contentsline {subsection}{\numberline {18.5.3}声明依赖}{95}{subsection.18.5.3}
+\contentsline {subsection}{\numberline {18.5.4}安装 / 开发}{96}{subsection.18.5.4}
+\contentsline {section}{\numberline {18.6}使用 Fabric 部署}{96}{section.18.6}
+\contentsline {subsection}{\numberline {18.6.1}创建第一个 Fabfile}{96}{subsection.18.6.1}
+\contentsline {subsection}{\numberline {18.6.2}运行 Fabfile}{97}{subsection.18.6.2}
+\contentsline {subsection}{\numberline {18.6.3}WSGI 文件}{98}{subsection.18.6.3}
+\contentsline {subsection}{\numberline {18.6.4}配置文件}{98}{subsection.18.6.4}
+\contentsline {subsection}{\numberline {18.6.5}第一次部署}{99}{subsection.18.6.5}
+\contentsline {subsection}{\numberline {18.6.6}下一步}{99}{subsection.18.6.6}
+\contentsline {section}{\numberline {18.7}在 Flask 中使用 SQLite 3}{99}{section.18.7}
+\contentsline {subsection}{\numberline {18.7.1}按需连接}{100}{subsection.18.7.1}
+\contentsline {subsection}{\numberline {18.7.2}简化查询}{100}{subsection.18.7.2}
+\contentsline {subsection}{\numberline {18.7.3}初始化模式}{101}{subsection.18.7.3}
+\contentsline {section}{\numberline {18.8}在 Flask 中使用 SQLAlchemy}{101}{section.18.8}
+\contentsline {subsection}{\numberline {18.8.1}Flask-SQLAlchemy 扩展}{101}{subsection.18.8.1}
+\contentsline {subsection}{\numberline {18.8.2}声明}{102}{subsection.18.8.2}
+\contentsline {subsection}{\numberline {18.8.3}人工对象关系映射}{103}{subsection.18.8.3}
+\contentsline {subsection}{\numberline {18.8.4}SQL 抽象层}{104}{subsection.18.8.4}
+\contentsline {section}{\numberline {18.9}上传文件}{105}{section.18.9}
+\contentsline {subsection}{\numberline {18.9.1}简介}{105}{subsection.18.9.1}
+\contentsline {subsection}{\numberline {18.9.2}改进上传}{107}{subsection.18.9.2}
+\contentsline {subsection}{\numberline {18.9.3}上传进度条}{107}{subsection.18.9.3}
+\contentsline {subsection}{\numberline {18.9.4}一个更简便的方案}{108}{subsection.18.9.4}
+\contentsline {section}{\numberline {18.10}缓存}{108}{section.18.10}
+\contentsline {subsection}{\numberline {18.10.1}设置一个缓存}{108}{subsection.18.10.1}
+\contentsline {subsection}{\numberline {18.10.2}使用缓存}{108}{subsection.18.10.2}
+\contentsline {section}{\numberline {18.11}视图装饰器}{109}{section.18.11}
+\contentsline {subsection}{\numberline {18.11.1}检查登录装饰器}{109}{subsection.18.11.1}
+\contentsline {subsection}{\numberline {18.11.2}缓存装饰器}{110}{subsection.18.11.2}
+\contentsline {subsection}{\numberline {18.11.3}模板装饰器}{110}{subsection.18.11.3}
+\contentsline {subsection}{\numberline {18.11.4}端点装饰器}{111}{subsection.18.11.4}
+\contentsline {section}{\numberline {18.12}使用 WTForms 进行表单验证}{112}{section.18.12}
+\contentsline {subsection}{\numberline {18.12.1}表单}{112}{subsection.18.12.1}
+\contentsline {subsection}{\numberline {18.12.2}视图}{112}{subsection.18.12.2}
+\contentsline {subsection}{\numberline {18.12.3}模板中的表单}{113}{subsection.18.12.3}
+\contentsline {section}{\numberline {18.13}模板继承}{114}{section.18.13}
+\contentsline {subsection}{\numberline {18.13.1}基础模板}{114}{subsection.18.13.1}
+\contentsline {subsection}{\numberline {18.13.2}子模板}{114}{subsection.18.13.2}
+\contentsline {section}{\numberline {18.14}消息闪现}{115}{section.18.14}
+\contentsline {subsection}{\numberline {18.14.1}简单的例子}{115}{subsection.18.14.1}
+\contentsline {subsection}{\numberline {18.14.2}闪现消息的类别}{117}{subsection.18.14.2}
+\contentsline {subsection}{\numberline {18.14.3}过滤闪现消息}{117}{subsection.18.14.3}
+\contentsline {section}{\numberline {18.15}通过 jQuery 使用 AJAX}{118}{section.18.15}
+\contentsline {subsection}{\numberline {18.15.1}载入 jQuery}{118}{subsection.18.15.1}
+\contentsline {subsection}{\numberline {18.15.2}我的网站在哪里？}{118}{subsection.18.15.2}
+\contentsline {subsection}{\numberline {18.15.3}JSON 视图函数}{119}{subsection.18.15.3}
+\contentsline {subsection}{\numberline {18.15.4}HTML}{119}{subsection.18.15.4}
+\contentsline {section}{\numberline {18.16}自定义出错页面}{120}{section.18.16}
+\contentsline {subsection}{\numberline {18.16.1}常见出错代码}{120}{subsection.18.16.1}
+\contentsline {subsection}{\numberline {18.16.2}出错处理器}{121}{subsection.18.16.2}
+\contentsline {section}{\numberline {18.17}惰性载入视图}{121}{section.18.17}
+\contentsline {subsection}{\numberline {18.17.1}转换为集中 URL 映射}{122}{subsection.18.17.1}
+\contentsline {subsection}{\numberline {18.17.2}延迟载入}{122}{subsection.18.17.2}
+\contentsline {section}{\numberline {18.18}在 Flask 中使用 MongoKit}{123}{section.18.18}
+\contentsline {subsection}{\numberline {18.18.1}声明}{123}{subsection.18.18.1}
+\contentsline {subsection}{\numberline {18.18.2}PyMongo 兼容层}{125}{subsection.18.18.2}
+\contentsline {section}{\numberline {18.19}添加一个页面图标}{126}{section.18.19}
+\contentsline {subsection}{\numberline {18.19.1}另见}{126}{subsection.18.19.1}
+\contentsline {section}{\numberline {18.20}流内容}{126}{section.18.20}
+\contentsline {subsection}{\numberline {18.20.1}基本用法}{127}{subsection.18.20.1}
+\contentsline {subsection}{\numberline {18.20.2}模板中的流内容}{127}{subsection.18.20.2}
+\contentsline {subsection}{\numberline {18.20.3}环境中的流内容}{127}{subsection.18.20.3}
+\contentsline {section}{\numberline {18.21}延迟的请求回调}{128}{section.18.21}
+\contentsline {subsection}{\numberline {18.21.1}装饰器}{128}{subsection.18.21.1}
+\contentsline {subsection}{\numberline {18.21.2}调用延迟的回调函数}{128}{subsection.18.21.2}
+\contentsline {subsection}{\numberline {18.21.3}一个实例}{129}{subsection.18.21.3}
+\contentsline {chapter}{\numberline {19}部署方式}{131}{chapter.19}
+\contentsline {section}{\numberline {19.1}mod\_wsgi (Apache)}{131}{section.19.1}
+\contentsline {subsection}{\numberline {19.1.1}安装 \emph {mod\_wsgi}}{131}{subsection.19.1.1}
+\contentsline {subsection}{\numberline {19.1.2}创建一个 \emph {.wsgi} 文件}{132}{subsection.19.1.2}
+\contentsline {subsection}{\numberline {19.1.3}配置 Apache}{132}{subsection.19.1.3}
+\contentsline {subsection}{\numberline {19.1.4}故障排除}{133}{subsection.19.1.4}
+\contentsline {subsection}{\numberline {19.1.5}支持自动重载}{133}{subsection.19.1.5}
+\contentsline {subsection}{\numberline {19.1.6}使用虚拟环境}{133}{subsection.19.1.6}
+\contentsline {section}{\numberline {19.2}独立 WSGI 容器}{134}{section.19.2}
+\contentsline {subsection}{\numberline {19.2.1}Gunicorn}{134}{subsection.19.2.1}
+\contentsline {subsection}{\numberline {19.2.2}Tornado}{134}{subsection.19.2.2}
+\contentsline {subsection}{\numberline {19.2.3}Gevent}{134}{subsection.19.2.3}
+\contentsline {subsection}{\numberline {19.2.4}代理设置}{135}{subsection.19.2.4}
+\contentsline {section}{\numberline {19.3}uWSGI}{136}{section.19.3}
+\contentsline {subsection}{\numberline {19.3.1}使用 uwsgi 启动你的应用}{136}{subsection.19.3.1}
+\contentsline {subsection}{\numberline {19.3.2}配置 nginx}{136}{subsection.19.3.2}
+\contentsline {section}{\numberline {19.4}FastCGI}{137}{section.19.4}
+\contentsline {subsection}{\numberline {19.4.1}创建一个 \emph {.fcgi} 文件}{137}{subsection.19.4.1}
+\contentsline {subsection}{\numberline {19.4.2}配置 Apache}{138}{subsection.19.4.2}
+\contentsline {subsection}{\numberline {19.4.3}配置 lighttpd}{139}{subsection.19.4.3}
+\contentsline {subsection}{\numberline {19.4.4}配置 nginx}{139}{subsection.19.4.4}
+\contentsline {subsection}{\numberline {19.4.5}运行 FastCGI 进程}{140}{subsection.19.4.5}
+\contentsline {subsection}{\numberline {19.4.6}调试}{140}{subsection.19.4.6}
+\contentsline {section}{\numberline {19.5}CGI}{140}{section.19.5}
+\contentsline {subsection}{\numberline {19.5.1}创建一个 \emph {.cgi} 文件}{141}{subsection.19.5.1}
+\contentsline {subsection}{\numberline {19.5.2}服务器设置}{141}{subsection.19.5.2}
+\contentsline {chapter}{\numberline {20}大型应用}{143}{chapter.20}
+\contentsline {section}{\numberline {20.1}阅读源代码}{143}{section.20.1}
+\contentsline {section}{\numberline {20.2}挂接，扩展}{143}{section.20.2}
+\contentsline {section}{\numberline {20.3}继承}{143}{section.20.3}
+\contentsline {section}{\numberline {20.4}用中间件包装}{144}{section.20.4}
+\contentsline {section}{\numberline {20.5}派生}{144}{section.20.5}
+\contentsline {section}{\numberline {20.6}专家级的伸缩性}{144}{section.20.6}
+\contentsline {section}{\numberline {20.7}与社区沟通}{144}{section.20.7}
+\contentsline {part}{II\hspace {1em}API 参考}{145}{part.2}
+\contentsline {chapter}{\numberline {21}API}{149}{chapter.21}
+\contentsline {section}{\numberline {21.1}应用对象}{149}{section.21.1}
+\contentsline {section}{\numberline {21.2}蓝图对象}{166}{section.21.2}
+\contentsline {section}{\numberline {21.3}进来的请求数据}{170}{section.21.3}
+\contentsline {section}{\numberline {21.4}响应对象}{172}{section.21.4}
+\contentsline {section}{\numberline {21.5}会话}{173}{section.21.5}
+\contentsline {section}{\numberline {21.6}会话接口}{174}{section.21.6}
+\contentsline {section}{\numberline {21.7}测试客户端}{176}{section.21.7}
+\contentsline {section}{\numberline {21.8}应用全局变量}{177}{section.21.8}
+\contentsline {section}{\numberline {21.9}有用的函数和类}{177}{section.21.9}
+\contentsline {section}{\numberline {21.10}消息闪现}{183}{section.21.10}
+\contentsline {section}{\numberline {21.11}返回 JSON}{184}{section.21.11}
+\contentsline {section}{\numberline {21.12}模板渲染}{185}{section.21.12}
+\contentsline {section}{\numberline {21.13}配置}{186}{section.21.13}
+\contentsline {section}{\numberline {21.14}扩展}{187}{section.21.14}
+\contentsline {section}{\numberline {21.15}Stream Helpers}{188}{section.21.15}
+\contentsline {section}{\numberline {21.16}Useful Internals}{188}{section.21.16}
+\contentsline {section}{\numberline {21.17}信号}{191}{section.21.17}
+\contentsline {section}{\numberline {21.18}基于类的视图}{191}{section.21.18}
+\contentsline {section}{\numberline {21.19}URL 路由注册}{193}{section.21.19}
+\contentsline {section}{\numberline {21.20}视图函数选项}{194}{section.21.20}
+\contentsline {part}{III\hspace {1em}其他材料}{197}{part.3}
+\contentsline {chapter}{\numberline {22}Design Decisions in Flask}{201}{chapter.22}
+\contentsline {section}{\numberline {22.1}The Explicit Application Object}{201}{section.22.1}
+\contentsline {section}{\numberline {22.2}The Routing System}{202}{section.22.2}
+\contentsline {section}{\numberline {22.3}One Template Engine}{202}{section.22.3}
+\contentsline {section}{\numberline {22.4}Micro with Dependencies}{203}{section.22.4}
+\contentsline {section}{\numberline {22.5}Thread Locals}{204}{section.22.5}
+\contentsline {section}{\numberline {22.6}What Flask is, What Flask is Not}{204}{section.22.6}
+\contentsline {chapter}{\numberline {23}HTML/XHTML FAQ}{205}{chapter.23}
+\contentsline {section}{\numberline {23.1}History of XHTML}{205}{section.23.1}
+\contentsline {section}{\numberline {23.2}History of HTML5}{206}{section.23.2}
+\contentsline {section}{\numberline {23.3}HTML versus XHTML}{206}{section.23.3}
+\contentsline {section}{\numberline {23.4}What does ``strict'' mean?}{207}{section.23.4}
+\contentsline {section}{\numberline {23.5}New technologies in HTML5}{208}{section.23.5}
+\contentsline {section}{\numberline {23.6}What should be used?}{209}{section.23.6}
+\contentsline {chapter}{\numberline {24}Security Considerations}{211}{chapter.24}
+\contentsline {section}{\numberline {24.1}Cross-Site Scripting (XSS)}{211}{section.24.1}
+\contentsline {section}{\numberline {24.2}Cross-Site Request Forgery (CSRF)}{212}{section.24.2}
+\contentsline {section}{\numberline {24.3}JSON Security}{212}{section.24.3}
+\contentsline {chapter}{\numberline {25}Unicode in Flask}{215}{chapter.25}
+\contentsline {section}{\numberline {25.1}Automatic Conversion}{215}{section.25.1}
+\contentsline {section}{\numberline {25.2}The Golden Rule}{216}{section.25.2}
+\contentsline {section}{\numberline {25.3}Encoding and Decoding Yourself}{216}{section.25.3}
+\contentsline {section}{\numberline {25.4}Configuring Editors}{216}{section.25.4}
+\contentsline {chapter}{\numberline {26}Flask Extension Development}{219}{chapter.26}
+\contentsline {section}{\numberline {26.1}Anatomy of an Extension}{219}{section.26.1}
+\contentsline {section}{\numberline {26.2}``Hello Flaskext!''}{220}{section.26.2}
+\contentsline {subsection}{\numberline {26.2.1}setup.py}{220}{subsection.26.2.1}
+\contentsline {subsection}{\numberline {26.2.2}flask\_sqlite3.py}{221}{subsection.26.2.2}
+\contentsline {section}{\numberline {26.3}Initializing Extensions}{221}{section.26.3}
+\contentsline {section}{\numberline {26.4}The Extension Code}{222}{section.26.4}
+\contentsline {section}{\numberline {26.5}Using \_app\_ctx\_stack}{224}{section.26.5}
+\contentsline {section}{\numberline {26.6}Teardown Behavior}{224}{section.26.6}
+\contentsline {section}{\numberline {26.7}Learn from Others}{225}{section.26.7}
+\contentsline {section}{\numberline {26.8}Approved Extensions}{225}{section.26.8}
+\contentsline {section}{\numberline {26.9}Extension Import Transition}{226}{section.26.9}
+\contentsline {chapter}{\numberline {27}Pocoo Styleguide}{227}{chapter.27}
+\contentsline {section}{\numberline {27.1}General Layout}{227}{section.27.1}
+\contentsline {section}{\numberline {27.2}Expressions and Statements}{228}{section.27.2}
+\contentsline {section}{\numberline {27.3}Naming Conventions}{229}{section.27.3}
+\contentsline {section}{\numberline {27.4}Docstrings}{230}{section.27.4}
+\contentsline {section}{\numberline {27.5}Comments}{230}{section.27.5}
+\contentsline {chapter}{\numberline {28}Upgrading to Newer Releases}{231}{chapter.28}
+\contentsline {section}{\numberline {28.1}Version 0.9}{231}{section.28.1}
+\contentsline {section}{\numberline {28.2}Version 0.8}{232}{section.28.2}
+\contentsline {section}{\numberline {28.3}Version 0.7}{232}{section.28.3}
+\contentsline {subsection}{\numberline {28.3.1}Bug in Request Locals}{233}{subsection.28.3.1}
+\contentsline {subsection}{\numberline {28.3.2}Upgrading to new Teardown Handling}{233}{subsection.28.3.2}
+\contentsline {subsection}{\numberline {28.3.3}Manual Error Handler Attaching}{234}{subsection.28.3.3}
+\contentsline {subsection}{\numberline {28.3.4}Blueprint Support}{235}{subsection.28.3.4}
+\contentsline {section}{\numberline {28.4}Version 0.6}{235}{section.28.4}
+\contentsline {section}{\numberline {28.5}Version 0.5}{236}{section.28.5}
+\contentsline {section}{\numberline {28.6}Version 0.4}{236}{section.28.6}
+\contentsline {section}{\numberline {28.7}Version 0.3}{236}{section.28.7}
+\contentsline {subsection}{\numberline {28.7.1}Configuration Support}{236}{subsection.28.7.1}
+\contentsline {subsection}{\numberline {28.7.2}Logging Integration}{237}{subsection.28.7.2}
+\contentsline {subsection}{\numberline {28.7.3}Categories for Flash Messages}{237}{subsection.28.7.3}
+\contentsline {chapter}{\numberline {29}Flask Changelog}{239}{chapter.29}
+\contentsline {section}{\numberline {29.1}Version 0.9}{239}{section.29.1}
+\contentsline {section}{\numberline {29.2}Version 0.8.1}{240}{section.29.2}
+\contentsline {section}{\numberline {29.3}Version 0.8}{241}{section.29.3}
+\contentsline {section}{\numberline {29.4}Version 0.7.3}{242}{section.29.4}
+\contentsline {section}{\numberline {29.5}Version 0.7.2}{242}{section.29.5}
+\contentsline {section}{\numberline {29.6}Version 0.7.1}{242}{section.29.6}
+\contentsline {section}{\numberline {29.7}Version 0.7}{242}{section.29.7}
+\contentsline {section}{\numberline {29.8}Version 0.6.1}{243}{section.29.8}
+\contentsline {section}{\numberline {29.9}Version 0.6}{244}{section.29.9}
+\contentsline {section}{\numberline {29.10}Version 0.5.2}{245}{section.29.10}
+\contentsline {section}{\numberline {29.11}Version 0.5.1}{245}{section.29.11}
+\contentsline {section}{\numberline {29.12}Version 0.5}{245}{section.29.12}
+\contentsline {section}{\numberline {29.13}Version 0.4}{245}{section.29.13}
+\contentsline {section}{\numberline {29.14}Version 0.3.1}{246}{section.29.14}
+\contentsline {section}{\numberline {29.15}Version 0.3}{246}{section.29.15}
+\contentsline {section}{\numberline {29.16}Version 0.2}{246}{section.29.16}
+\contentsline {section}{\numberline {29.17}Version 0.1}{247}{section.29.17}
+\contentsline {chapter}{\numberline {30}License}{249}{chapter.30}
+\contentsline {section}{\numberline {30.1}Authors}{249}{section.30.1}
+\contentsline {subsection}{\numberline {30.1.1}Development Lead}{249}{subsection.30.1.1}
+\contentsline {subsection}{\numberline {30.1.2}Patches and Suggestions}{249}{subsection.30.1.2}
+\contentsline {section}{\numberline {30.2}General License Definitions}{250}{section.30.2}
+\contentsline {section}{\numberline {30.3}Flask License}{250}{section.30.3}
+\contentsline {section}{\numberline {30.4}Flask Artwork License}{251}{section.30.4}

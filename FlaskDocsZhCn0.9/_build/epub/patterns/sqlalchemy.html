@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>在 Flask 中使用 SQLAlchemy</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="fileuploads.html" title="上传文件"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="sqlite3.html" title="在 Flask 中使用 SQLite 3"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Flask 方案</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flask-sqlalchemy">
+<span id="sqlalchemy-pattern"></span><h1>在 Flask 中使用 SQLAlchemy</h1>
+<p>许多人喜欢使用 <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a><span class="link-target"> [http://www.sqlalchemy.org/]</span> 来访问数据库。建议在你的 Flask 应用中使用包来代替
+模块，并把模型放入一个独立的模块中（参见 <a class="reference internal" href="packages.html#larger-applications"><em>大型应用</em></a> ）。虽然这
+不是必须的，但是很有用。</p>
+<p>有四种 SQLAlchemy 的常用方法，下面一一道来：</p>
+<div class="section" id="id1">
+<h2>Flask-SQLAlchemy 扩展</h2>
+<p>因为 SQLAlchemy 是一个常用的数据库抽象层，并且需要一定的配置才能使用，因此我们
+为你做了一个处理 SQLAlchemy 的扩展。如果你需要快速的开始使用 SQLAlchemy ，那么
+推荐你使用这个扩展。</p>
+<p>你可以从 <a class="reference external" href="http://pypi.python.org/pypi/Flask-SQLAlchemy">PyPI</a><span class="link-target"> [http://pypi.python.org/pypi/Flask-SQLAlchemy]</span> 下载
+<a class="reference external" href="http://packages.python.org/Flask-SQLAlchemy/">Flask-SQLAlchemy</a><span class="link-target"> [http://packages.python.org/Flask-SQLAlchemy/]</span> 。</p>
+</div>
+<div class="section" id="id3">
+<h2>声明</h2>
+<p>SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你像 Django 一样，
+在一个地方定义表和模型然后到处使用。除了以下内容，我建议你阅读 <a class="reference internal" href="#id3">声明</a> 的官方
+文档。</p>
+<p>以下是示例 <cite>database.py</cite> 模块:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">scoped_session</span><span class="p">,</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;sqlite:////tmp/test.db&#39;</span><span class="p">,</span> <span class="n">convert_unicode</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">db_session</span> <span class="o">=</span> <span class="n">scoped_session</span><span class="p">(</span><span class="n">sessionmaker</span><span class="p">(</span><span class="n">autocommit</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                         <span class="n">autoflush</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                         <span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">))</span>
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+<span class="n">Base</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">query_property</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">init_db</span><span class="p">():</span>
+    <span class="c"># 在这里导入定义模型所需要的所有模块，这样它们就会正确的注册在</span>
+    <span class="c"># 元数据上。否则你就必须在调用 init_db() 之前导入它们。</span>
+    <span class="kn">import</span> <span class="nn">yourapplication.models</span>
+    <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>要定义模型的话，只要继承上面创建的 <cite>Base</cite> 类就可以了。你可能会奇怪这里为什么
+不用理会线程（就像我们在 SQLite3 的例子中一样使用 <a class="reference internal" href="../api.html#flask.g" title="flask.g"><tt class="xref py py-data docutils literal"><span class="pre">g</span></tt></a> 对象）。
+原因是 SQLAlchemy 已经用 <tt class="xref py py-class docutils literal"><span class="pre">scoped_session</span></tt> 为我们做好了此
+类工作。</p>
+<p>如果要在应用中以声明方式使用 SQLAlchemy ，那么只要把下列代码加入应用模块就可以
+了。 Flask 会自动在请求结束时删除数据库会话:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">db_session</span>
+
+<span class="nd">@app.teardown_request</span>
+<span class="k">def</span> <span class="nf">shutdown_session</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">db_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>以下是一个示例模型（放入 <cite>models.py</cite> 中）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">Base</span>
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;users&#39;</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;User </span><span class="si">%r</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>可以使用 <cite>init_db</cite> 函数来创建数据库：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">init_db</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">init_db</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>在数据库中插入条目示例：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">db_session</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">yourapplication.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="s">&#39;admin@localhost&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>查询很简单：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">[&lt;User u&#39;admin&#39;&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;admin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">&lt;User u&#39;admin&#39;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>人工对象关系映射</h2>
+<p>人工对象关系映射相较于上面的声明方式有优点也有缺点。主要区别是人工对象关系映射
+分别定义表和类并映射它们。这种方式更灵活，但是要多些代码。通常，这种方式与声明
+方式一样运行，因此请确保把你的应用在包中分为多个模块。</p>
+<p>示例 <cite>database.py</cite> 模块:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">MetaData</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">scoped_session</span><span class="p">,</span> <span class="n">sessionmaker</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;sqlite:////tmp/test.db&#39;</span><span class="p">,</span> <span class="n">convert_unicode</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
+<span class="n">db_session</span> <span class="o">=</span> <span class="n">scoped_session</span><span class="p">(</span><span class="n">sessionmaker</span><span class="p">(</span><span class="n">autocommit</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                         <span class="n">autoflush</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                         <span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">init_db</span><span class="p">():</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>就像声明方法一样，你需要在请求后关闭会话。把以下代码放入你的应用模块:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">db_session</span>
+
+<span class="nd">@app.teardown_request</span>
+<span class="k">def</span> <span class="nf">shutdown_session</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">db_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>以下是一个示例表和模型（放入 <cite>models.py</cite> 中）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">mapper</span>
+<span class="kn">from</span> <span class="nn">yourapplication.database</span> <span class="kn">import</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">db_session</span>
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">query_property</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;User </span><span class="si">%r</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="n">users</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s">&#39;users&#39;</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;email&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">mapper</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">users</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>查询和插入与声明方式的一样。</p>
+</div>
+<div class="section" id="sql">
+<h2>SQL 抽象层</h2>
+<p>如果你只需要使用数据库系统（和 SQL ）抽象层，那么基本上只要使用引擎:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">MetaData</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;sqlite:////tmp/test.db&#39;</span><span class="p">,</span> <span class="n">convert_unicode</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>然后你要么像前文中一样在代码中声明表，要么自动载入它们:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">users</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s">&#39;users&#39;</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">autoload</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>可以使用 <cite>insert</cite> 方法插入数据。为了使用事务，我们必须先得到一个连接：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">con</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s">&#39;admin@localhost&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>SQLAlchemy 会自动提交。</p>
+<p>可以直接使用引擎或连接来查询数据库：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">users</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">(1, u&#39;admin&#39;, u&#39;admin@localhost&#39;)</span>
+</pre></div>
+</div>
+<p>查询结果也是类字典元组：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">users</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+<span class="go">u&#39;admin&#39;</span>
+</pre></div>
+</div>
+<p>你也可以把 SQL 语句作为字符串传递给
+<tt class="xref py py-meth docutils literal"><span class="pre">execute()</span></tt> 方法：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&#39;select * from users where id = :1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">(1, u&#39;admin&#39;, u&#39;admin@localhost&#39;)</span>
+</pre></div>
+</div>
+<p>关于 SQLAlchemy 的更多信息请移步其 <a class="reference external" href="http://sqlalchemy.org/">官方网站</a><span class="link-target"> [http://sqlalchemy.org/]</span> 。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

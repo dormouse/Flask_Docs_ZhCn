@@ -1,0 +1,686 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>快速上手</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="tutorial/index.html" title="教程"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="安装"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="quickstart">
+<span id="id1"></span><h1>快速上手</h1>
+<p>等久了吧？本文会给你好好介绍如何上手 Flask 。这里假定你已经安装好了 Flask ，
+否则请先阅读《 <a class="reference internal" href="installation.html#installation"><em>安装</em></a> 》。</p>
+<div class="section" id="id2">
+<h2>一个最小的应用</h2>
+<p>一个最小的 Flask 应用如下:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;Hello World!&#39;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>把它保存为 <cite>hello.py</cite> 或其他类似名称并用你的 Python 解释器运行这个文件。请不要
+使用 <cite>flask.py</cite> 作为应用名称，这会与 Flask 本身发生冲突。</p>
+<div class="highlight-python"><pre>$ python hello.py
+ * Running on http://127.0.0.1:5000/</pre>
+</div>
+<p>现在，在浏览器中打开 <a class="reference external" href="http://127.0.0.1:5000/">http://127.0.0.1:5000/</a> ，就
+可以看到问候页面了。</p>
+<p>那么，这些代码是什么意思？</p>
+<ol class="arabic simple">
+<li>首先我们导入了 <a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 类。这个类的实例将会成为我们的 WSGI
+应用。第一个参数是应用模块的名称。如果你使用一个单一模块（就像本例），那么
+应当使用 <cite>__name__</cite> ，因为名称会根据这个模块是按应用方式使用还是作为一个模块
+导入而发生变化（可能是 <tt class="docutils literal"><span class="pre">'__main__'</span></tt> ，也可能实际导入的名称）。更多内容详见
+<a class="reference internal" href="api.html#flask.Flask" title="flask.Flask"><tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt></a> 文档。</li>
+<li>接着我们创建了一个实例，向它传递了模块或包的名称。这样做是为了让 Flask 知道
+可以在哪里找到模板和静态文件等东西。</li>
+<li>然后我们使用 <a class="reference internal" href="api.html#flask.Flask.route" title="flask.Flask.route"><tt class="xref py py-meth docutils literal"><span class="pre">route()</span></tt></a> 装饰器来告诉 Flask 触发函数的 URL 。</li>
+<li>函数名称可用于生成相关联的 URL ，并返回需要在用户浏览器中显示的信息。</li>
+<li>最后，使用 <a class="reference internal" href="api.html#flask.Flask.run" title="flask.Flask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> 函数来运行本地服务器和我们的应用。
+<tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></tt> 确保服务器只会在使用 Python 解释器运行代码的
+情况下运行，而不会在作为模块导入时运行。</li>
+</ol>
+<p>按 control-C 可以停止服务器。</p>
+<div class="admonition- admonition" id="public-server">
+<p class="first admonition-title">外部可见的服务器。</p>
+<p>运行服务器后，会发现只有你自己的电脑可以使用服务，而网络中的其他电脑却不行。
+缺省设置就是这样的，因为在调试模式下该应用的用户可以执行你电脑中的任意
+Python 代码。</p>
+<p>如果你关闭了 <cite>调试</cite> 或信任你网络中的用户，那么可以让服务器被公开访问。只要像
+这样改变 <a class="reference internal" href="api.html#flask.Flask.run" title="flask.Flask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> 方法的调用:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;0.0.0.0&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="last">这行代码告诉你的操作系统监听一个公开的 IP 。</p>
+</div>
+</div>
+<div class="section" id="debug-mode">
+<span id="id3"></span><h2>调试模式</h2>
+<p>虽然 <a class="reference internal" href="api.html#flask.Flask.run" title="flask.Flask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> 方法可以方便地启动一个本地开发服务器，但是每次
+修改应用之后都需要手动重启服务器。这样不是很方便， Flask 可以做得更好。如果你
+打开调试模式，那么服务器会在修改应用之后自动重启，并且当应用出错时还会提供一个
+有用的调试器。</p>
+<p>打开调试模式有两种方法，一种是在应用对象上设置标志:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>另一种是作为参数传递给 run 方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>两种方法的效果相同。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">注意</p>
+<p class="last">虽然交互调试器不能在分布环境下工作（这使得它基本不可能用于生产环境），但是
+它允许执行任意代码，这样会成为一个重大安全隐患。因此， <strong>绝对不能在生产环境
+中使用调试器</strong> 。</p>
+</div>
+<p>运行的调试器的截图：</p>
+<img alt="screenshot of debugger in action" class="screenshot align-center" src="_images/debugger.png" />
+<p>想使用其他调试器？请参阅 <a class="reference internal" href="errorhandling.html#working-with-debuggers"><em>使用调试器</em></a> 。</p>
+</div>
+<div class="section" id="id4">
+<h2>路由</h2>
+<p>现代 web 应用都使用漂亮的 URL ，有助于人们记忆，对于使用网速较慢的移动设备尤其
+有利。如果用户可以不通过点击首页而直达所需要的页面，那么这个网页会更得到用户的
+青睐，提高回头率。</p>
+<p>如前文所述， <a class="reference internal" href="api.html#flask.Flask.route" title="flask.Flask.route"><tt class="xref py py-meth docutils literal"><span class="pre">route()</span></tt></a> 装饰器用于把一个函数绑定到一个 URL 。
+下面是一些基本的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;Index Page&#39;</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/hello&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;Hello World&#39;</span>
+</pre></div>
+</div>
+<p>但是能做的不仅仅是这些！你可以动态变化 URL 的某些部分，还可以为一个函数指定多个
+规则。</p>
+<div class="section" id="id5">
+<h3>变更规则</h3>
+<p>通过 URL 的一部分标记为 <tt class="docutils literal"><span class="pre">&lt;variable_name&gt;</span></tt> 就可以在 URL 中添加变量。标记的部分
+会作为关键字参数传递给函数。通过使用 <tt class="docutils literal"><span class="pre">&lt;converter:variable_name&gt;</span></tt> ，可以选择性
+的加上一个转换器，为变量指定规则。请看下面的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_user_profile</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+    <span class="c"># show the user profile for that user</span>
+    <span class="k">return</span> <span class="s">&#39;User </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">username</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/post/&lt;int:post_id&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_post</span><span class="p">(</span><span class="n">post_id</span><span class="p">):</span>
+    <span class="c"># show the post with the given id, the id is an integer</span>
+    <span class="k">return</span> <span class="s">&#39;Post </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">post_id</span>
+</pre></div>
+</div>
+<p>现有的转换器有：</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><cite>int</cite></td>
+<td>接受整数</td>
+</tr>
+<tr class="row-even"><td><cite>float</cite></td>
+<td>接受浮点数</td>
+</tr>
+<tr class="row-odd"><td><cite>path</cite></td>
+<td>和缺省情况相同，但也接受斜杠</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-url admonition">
+<p class="first admonition-title">唯一的 URL / 重定向行为</p>
+<p>Flask 的 URL 规则都是基于 Werkzeug 的路由模块的。其背后的理念是保证漂亮的
+外观和唯一的 URL 。这个理念来自于 Apache 和更早期的服务器。</p>
+<p>假设有如下两条规则:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/projects/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">projects</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;The project page&#39;</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/about&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">about</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;The about page&#39;</span>
+</pre></div>
+</div>
+<p>它们看上去很相近，不同之处在于 URL <em>定义</em> 中尾部的斜杠。第一个例子中
+<cite>prjects</cite> 的 URL 是中规中举的，尾部有一个斜杠，看起来就如同一个文件夹。访问
+一个没有斜杠结尾的 URL 时 Flask 会自动进行重定向，帮你在尾部加上一个斜杠。</p>
+<p>但是在第二个例子中， URL 没有尾部斜杠，因此其行为表现与一个文件类似。如果
+访问这个 URL 时添加了尾部斜杠就会得到一个 404 错误。</p>
+<p class="last">为什么这样做？因为这样可以使用户在忘记使用尾部斜杠时继续访问相关的 URL 。
+这种重定向行为与 Apache 和其他服务器一致。同时， URL 仍保持唯一，帮助搜索
+引擎不重复索引同一页面。</p>
+</div>
+</div>
+<div class="section" id="url">
+<span id="url-building"></span><h3>URL 构建</h3>
+<p>如果可以匹配 URL ，那么 Flask 也可以生成 URL 吗？当然可以。
+<a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">url_for()</span></tt></a> 函数就是用于构建指定函数的 URL 的。它把函数名称作为
+第一个参数，其余参数对应 URL 中的变量。未知变量将添加到 URL 中作为查询参数。
+例如：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">url_for</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">index</span><span class="p">():</span> <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">login</span><span class="p">():</span> <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;username&gt;&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="n">username</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">():</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="n">url_for</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="n">url_for</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="k">print</span> <span class="n">url_for</span><span class="p">(</span><span class="s">&#39;profile&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s">&#39;John Doe&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">/</span>
+<span class="go">/login</span>
+<span class="go">/login?next=/</span>
+<span class="go">/user/John%20Doe</span>
+</pre></div>
+</div>
+<p>（例子中还使用下文要讲到的 <a class="reference internal" href="api.html#flask.Flask.test_request_context" title="flask.Flask.test_request_context"><tt class="xref py py-meth docutils literal"><span class="pre">test_request_context()</span></tt></a> 方法。这个
+方法的作用是告诉 Flask 我们正在处理一个请求，而实际上也许我们正处在交互
+Python shell 之中，并没有真正的请求。详见下面的 <a class="reference internal" href="#context-locals"><em>本地环境</em></a> ）。</p>
+<p>为什么不在把 URL 写死在模板中，反而要动态构建？有三个很好的理由：</p>
+<ol class="arabic simple">
+<li>反向解析通常比硬编码 URL 更直观。同时，更重要的是你可以只在一个地方改变
+URL ，而不用到处乱找。</li>
+<li>URL 创建会为你处理特殊字符的转义和 Unicode 数据，不用你操心。</li>
+<li>如果你的应用是放在 URL 根路径之外的地方（如在 <tt class="docutils literal"><span class="pre">/myapplication</span></tt> 中，不在
+<tt class="docutils literal"><span class="pre">/</span></tt> 中）， <a class="reference internal" href="api.html#flask.url_for" title="flask.url_for"><tt class="xref py py-func docutils literal"><span class="pre">url_for()</span></tt></a> 会为你妥善处理。</li>
+</ol>
+</div>
+<div class="section" id="http">
+<h3>HTTP 方法</h3>
+<p>HTTP （ web 应用使用的协议）) 协议中有访问 URL 的不同方法。缺省情况下，一个路由
+只回应 <cite>GET</cite> 请求，但是可以通过 <cite>methods</cite> 参数使用不同方法。例如:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">do_the_login</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">show_the_login_form</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>如果当前使用的是 <cite>GET</cite> 方法，会自动添加 <cite>HEAD</cite> ，你不必亲自操刀。同时还会确保
+<cite>HEAD</cite> 请求按照 <a class="reference external" href="http://www.ietf.org/rfc/rfc2068.txt">HTTP RFC</a><span class="link-target"> [http://www.ietf.org/rfc/rfc2068.txt]</span> （说明 HTTP 协议的文档）的要求来处理，因此你可以
+完全忽略这部分 HTTP 规范。与 Flask 0.6 一样， <cite>OPTIONS</cite> 自动为你处理好。</p>
+<p>完全不懂 HTTP 方法？没关系，这里给你速成培训一下：</p>
+<p>HTTP 方法（通常也被称为“动作”）告诉服务器一个页面请求要 <em>做</em> 什么。以下是常见
+的方法：</p>
+<dl class="docutils">
+<dt><cite>GET</cite></dt>
+<dd>浏览器告诉服务器只要 <em>得到</em> 页面上的信息并发送这些信息。这可能是最常见的
+方法。</dd>
+<dt><cite>HEAD</cite></dt>
+<dd>浏览器告诉服务器想要得到信息，但是只要得到 <em>信息头</em> 就行了，页面内容不要。
+一个应用应该像接受到一个 <cite>GET</cite> 请求一样运行，但是不传递实际的内容。在
+Flask 中，你根本不必理会这个，下层的 Werkzeug 库会为你处理好。</dd>
+<dt><cite>POST</cite></dt>
+<dd>浏览器告诉服务器想要向 URL  <em>发表</em> 一些新的信息，服务器必须确保数据被保存好
+且只保存了一次。 HTML 表单实际上就是使用这个访求向服务器传送数据的。</dd>
+<dt><cite>PUT</cite></dt>
+<dd>与 <cite>POST</cite> 方法类似，不同的是服务器可能触发多次储存过程而把旧的值覆盖掉。你
+可能会问这样做有什么用？这样做是有原因的。假设在传输过程中连接丢失的情况
+下，一个处于浏览器和服务器之间的系统可以在不中断的情况下安全地接收第二次
+请求。在这种情况下，使用 <cite>POST</cite> 方法就无法做到了，因为它只被触发一次。</dd>
+<dt><cite>DELETE</cite></dt>
+<dd>删除给定位置的信息。</dd>
+<dt><cite>OPTIONS</cite></dt>
+<dd>为客户端提供一个查询 URL 支持哪些方法的捷径。从 Flask 0.6 开始，自动为你
+实现了这个方法。</dd>
+</dl>
+<p>有趣的是在 HTML4 和 XHTML1 中，表单只能使用 <cite>GET</cite> 和 <cite>POST</cite> 方法。但是
+JavaScript 和未来的 HTML 标准中可以使用其他的方法。此外， HTTP 近来已经变得相当
+流行，浏览器不再只是唯一使用 HTTP 的客户端。比如许多版本控制系统也使用 HTTP 。</p>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>静态文件</h2>
+<p>动态的 web 应用也需要静态文件，一般是 CSS 和 JavaScript 文件。理想情况下你的
+服务器已经配置好了为你的提供静态文件的服务。在开发过程中， Flask 也能做好这个
+工作。只要在你的包或模块旁边创建一个名为 <cite>static</cite> 的文件夹就行了。静态文件位于
+应用的 <cite>/static</cite> 中。</p>
+<p>使用选定的 <tt class="docutils literal"><span class="pre">'static'</span></tt> 端点就可以生成相应的 URL 。:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;static&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;style.css&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这个静态文件在文件系统中的位置应该是 <tt class="docutils literal"><span class="pre">static/style.css</span></tt> 。</p>
+</div>
+<div class="section" id="id7">
+<h2>渲染模板</h2>
+<p>在 Python 内部生成 HTML 不好玩，且相当笨拙。因为你必须自己负责 HTML 转义，以
+确保应用的安全。因此， Flask 自动为你配置的 <a class="reference external" href="http://jinja.pocoo.org/2/">Jinja2</a><span class="link-target"> [http://jinja.pocoo.org/2/]</span> 模板引擎。</p>
+<p>使用 <a class="reference internal" href="api.html#flask.render_template" title="flask.render_template"><tt class="xref py py-func docutils literal"><span class="pre">render_template()</span></tt></a> 方法可以渲染模板，你只要提供模板名称和需要
+作为参数传递给模板的变量就行了。下面是一个简单的模板渲染例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/hello/&#39;</span><span class="p">)</span>
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/hello/&lt;name&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;hello.html&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Flask 会在 <cite>templates</cite> 文件夹内寻找模板。因此，如果你的应用是一个模块，那么模板
+文件夹应该在模块旁边；如果是一个包，那么就应该在包里面：</p>
+<p><strong>情形 1</strong>: 一个模块:</p>
+<div class="highlight-python"><pre>/application.py
+/templates
+    /hello.html</pre>
+</div>
+<p><strong>情形 2</strong>: 一个包:</p>
+<div class="highlight-python"><pre>/application
+    /__init__.py
+    /templates
+        /hello.html</pre>
+</div>
+<p>你可以充分使用 Jinja2 模板引擎的威力。更多内容，详见官方 <a class="reference external" href="http://jinja.pocoo.org/2/documentation/templates">Jinja2 模板文档</a><span class="link-target"> [http://jinja.pocoo.org/2/documentation/templates]</span> 。</p>
+<p>模板举例：</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">&lt;!doctype html&gt;</span>
+<span class="nt">&lt;title&gt;</span>Hello from Flask<span class="nt">&lt;/title&gt;</span>
+<span class="cp">{%</span> <span class="k">if</span> <span class="nv">name</span> <span class="cp">%}</span>
+  <span class="nt">&lt;h1&gt;</span>Hello <span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span>!<span class="nt">&lt;/h1&gt;</span>
+<span class="cp">{%</span> <span class="k">else</span> <span class="cp">%}</span>
+  <span class="nt">&lt;h1&gt;</span>Hello World!<span class="nt">&lt;/h1&gt;</span>
+<span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>在模板内部你也可以访问 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">request</span></tt></a> 、<a class="reference internal" href="api.html#flask.session" title="flask.session"><tt class="xref py py-class docutils literal"><span class="pre">session</span></tt></a> 和
+<a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-class docutils literal"><span class="pre">g</span></tt></a> <a class="footnote-reference" href="#id10" id="id9">[1]</a> 对象，以及 <a class="reference internal" href="api.html#flask.get_flashed_messages" title="flask.get_flashed_messages"><tt class="xref py py-func docutils literal"><span class="pre">get_flashed_messages()</span></tt></a> 函数。</p>
+<p>模板在继承使用的情况下尤其有用，其工作原理 <a class="reference internal" href="patterns/templateinheritance.html#template-inheritance"><em>模板继承</em></a> 方案
+文档。简单的说，模板继承可以使每个页面的特定元素（如页头，导航，页尾）保持
+一致。</p>
+<p>自动转义默认开启。因此，如果 <cite>name</cite> 包含 HTML ，那么会被自动转义。如果你可以
+信任某个变量，且知道它是安全的 HTML （例如变量来自一个把 wiki 标记转换为 HTML
+的模块），那么可以使用 <tt class="xref py py-class docutils literal"><span class="pre">Markup</span></tt> 类把它标记为安全的。否则请在模板
+中使用 <tt class="docutils literal"><span class="pre">|safe</span></tt> 过滤器。更多例子参见 Jinja 2 文档。</p>
+<p>下面简单介绍一下 <tt class="xref py py-class docutils literal"><span class="pre">Markup</span></tt> 类的工作方式：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Markup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Markup</span><span class="p">(</span><span class="s">&#39;&lt;strong&gt;Hello </span><span class="si">%s</span><span class="s">!&lt;/strong&gt;&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="s">&#39;&lt;blink&gt;hacker&lt;/blink&gt;&#39;</span>
+<span class="go">Markup(u&#39;&lt;strong&gt;Hello &amp;lt;blink&amp;gt;hacker&amp;lt;/blink&amp;gt;!&lt;/strong&gt;&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Markup</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s">&#39;&lt;blink&gt;hacker&lt;/blink&gt;&#39;</span><span class="p">)</span>
+<span class="go">Markup(u&#39;&amp;lt;blink&amp;gt;hacker&amp;lt;/blink&amp;gt;&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Markup</span><span class="p">(</span><span class="s">&#39;&lt;em&gt;Marked up&lt;/em&gt; &amp;raquo; HTML&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">striptags</span><span class="p">()</span>
+<span class="go">u&#39;Marked up \xbb HTML&#39;</span>
+</pre></div>
+</div>
+<p class="versionchanged">
+<span class="versionmodified">在 0.5 版更改.</span></p>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[1]</a></td><td>不理解什么是 <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-class docutils literal"><span class="pre">g</span></tt></a> 对象？它是某个可以根据需要储存信息的
+东西。更多信息参见 <a class="reference internal" href="api.html#flask.g" title="flask.g"><tt class="xref py py-class docutils literal"><span class="pre">g</span></tt></a> 对象的文档和 <a class="reference internal" href="patterns/sqlite3.html#sqlite3"><em>在 Flask 中使用 SQLite 3</em></a> 文档。</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id11">
+<h2>操作请求数据</h2>
+<p>对于 web 应用来说对客户端向服务器发送的数据作出响应很重要。在 Flask 中由全局
+对象 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">request</span></tt></a> 来提供请求信息。如果你有一些 Python 基础，那么可能
+会奇怪：既然这个对象是全局的，怎么还能保持线程安全？答案是本地环境：</p>
+<div class="section" id="context-locals">
+<span id="id12"></span><h3>本地环境</h3>
+<div class="admonition- admonition">
+<p class="first admonition-title">内部信息</p>
+<p class="last">如果你想了解其工作原理和如何测试，请阅读本节，否则可以跳过本节。</p>
+</div>
+<p>某些对象在 Flask 中是全局对象，但是不是通常意义下的全局对象。这些对象实际上是
+特定环境下本地对象的代理。真拗口！但还是很容易理解的。</p>
+<p>设想现在处于处理线程的环境中。一个请求进来了，服务器决定生成一个新线程（或者
+叫其他什么名称的东西，这个下层的东西能够处理包括线程在内的并发系统）。当
+Flask 开始其内部请求处理时会把当前线程作为活动环境，并把当前应用和 WSGI 环境
+绑定到这个环境（线程）。它以一种聪明的方式使得一个应用可以在不中断的情况下
+调用另一个应用。</p>
+<p>这对你有什么用？基本上你可以完全不必理会。这个只有在做单元测试时才有用。在测试
+时会遇到由于没有请求对象而导致依赖于请求的代码会突然崩溃的情况。对策是自己创建
+一个请求对象并绑定到环境。最简单的单元测试解决方案是使用
+<a class="reference internal" href="api.html#flask.Flask.test_request_context" title="flask.Flask.test_request_context"><tt class="xref py py-meth docutils literal"><span class="pre">test_request_context()</span></tt></a> 环境管理器。通过使用 <cite>with</cite> 语句可以
+绑定一个测试请求，以便于交互。例如:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">test_request_context</span><span class="p">(</span><span class="s">&#39;/hello&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;POST&#39;</span><span class="p">):</span>
+    <span class="c"># now you can do something with the request until the</span>
+    <span class="c"># end of the with block, such as basic assertions:</span>
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s">&#39;/hello&#39;</span>
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span>
+</pre></div>
+</div>
+<p>另一种方式是把整个 WSGI 环境传递给 <a class="reference internal" href="api.html#flask.Flask.request_context" title="flask.Flask.request_context"><tt class="xref py py-meth docutils literal"><span class="pre">request_context()</span></tt></a> 方法:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">request_context</span><span class="p">(</span><span class="n">environ</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h3>请求对象</h3>
+<p>请求对象在 API 一节中有详细说明这里不细谈（参见 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">request</span></tt></a> ）。
+这里简略地谈一下最常见的操作。首先，你必须从 <cite>flask</cite> 模块导入请求对象:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+</pre></div>
+</div>
+<p>通过使用 <tt class="xref py py-attr docutils literal"><span class="pre">method</span></tt> 属性可以操作当前请求方法，通过使用
+<tt class="xref py py-attr docutils literal"><span class="pre">form</span></tt> 属性处理表单数据。以下是使用两个属性的例子:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">valid_login</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span>
+                       <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">log_the_user_in</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="s">&#39;Invalid username/password&#39;</span>
+    <span class="c"># 如果请求访求是 GET 或验证未通过就会执行下面的代码</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;login.html&#39;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当 <cite>form</cite> 属性中不存在这个键时会发生什么？会引发一个 <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#KeyError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#KeyError]</span> 。如果你不
+像捕捉一个标准错误一样捕捉 <a class="reference external" href="http://docs.python.org/dev/library/exceptions.html#KeyError" title="(in Python v3.4)"><tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/exceptions.html#KeyError]</span> ，那么会显示一个 HTTP 400 Bad
+Request 错误页面。因此，多数情况下你不必处理这个问题。</p>
+<p>要操作 URL （如 <tt class="docutils literal"><span class="pre">?key=value</span></tt> ）中提交的参数可以使用
+<tt class="xref py py-attr docutils literal"><span class="pre">args</span></tt> 属性:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">searchword</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;key&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>用户可能会改变 URL 导致出现一个 400 请求出错页面，这样降低了用户友好度。因此，
+我们推荐使用 <cite>get</cite> 或通过捕捉 <cite>KeyError</cite> 来访问 URL 参数。</p>
+<p>完整的请求对象方法和属性参见 <a class="reference internal" href="api.html#flask.request" title="flask.request"><tt class="xref py py-class docutils literal"><span class="pre">request</span></tt></a> 文档。</p>
+</div>
+<div class="section" id="id14">
+<h3>文件上传</h3>
+<p>用 Flask 处理文件上传很容易，只要确保不要忘记在你的 HTML 表单中设置
+<tt class="docutils literal"><span class="pre">enctype=&quot;multipart/form-data&quot;</span></tt> 属性就可以了。否则浏览器将不会传送你的文件。</p>
+<p>已上传的文件被储存在内存或文件系统的临时位置。你可以通过请求对象
+<tt class="xref py py-attr docutils literal"><span class="pre">files</span></tt> 属性来访问上传的文件。每个上传的文件都储存在这个
+字典型属性中。这个属性基本和标准 Python <tt class="xref py py-class docutils literal"><span class="pre">file</span></tt> 对象一样，另外多出一个
+用于把上传文件保存到服务器的文件系统中的
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.FileStorage.save" title="(in Werkzeug v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">save()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.FileStorage.save]</span> 方法。下例展示其如何运作:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/upload&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">upload_file</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s">&#39;the_file&#39;</span><span class="p">]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;/var/www/uploads/uploaded_file.txt&#39;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>如果想要知道文件上传之前其在客户端系统中的名称，可以使用
+<a class="reference external" href="http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.FileStorage.filename" title="(in Werkzeug v0.9)"><tt class="xref py py-attr docutils literal"><span class="pre">filename</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/datastructures/#werkzeug.datastructures.FileStorage.filename]</span> 属性。但是请牢记这个值是
+可以伪造的，永远不要信任这个值。如果想要把客户端的文件名作为服务器上的文件名，
+可以通过 Werkzeug 提供的 <a class="reference external" href="http://werkzeug.pocoo.org/docs/utils/#werkzeug.utils.secure_filename" title="(in Werkzeug v0.9)"><tt class="xref py py-func docutils literal"><span class="pre">secure_filename()</span></tt></a><span class="link-target"> [http://werkzeug.pocoo.org/docs/utils/#werkzeug.utils.secure_filename]</span> 函数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">secure_filename</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/upload&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">upload_file</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s">&#39;the_file&#39;</span><span class="p">]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;/var/www/uploads/&#39;</span> <span class="o">+</span> <span class="n">secure_filename</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>更好的例子参见 <a class="reference internal" href="patterns/fileuploads.html#uploading-files"><em>上传文件</em></a> 方案。</p>
+</div>
+<div class="section" id="cookies">
+<h3>Cookies</h3>
+<p>要访问 cookies ，可以使用 <a class="reference internal" href="api.html#flask.Request.cookies" title="flask.Request.cookies"><tt class="xref py py-attr docutils literal"><span class="pre">cookies</span></tt></a> 属性。可以使用请求对象
+的 <a class="reference internal" href="api.html#flask.Response.set_cookie" title="flask.Response.set_cookie"><tt class="xref py py-attr docutils literal"><span class="pre">set_cookie</span></tt></a> 方法来设置 cookies 。请求对象的
+<a class="reference internal" href="api.html#flask.Request.cookies" title="flask.Request.cookies"><tt class="xref py py-attr docutils literal"><span class="pre">cookies</span></tt></a> 属性是一个包含了客户端传输的所有 cookies 的字典。
+在 Flask 中，如果能够使用 <a class="reference internal" href="#sessions"><em>会话</em></a> ，那么就不要直接使用 cookies ，因为
+会话比较安全一些。</p>
+<p>读取 cookies:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;username&#39;</span><span class="p">)</span>
+    <span class="c"># 使用 cookies.get(key) 来代替 cookies[key] ，</span>
+    <span class="c"># 以避免当 cookie 不存在时引发 KeyError 。</span>
+</pre></div>
+</div>
+<p>储存 cookies:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">render_template</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s">&#39;username&#39;</span><span class="p">,</span> <span class="s">&#39;the username&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resp</span>
+</pre></div>
+</div>
+<p>注意， cookies 设置在响应对象上。通常只是从视图函数返回字符串， Flask 会把它们
+转换为响应对象。如果你想显式地转换，那么可以使用 <a class="reference internal" href="api.html#flask.make_response" title="flask.make_response"><tt class="xref py py-meth docutils literal"><span class="pre">make_response()</span></tt></a>
+函数，然后再修改它。</p>
+<p>使用 <a class="reference internal" href="patterns/deferredcallbacks.html#deferred-callbacks"><em>延迟的请求回调</em></a> 方案可以在没有响应对象的情况下设置一个 cookie 。</p>
+<p>同时可以参见 <a class="reference internal" href="#about-responses"><em>关于响应</em></a> 。</p>
+</div>
+</div>
+<div class="section" id="id15">
+<h2>重定向和错误</h2>
+<p>使用 <a class="reference internal" href="api.html#flask.redirect" title="flask.redirect"><tt class="xref py py-func docutils literal"><span class="pre">redirect()</span></tt></a> 函数可以重定向。使用 <a class="reference internal" href="api.html#flask.abort" title="flask.abort"><tt class="xref py py-func docutils literal"><span class="pre">abort()</span></tt></a> 可以及早
+从错误代码中脱身。举例说明:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;login&#39;</span><span class="p">))</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="n">abort</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+    <span class="n">this_is_never_executed</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>上例实际上是没有意义的，它让一个用户从索引页重定向到一个无法访问的页面（401
+表示禁止访问）。但是上例可以说明重定向和出错跳出是如何工作的。</p>
+<p>缺省情况下每种出错代码都会对应显示一个黑白的出错页面。使用
+<a class="reference internal" href="api.html#flask.Flask.errorhandler" title="flask.Flask.errorhandler"><tt class="xref py py-meth docutils literal"><span class="pre">errorhandler()</span></tt></a> 装饰器可以定制出错页面:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span>
+
+<span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;page_not_found.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
+</pre></div>
+</div>
+<p>注意 <a class="reference internal" href="api.html#flask.render_template" title="flask.render_template"><tt class="xref py py-func docutils literal"><span class="pre">render_template()</span></tt></a> 后面的 <tt class="docutils literal"><span class="pre">404</span></tt> ，这表示页面对就的出错代码是
+404 ，即页面不存在。缺省情况下 200 表示一切正常。</p>
+</div>
+<div class="section" id="about-responses">
+<span id="id16"></span><h2>关于响应</h2>
+<p>视图函数的返回值会自动转换为一个响应对象。如果返回值是一个字符串，那么会被转换
+为一个包含作为响应体的字符串、一个 <tt class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></tt> 出错代码 和一个 <tt class="docutils literal"><span class="pre">text/html</span></tt>
+MIME 类型的响应对象。以下是转换的规则：</p>
+<ol class="arabic simple">
+<li>如果视图要返回的是一个响应对象，那么就直接返回它。</li>
+<li>如果要返回的是一个字符串，那么根据这个字符串和缺省参数生成一个用于返回的
+响应对象。</li>
+<li>如果要返回的是一个元组，那么元组中的项目可以提供额外的信息。元组中必须至少
+包含一个项目，且项目应当由 <tt class="docutils literal"><span class="pre">(response,</span> <span class="pre">status,</span> <span class="pre">headers)</span></tt> 组成。 <cite>status</cite>
+的值会重载状态代码， <cite>headers</cite> 是一个由额外头部值组成的列表或字典。</li>
+<li>如果以上都不是，那么 Flask 会假定返回值是一个有效的 WSGI 应用并把它转换为
+一个响应对象。</li>
+</ol>
+<p>如果想要在视图内部掌控响应对象的结果，那么可以使用
+<a class="reference internal" href="api.html#flask.make_response" title="flask.make_response"><tt class="xref py py-func docutils literal"><span class="pre">make_response()</span></tt></a> 函数。</p>
+<p>设想有如下视图：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;error.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
+</pre></div>
+</div>
+<p>可以使用 <a class="reference internal" href="api.html#flask.make_response" title="flask.make_response"><tt class="xref py py-func docutils literal"><span class="pre">make_response()</span></tt></a> 包裹返回表达式，获得结果。对结果进行修改
+后再返回：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">render_template</span><span class="p">(</span><span class="s">&#39;error.html&#39;</span><span class="p">),</span> <span class="mi">404</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;X-Something&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;A value&#39;</span>
+    <span class="k">return</span> <span class="n">resp</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sessions">
+<span id="id17"></span><h2>会话</h2>
+<p>除了请求对象之外还有一种称为 <a class="reference internal" href="api.html#flask.session" title="flask.session"><tt class="xref py py-class docutils literal"><span class="pre">session</span></tt></a> 的对象，允许你在不同请求
+之间储存信息。这个对象相当于用密钥签名加密的 cookie ，即用户可以查看你的
+cookie ，但是如果没有密钥就无法修改它。</p>
+<p>使用会话之前你必须设置一个密钥。举例说明:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">escape</span><span class="p">,</span> <span class="n">request</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;Logged in as </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">escape</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="s">&#39;You are not logged in&#39;</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">session</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">        &lt;form action=&quot;&quot; method=&quot;post&quot;&gt;</span>
+<span class="s">            &lt;p&gt;&lt;input type=text name=username&gt;</span>
+<span class="s">            &lt;p&gt;&lt;input type=submit value=Login&gt;</span>
+<span class="s">        &lt;/form&gt;</span>
+<span class="s">    &#39;&#39;&#39;</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/logout&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+    <span class="c"># 如果会话中有用户名就删除它。</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;username&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">))</span>
+
+<span class="c"># 设置密钥，复杂一点：</span>
+<span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="s">&#39;A0Zr98j/3yX R~XHH!jmN]LWX/,?RT&#39;</span>
+</pre></div>
+</div>
+<p>这里用到的 <a class="reference internal" href="api.html#flask.escape" title="flask.escape"><tt class="xref py py-func docutils literal"><span class="pre">escape()</span></tt></a> 是用来转义的。如果不使用模板引擎就可以像上例
+一样使用这个函数来转义。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">如果生成一个好的密钥</p>
+<p>生成随机数的关键在于一个好的随机种子，困此一个好的密钥应当有足够的随机性。
+你的操作系统可以使用一个随机生成器来生成一个好的随机种子：</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span>
+<span class="go">&#39;\xfd{H\xe5&lt;\x95\xf9\xe3\x96.5\xd1\x01O&lt;!\xd5\xa2\xa0\x9fR&quot;\xa1\xa8&#39;</span>
+</pre></div>
+</div>
+<p class="last">只要复制这个随机种子到你的代码中就行了。</p>
+</div>
+<p>基于 cookie 的会话的说明： Flask 会把会话对象中的值储存在 cookie 中。在打开
+cookie 的情况下，如果你访问会话对象中没有的值，那么会得到模糊的错误信息：请检查
+页面 cookie 的大小是否与网络浏览器所支持的大小一致。</p>
+</div>
+<div class="section" id="id18">
+<h2>消息闪现</h2>
+<p>一个好的应用和用户接口都有良好的反馈，否则到后来用户就会讨厌这个应用。 Flask
+通过闪现系统来提供了一个易用的反馈方式。闪现系统的基本工作原理是在请求结束时
+记录一个消息，提供且只提供给下一个请求使用。通常通过一个布局模板来展现闪现的
+消息。</p>
+<p><a class="reference internal" href="api.html#flask.flash" title="flask.flash"><tt class="xref py py-func docutils literal"><span class="pre">flash()</span></tt></a> 用于闪现一个消息。在模板中，使用
+<a class="reference internal" href="api.html#flask.get_flashed_messages" title="flask.get_flashed_messages"><tt class="xref py py-func docutils literal"><span class="pre">get_flashed_messages()</span></tt></a> 来操作消息。完整的例子参见
+<a class="reference internal" href="patterns/flashing.html#message-flashing-pattern"><em>消息闪现</em></a> 。</p>
+</div>
+<div class="section" id="id19">
+<h2>日志</h2>
+<p class="versionadded">
+<span class="versionmodified">0.3 新版功能.</span></p>
+<p>有时候可能会遇到数据出错需要纠正的情况。例如因为用户篡改了数据或客户端代码出错
+而导致一个客户端代码向服务器发送了明显错误的 HTTP 请求。多数时候在类似情况下
+返回 <tt class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></tt> 就没事了，但也有不会返回的时候，而代码还得继续运行
+下去。</p>
+<p>这时候就需要使用日志来记录这些不正常的东西了。自从 Flask 0.3 后就已经为你配置好
+了一个日志工具。</p>
+<p>以下是一些日志调用示例:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;A value for debugging&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;A warning occurred (</span><span class="si">%d</span><span class="s"> apples)&#39;</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;An error occurred&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="api.html#flask.Flask.logger" title="flask.Flask.logger"><tt class="xref py py-attr docutils literal"><span class="pre">logger</span></tt></a> 是一个标准的 Python <a class="reference external" href="http://docs.python.org/dev/library/logging.html#logging.Logger" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">Logger</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/logging.html#logging.Logger]</span> 类，
+更多信息详见官方的 <a class="reference external" href="http://docs.python.org/library/logging.html">logging 文档</a><span class="link-target"> [http://docs.python.org/library/logging.html]</span> 。</p>
+</div>
+<div class="section" id="wsgi">
+<h2>集成 WSGI 中间件</h2>
+<p>如果想要在应用中添加一个 WSGI 中间件，那么可以包装内部的 WSGI 应用。假设为了
+解决 lighttpd 的错误，你要使用一个来自 Werkzeug 包的中间件，那么可以这样做:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug.contrib.fixers</span> <span class="kn">import</span> <span class="n">LighttpdCGIRootFix</span>
+<span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span> <span class="o">=</span> <span class="n">LighttpdCGIRootFix</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="quickstart-deployment">
+<span id="id20"></span><h2>部署到一个网络服务器</h2>
+<p>准备好发布你的新 Flask 应用了吗？作为本文的一个圆满结尾，你可以立即把应用部署到
+一个主机上。下面介绍的是如何把小项目部署到免费主机上。</p>
+<ul class="simple">
+<li><a class="reference external" href="http://devcenter.heroku.com/articles/python">把 Flask 部署到 Heroku</a><span class="link-target"> [http://devcenter.heroku.com/articles/python]</span></li>
+<li><a class="reference external" href="http://docs.dotcloud.com/services/python/">把 WSGI 部署到 dotCloud</a><span class="link-target"> [http://docs.dotcloud.com/services/python/]</span> 的
+<a class="reference external" href="http://flask.pocoo.org/snippets/48/">Flask 应用注意点</a><span class="link-target"> [http://flask.pocoo.org/snippets/48/]</span></li>
+</ul>
+<p>其他可以部署 Flask 应用的地方：</p>
+<ul class="simple">
+<li><a class="reference external" href="http://flask.pocoo.org/snippets/65/">把 Flask 部署到 Webfaction</a><span class="link-target"> [http://flask.pocoo.org/snippets/65/]</span></li>
+<li><a class="reference external" href="https://github.com/kamalgill/flask-appengine-template">把 Flask 部署到 Google App Engine</a><span class="link-target"> [https://github.com/kamalgill/flask-appengine-template]</span></li>
+<li><a class="reference external" href="http://flask.pocoo.org/snippets/89/">用 Localtunnel 分离你的本地服务器</a><span class="link-target"> [http://flask.pocoo.org/snippets/89/]</span></li>
+</ul>
+<p>如果拥有自己的独立主机，参见《 <a class="reference internal" href="deploying/index.html#deployment"><em>部署方式</em></a> 》。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

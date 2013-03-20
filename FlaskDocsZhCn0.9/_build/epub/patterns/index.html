@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Flask 方案</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="packages.html" title="大型应用"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="../shell.html" title="在 Shell 中使用 Flask"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="flask">
+<span id="patterns"></span><h1>Flask 方案</h1>
+<p>有一些东西是大多数网络应用都会用到的。比如许多应用都会使用关系型数据库和用户
+验证，在请求之前连接数据库并得到当前登录用户的信息，在请求之后关闭数据库连接。</p>
+<p>更多用户贡献的代码片断和方案参见 <a class="reference external" href="http://flask.pocoo.org/snippets/">Flask 代码片断归档</a><span class="link-target"> [http://flask.pocoo.org/snippets/]</span> 。</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">大型应用</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="packages.html#id2">简单的包</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html#working-with-modules">使用蓝图</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appfactories.html">应用工厂</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appfactories.html#id2">基础工厂</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appfactories.html#id3">使用应用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appfactories.html#id4">改进工厂</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appdispatch.html">应用调度</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appdispatch.html#id2">说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appdispatch.html#id3">组合应用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appdispatch.html#id4">根据子域调度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appdispatch.html#id5">根据路径调度</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="urlprocessors.html">URL 处理器</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="urlprocessors.html#id1">国际化的应用 URL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="urlprocessors.html#id2">国际化的蓝图 URL</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="distribute.html">使用 Distribute 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="distribute.html#id1">基础设置脚本</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribute.html#distributing-resources">分发资源</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribute.html#id3">声明依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribute.html#id4">安装 / 开发</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fabric.html">使用 Fabric 部署</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#fabfile">创建第一个 Fabfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#id1">运行 Fabfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#wsgi">WSGI 文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#id2">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#id3">第一次部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fabric.html#id4">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sqlite3.html">在 Flask 中使用 SQLite 3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sqlite3.html#id1">按需连接</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqlite3.html#easy-querying">简化查询</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqlite3.html#id3">初始化模式</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sqlalchemy.html">在 Flask 中使用 SQLAlchemy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sqlalchemy.html#id1">Flask-SQLAlchemy 扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqlalchemy.html#id3">声明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqlalchemy.html#id4">人工对象关系映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqlalchemy.html#sql">SQL 抽象层</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fileuploads.html">上传文件</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fileuploads.html#id2">简介</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileuploads.html#id3">改进上传</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileuploads.html#id4">上传进度条</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileuploads.html#id5">一个更简便的方案</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="caching.html">缓存</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="caching.html#id2">设置一个缓存</a></li>
+<li class="toctree-l2"><a class="reference internal" href="caching.html#id3">使用缓存</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="viewdecorators.html">视图装饰器</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="viewdecorators.html#id2">检查登录装饰器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewdecorators.html#id3">缓存装饰器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewdecorators.html#id4">模板装饰器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewdecorators.html#id5">端点装饰器</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wtforms.html">使用 WTForms 进行表单验证</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wtforms.html#id1">表单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wtforms.html#id2">视图</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wtforms.html#id3">模板中的表单</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="templateinheritance.html">模板继承</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="templateinheritance.html#id2">基础模板</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templateinheritance.html#id3">子模板</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="flashing.html">消息闪现</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="flashing.html#id2">简单的例子</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flashing.html#id3">闪现消息的类别</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flashing.html#id4">过滤闪现消息</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="jquery.html">通过 jQuery 使用 AJAX</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="jquery.html#id1">载入 jQuery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jquery.html#id2">我的网站在哪里？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jquery.html#json">JSON 视图函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jquery.html#html">HTML</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="errorpages.html">自定义出错页面</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="errorpages.html#id2">常见出错代码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errorpages.html#id3">出错处理器</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lazyloading.html">惰性载入视图</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lazyloading.html#url">转换为集中 URL 映射</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lazyloading.html#id2">延迟载入</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mongokit.html">在 Flask 中使用 MongoKit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mongokit.html#id1">声明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mongokit.html#pymongo">PyMongo 兼容层</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="favicon.html">添加一个页面图标</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="favicon.html#id2">另见</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="streaming.html">流内容</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="streaming.html#id2">基本用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="streaming.html#id3">模板中的流内容</a></li>
+<li class="toctree-l2"><a class="reference internal" href="streaming.html#id4">环境中的流内容</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deferredcallbacks.html">延迟的请求回调</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deferredcallbacks.html#id2">装饰器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deferredcallbacks.html#id3">调用延迟的回调函数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deferredcallbacks.html#id4">一个实例</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

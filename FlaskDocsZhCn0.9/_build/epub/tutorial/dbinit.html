@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>步骤 3 ：创建数据库</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="dbcon.html" title="步骤 4 ：请求数据库连接"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="步骤 2 ：应用构建代码"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-dbinit">
+<span id="id1"></span><h1>步骤 3 ：创建数据库</h1>
+<p>如前所述 Flaskr 是一个数据库驱动的应用，更准确地说是一个关系型数据库驱动的
+应用。关系型数据库需要一个数据库模式来定义如何储存信息，因此必须在第一次运行
+服务器前创建数据库模式。</p>
+<p>使用 <cite>sqlite3</cite> 命令通过管道导入 <cite>schema.sql</cite> 创建模式:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sqlite3</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">flaskr</span><span class="o">.</span><span class="n">db</span> <span class="o">&lt;</span> <span class="n">schema</span><span class="o">.</span><span class="n">sql</span>
+</pre></div>
+</div>
+<p>上述方法的不足之处是另外需要 sqlite3 命令，但这个命令不是每个系统都有的。而且还
+必须提供数据库的路径，容易出错。因此更好的方法是在应用中添加一个数据库初始化
+函数。</p>
+<p>添加的方法是：首先从 contextlib 库中导入 <a class="reference external" href="http://docs.python.org/dev/library/contextlib.html#contextlib.closing" title="(in Python v3.4)"><tt class="xref py py-func docutils literal"><span class="pre">contextlib.closing()</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/contextlib.html#contextlib.closing]</span> 函数。如果
+你使用的是 Python 2.5 ，还必须先打开 <cite>with</cite> 语句（ <cite>__future__</cite> 必须第一个
+导入）:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">closing</span>
+</pre></div>
+</div>
+<p>接下来，可以创建一个用来初始化数据库的 <cite>init_db</cite> 函数，其中我们使用了先前创建的
+<cite>connect_db</cite> 函数。把这个初始化函数放在 <cite>connect_db</cite> 函数下面:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">init_db</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">closing</span><span class="p">(</span><span class="n">connect_db</span><span class="p">())</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="s">&#39;schema.sql&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">executescript</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="http://docs.python.org/dev/library/contextlib.html#contextlib.closing" title="(in Python v3.4)"><tt class="xref py py-func docutils literal"><span class="pre">closing()</span></tt></a><span class="link-target"> [http://docs.python.org/dev/library/contextlib.html#contextlib.closing]</span> 帮助函数允许我们在 <cite>with</cite> 代码块保持数据库连接
+打开。应用对象的 <a class="reference internal" href="../api.html#flask.Flask.open_resource" title="flask.Flask.open_resource"><tt class="xref py py-func docutils literal"><span class="pre">open_resource()</span></tt></a> 方法支持也支持这个功能，
+所以可以在 <cite>with</cite> 代码块中直接使用。这个函数打开一个位于来源位置（你的
+<cite>flaskr</cite> 文件夹）的文件并允许你读取文件的内容。这里我们用于在数据库连接上执行
+代码。</p>
+<p>当我们连接到数据库时，我们得到一个提供指针的连接对象（本例中的 <cite>db</cite> ）。这个
+指针有一个方法可以执行完整的代码。最后我们提供要做的修改。 SQLite 3 和其他
+事务型数据库只有在显式提交时才会真正提交。</p>
+<p>现在可以创建数据库了。打开 Python shell ，导入，调用函数:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flaskr</span> <span class="kn">import</span> <span class="n">init_db</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">init_db</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition- admonition">
+<p class="first admonition-title">故障处理</p>
+<p class="last">如果出现表无法找到的问题，请检查是否写错了函数名称（应该是 <cite>init_db</cite> ），
+是否写错了表名（例如单数复数错误）。</p>
+</div>
+<p>下面请阅读 <a class="reference internal" href="dbcon.html#tutorial-dbcon"><em>步骤 4 ：请求数据库连接</em></a> 。</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

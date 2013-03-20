@@ -1,0 +1,89 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CGI</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../becomingbig.html" title="大型应用"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="fastcgi.html" title="FastCGI"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">部署方式</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="cgi">
+<h1>CGI</h1>
+<p>如果其他的部署方式都不管用，那么就只能使用 CGI 了。 CGI 适应于所有主流服务器，
+但是其性能稍弱。</p>
+<p>这也是在 Google 的 <a class="reference external" href="http://code.google.com/appengine/">App Engine</a><span class="link-target"> [http://code.google.com/appengine/]</span> 使用 Flask 应用的方法，其执行方式类似于
+CGI 环境。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">小心</p>
+<p class="last">请务必把 <tt class="docutils literal"><span class="pre">app.run()</span></tt> 放在 <tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></tt> 内部或者放在单独
+的文件中，这样可以保证它不会被调用。因为，每调用一次就会开启一个本地 WSGI
+服务器。当我们使用 CGI 或 App Engine 部署应用时，不需要使用本地服务器。</p>
+</div>
+<div class="section" id="id1">
+<h2>创建一个 <cite>.cgi</cite> 文件</h2>
+<p>首先，你需要创建 CGI 应用文件。我们把它命名为 <cite>yourapplication.cgi</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">wsgiref.handlers</span> <span class="kn">import</span> <span class="n">CGIHandler</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span>
+
+<span class="n">CGIHandler</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>服务器设置</h2>
+<p>设置服务器通常有两种方法。一种是把 <cite>.cgi</cite> 复制为 <cite>cgi-bin</cite> （并且使用
+<cite>mod_rewrite</cite> 或其他类似东西来改写 URL ）；另一种是把服务器直接指向文件。</p>
+<p>例如，如果使用 Apache ，那么可以把如下内容放入配置中：</p>
+<div class="highlight-apache"><div class="highlight"><pre><span class="nb">ScriptAlias</span> <span class="sx">/app</span> <span class="sx">/path/to/the/application.cgi</span>
+</pre></div>
+</div>
+<p>在共享的网络服务器上，你可能无法变动 Apache 配置。在这种情况下，你可以使用你
+的公共目录中的 <cite>.htaccess</cite> 文件。但是 <cite>ScriptAlias</cite> 指令会失效：</p>
+<div class="highlight-apache"><div class="highlight"><pre><span class="nb">RewriteEngine</span> <span class="k">On</span>
+<span class="nb">RewriteCond</span> %{REQUEST_FILENAME} !-f # Don&#39;t interfere with static files
+<span class="nb">RewriteRule</span> ^(.*)$ <span class="sx">/path/to/the/application.cgi/</span>$1 [L]
+</pre></div>
+</div>
+<p>更多信息参见你所使用的服务器的文档。</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>部署方式</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="mod_wsgi.html" title="mod_wsgi (Apache)"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="../patterns/deferredcallbacks.html" title="延迟的请求回调"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="deployment">
+<span id="id1"></span><h1>部署方式</h1>
+<p>Flask 应用可以采用多种方式部署。在开发时，你可以使用内置的服务器，但是在生产环境
+下你就应当选择功能完整的服务器。下面为你提供几个可用的选择。</p>
+<p>除了下面提到的服务器之外，如果你使用了其他的 WSGI 服务器，那么请阅读其文档中与
+使用 WSGI 应用相关的部分。因为 <tt class="xref py py-class docutils literal"><span class="pre">Flask</span></tt> 应用对象的实质就是一个 WSGI 应用。</p>
+<p>如果需要快速体验，请参阅《快速上手》中的 <a class="reference internal" href="../quickstart.html#quickstart-deployment"><em>部署到一个网络服务器</em></a> 。</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mod_wsgi.html">mod_wsgi (Apache)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#mod-wsgi">安装 <cite>mod_wsgi</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#wsgi">创建一个 <cite>.wsgi</cite> 文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#id1">配置 Apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#id5">故障排除</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#id6">支持自动重载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mod_wsgi.html#id7">使用虚拟环境</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wsgi-standalone.html">独立 WSGI 容器</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wsgi-standalone.html#gunicorn">Gunicorn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wsgi-standalone.html#tornado">Tornado</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wsgi-standalone.html#gevent">Gevent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wsgi-standalone.html#deploying-proxy-setups">代理设置</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="uwsgi.html">uWSGI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="uwsgi.html#id1">使用 uwsgi 启动你的应用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uwsgi.html#nginx">配置 nginx</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fastcgi.html">FastCGI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#fcgi">创建一个 <cite>.fcgi</cite> 文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#apache">配置 Apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#lighttpd">配置 lighttpd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#nginx">配置 nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#id1">运行 FastCGI 进程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastcgi.html#id2">调试</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cgi.html">CGI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cgi.html#id1">创建一个 <cite>.cgi</cite> 文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cgi.html#id2">服务器设置</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

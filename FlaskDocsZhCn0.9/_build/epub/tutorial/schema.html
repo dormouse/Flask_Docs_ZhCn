@@ -1,0 +1,65 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>步骤 1 ：数据库模式</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="setup.html" title="步骤 2 ：应用构建代码"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="folders.html" title="步骤 0 ：创建文件夹"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">教程</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-schema">
+<span id="id1"></span><h1>步骤 1 ：数据库模式</h1>
+<p>首先我们要创建数据库模式。本应用只需要使用一张表，并且由于我们使用 SQLite ，
+所以这一步非常简单。把以下内容保存为 <cite>schema.sql</cite> 文件并放在我们上一步创建的
+<cite>flaskr</cite> 文件夹中就行了：</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">drop</span> <span class="k">table</span> <span class="n">if</span> <span class="k">exists</span> <span class="n">entries</span><span class="p">;</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">entries</span> <span class="p">(</span>
+  <span class="n">id</span> <span class="nb">integer</span> <span class="k">primary</span> <span class="k">key</span> <span class="n">autoincrement</span><span class="p">,</span>
+  <span class="n">title</span> <span class="n">string</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="nb">text</span> <span class="n">string</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>这个模式只有一张名为 <cite>entries</cite> 的表，表中的字段为 <cite>id</cite> 、 <cite>title</cite> 和 <cite>text</cite> 。
+<cite>id</cite> 是主键，是自增整数型字段，别外两个字段是非空的字符串型字段。</p>
+<p>下面请阅读 <a class="reference internal" href="setup.html#tutorial-setup"><em>步骤 2 ：应用构建代码</em></a> 。</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>

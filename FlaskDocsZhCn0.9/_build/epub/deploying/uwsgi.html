@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>uWSGI</title>
+    
+    <link rel="stylesheet" href="../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>导航</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="总目录"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="fastcgi.html" title="FastCGI"
+             accesskey="N">下一页</a> |</li>
+        <li class="right" >
+          <a href="wsgi-standalone.html" title="独立 WSGI 容器"
+             accesskey="P">上一页</a> |</li>
+        <li><a href="../index.html">Flask 0.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">部署方式</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="uwsgi">
+<span id="deploying-uwsgi"></span><h1>uWSGI</h1>
+<p>uWSGI 也是部署 Flask 的途径之一,类似的部署途径还有 <a class="reference external" href="http://nginx.org/">nginx</a><span class="link-target"> [http://nginx.org/]</span> 、 <a class="reference external" href="http://www.lighttpd.net/">lighttpd</a><span class="link-target"> [http://www.lighttpd.net/]</span> 和
+<a class="reference external" href="http://www.cherokee-project.com/">cherokee</a><span class="link-target"> [http://www.cherokee-project.com/]</span> 。其他部署途径的信息参见 <a class="reference internal" href="fastcgi.html#deploying-fastcgi"><em>FastCGI</em></a> 和
+<a class="reference internal" href="wsgi-standalone.html#deploying-wsgi-standalone"><em>独立 WSGI 容器</em></a> 。使用 uWSGI 协议来部署 WSGI 应用的先决条件是
+需要一个 uWSGI 服务器。 uWSGI 既是一个协议也是一个服务器。如果作为一个服务器，
+它可以服务于 uWSGI 、 FastCGI 和 HTTP 协议。</p>
+<p>最流行的 uWSGI 服务器是 <a class="reference external" href="http://projects.unbit.it/uwsgi/">uwsgi</a><span class="link-target"> [http://projects.unbit.it/uwsgi/]</span> ，本文将使用它来举例，请先安装它。</p>
+<div class="admonition- admonition">
+<p class="first admonition-title">小心</p>
+<p class="last">请务必把 <tt class="docutils literal"><span class="pre">app.run()</span></tt> 放在 <tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">'__main__':</span></tt> 内部或者放在单独
+的文件中，这样可以保证它不会被调用。因为，每调用一次就会开启一个本地 WSGI
+服务器。当我们使用 uWSGI 部署应用时，不需要使用本地服务器。</p>
+</div>
+<div class="section" id="id1">
+<h2>使用 uwsgi 启动你的应用</h2>
+<p><cite>uwsgi</cite> 是基于 python 模块中的 WSGI 调用的。假设 Flask 应用名称为 myapp.py ，
+可以使用以下命令：</p>
+<div class="highlight-text"><div class="highlight"><pre>$ uwsgi -s /tmp/uwsgi.sock --module myapp --callable app
+</pre></div>
+</div>
+<p>或者这个命令也行：</p>
+<div class="highlight-text"><div class="highlight"><pre>$ uwsgi -s /tmp/uwsgi.sock -w myapp:app
+</pre></div>
+</div>
+</div>
+<div class="section" id="nginx">
+<h2>配置 nginx</h2>
+<p>一个 nginx 的基本 uWSGI 配置如下:</p>
+<div class="highlight-python"><pre>location = /yourapplication { rewrite ^ /yourapplication/; }
+location /yourapplication { try_files $uri @yourapplication; }
+location @yourapplication {
+  include uwsgi_params;
+  uwsgi_param SCRIPT_NAME /yourapplication;
+  uwsgi_modifier1 30;
+  uwsgi_pass unix:/tmp/uwsgi.sock;
+}</pre>
+</div>
+<p>这个配置把应用绑定到 <cite>/yourapplication</cite> 。如果你想要在根 URL 下运行应用非常
+简单，因为你不必指出 WSGI <cite>PATH_INFO</cite> 或让 uwsgi 修改器来使用它:</p>
+<div class="highlight-python"><pre>location / { try_files $uri @yourapplication; }
+location @yourapplication {
+    include uwsgi_params;
+    uwsgi_pass unix:/tmp/uwsgi.sock;
+}</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; 版权所有 2012, Armin Ronacher.
+    </div>
+  </body>
+</html>
