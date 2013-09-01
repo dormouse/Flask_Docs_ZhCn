@@ -1,0 +1,4 @@
+_build
+*.pyc
+flask/*.pyc
+werkzeug/*.pyc
