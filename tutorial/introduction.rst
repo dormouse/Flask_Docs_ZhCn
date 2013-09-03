@@ -1,33 +1,30 @@
 .. _tutorial-introduction:
 
-Introducing Flaskr
+Flaskr 介绍
 ==================
 
-We will call our blogging application flaskr here, feel free to choose a
-less web-2.0-ish name ;)  Basically we want it to do the following things:
+我们把教程中的博客应用称为 flaskr ，当然你也可以随便取一个没有 web-2.0 气息的
+名字  ;)  它的基本功能如下：
 
-1. let the user sign in and out with credentials specified in the
-   configuration.  Only one user is supported.
-2. when the user is logged in they can add new entries to the page
-   consisting of a text-only title and some HTML for the text.  This HTML
-   is not sanitized because we trust the user here.
-3. the page shows all entries so far in reverse order (newest on top) and
-   the user can add new ones from there if logged in.
+1. 让用户可以根据配置文件中的信息登录和注销。只支持一个用户。
+2. 用户登录以后可以添加新的博客条目。条目由文本标题和支持 HTML 代码的内容组成。
+   因为我们信任用户，所以不对内容中的 HTML 进行净化处理。
+3. 页面以倒序（越新的在越上面）显示所有条目。并且用户登录以后可以在这个页面添加
+   新的条目。
 
-We will be using SQLite3 directly for that application because it's good
-enough for an application of that size.  For larger applications however
-it makes a lot of sense to use `SQLAlchemy`_ that handles database
-connections in a more intelligent way, allows you to target different
-relational databases at once and more.  You might also want to consider
-one of the popular NoSQL databases if your data is more suited for those.
+我们直接在应用中使用 SQLite3 ，因为在这种规模的应用中 SQlite3 已经够用了。如果
+是大型应用，那么就有必要使用能够好的处理数据库连接的 `SQLAlchemy`_ 了，它可以
+同时对应多种数据库，并做其他更多的事情。如果你的数据更适合使用 NoSQL 数据库，
+那么也可以考虑使用某种流行的 NoSQL 数据库。
 
-Here a screenshot from the final application:
+这是教程应用完工后的截图：
 
 .. image:: ../_static/flaskr.png
    :align: center
    :class: screenshot
    :alt: screenshot of the final application
 
-Continue with :ref:`tutorial-folders`.
+下面请阅读 :ref:`tutorial-folders` 。
 
 .. _SQLAlchemy: http://www.sqlalchemy.org/
+
