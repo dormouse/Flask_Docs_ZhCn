@@ -107,29 +107,23 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
                                   ``True`` ，那么就只能得到一个普通的反馈。
 ``PREFERRED_URL_SCHEME``          在没有可用的模式的情况下， URL 生成所
                                   使用的 URL 模式。缺省值为 ``http`` 。
-``JSON_AS_ASCII``                 By default Flask serialize object to
-                                  ascii-encoded JSON.  If this is set to
-                                  ``False`` Flask will not encode to ASCII
-                                  and output strings as-is and return
-                                  unicode strings.  ``jsonfiy`` will
-                                  automatically encode it in ``utf-8``
-                                  then for transport for instance.
-``JSON_SORT_KEYS``                By default Flask will serialize JSON
-                                  objects in a way that the keys are
-                                  ordered.  This is done in order to
-                                  ensure that independent of the hash seed
-                                  of the dictionary the return value will
-                                  be consistent to not trash external HTTP
-                                  caches.  You can override the default
-                                  behavior by changing this variable.
-                                  This is not recommended but might give
-                                  you a performance improvement on the
-                                  cost of cachability.
-``JSONIFY_PRETTYPRINT_REGULAR``   If this is set to ``True`` (the default)
-                                  jsonify responses will be pretty printed
-                                  if they are not requested by an
-                                  XMLHttpRequest object (controlled by
-                                  the ``X-Requested-With`` header)
+``JSON_AS_ASCII``                 缺省情况下 Flask 把对象序列化为
+                                  ascii-encoded JSON 。如果这个参数值为
+                                  ``False`` ，那么 Flask 就不会把对象编码
+                                  为 ASCII ，只会原样输出返回 unicode 字符
+                                  串。 ``jsonfiy`` 会自动把对象编码
+                                  ``utf-8`` 字符用于传输。
+``JSON_SORT_KEYS``                缺省情况下 Flask 会按键值排序 JSON 对象，
+                                  这是为了确保字典的哈希种子的唯一性，返回
+                                  值会保持一致，不会破坏外部 HTTP 缓存。
+                                  改变这个参数的值就可以重载缺省的行为，
+                                  重载后可能会提高缓存的性能，但是不推荐
+                                  这样做。
+``JSONIFY_PRETTYPRINT_REGULAR``   如果这个参数设置为 ``True`` （缺省值），
+                                  并且如果 jsonify 响应不是被一个
+                                  XMLHttpRequest 对象请求的（由
+                                  ``X-Requested-With`` 头部控制），那么
+                                  就会被完美打印。
 ================================= =========================================
 
 .. admonition:: 关于 ``SERVER_NAME`` 的更多说明 
