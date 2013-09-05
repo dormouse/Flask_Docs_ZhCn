@@ -1,30 +1,25 @@
-Form Validation with WTForms
+使用 WTForms 进行表单验证
 ============================
 
-When you have to work with form data submitted by a browser view code
-quickly becomes very hard to read.  There are libraries out there designed
-to make this process easier to manage.  One of them is `WTForms`_ which we
-will handle here.  If you find yourself in the situation of having many
-forms, you might want to give it a try.
+当你必须处理浏览器提交的表单数据时，视图代码很快会变得难以阅读。有一些库可以
+简化这个工作，其中之一便是 `WTForms`_ ，下面我们将介绍这个库。如果你必须处理
+许多表单，那么应当尝试使用这个库。
 
-When you are working with WTForms you have to define your forms as classes
-first.  I recommend breaking up the application into multiple modules 
-(:ref:`larger-applications`) for that and adding a separate module for the
-forms.
+如果要使用 WTForms ，那么首先要把表单定义为类。我推荐把应用分割为多个模块（
+:ref:`larger-applications` ），并为表单添加一个独立的模块。
 
-.. admonition:: Getting most of WTForms with an Extension
+.. admonition:: 使用一个扩展获得大部分 WTForms 的功能
 
-   The `Flask-WTF`_ extension expands on this pattern and adds a few
-   handful little helpers that make working with forms and Flask more
-   fun.  You can get it from `PyPI
-   <http://pypi.python.org/pypi/Flask-WTF>`_.
+   `Flask-WTF`_ 扩展可以实现本方案的所有功能，并且还提供一些小的辅助工具。使用
+   这个扩展可以更好的使用表单和 Flask 。你可以从 `PyPI
+   <http://pypi.python.org/pypi/Flask-WTF>`_ 获得这个扩展。
 
 .. _Flask-WTF: http://packages.python.org/Flask-WTF/
 
-The Forms
+表单
 ---------
 
-This is an example form for a typical registration page::
+下面是一个典型的注册页面的示例::
 
     from wtforms import Form, BooleanField, TextField, PasswordField, validators
 
@@ -38,10 +33,10 @@ This is an example form for a typical registration page::
         confirm = PasswordField('Repeat Password')
         accept_tos = BooleanField('I accept the TOS', [validators.Required()])
 
-In the View
+视图
 -----------
 
-In the view function, the usage of this form looks like this::
+在视图函数中，表单用法示例如下::
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -54,30 +49,26 @@ In the view function, the usage of this form looks like this::
             return redirect(url_for('login'))
         return render_template('register.html', form=form)
 
-Notice that we are implying that the view is using SQLAlchemy here
-(:ref:`sqlalchemy-pattern`) but this is no requirement of course.  Adapt
-the code as necessary.
+注意，这里我们默认视图使用了 SQLAlchemy （ :ref:`sqlalchemy-pattern` ），当然这
+不是必须的。请根据你的实际情况修改代码。
 
-Things to remember:
+请记住以下几点：
 
-1. create the form from the request :attr:`~flask.request.form` value if
-   the data is submitted via the HTTP `POST` method and
-   :attr:`~flask.request.args` if the data is submitted as `GET`.
-2. to validate the data, call the :func:`~wtforms.form.Form.validate`
-   method which will return `True` if the data validates, `False`
-   otherwise.
-3. to access individual values from the form, access `form.<NAME>.data`.
+1. 如果数据是通过 HTTP `POST` 方法提交的，请根据 :attr:`~flask.request.form` 的
+   值创建表单。如果是通过 `GET` 方法提交的，则相应的是
+   :attr:`~flask.request.args` 。
+2. 调用 :func:`~wtforms.form.Form.validate` 函数来验证数据。如果验证通过，则
+   函数返回 `True` ，否则返回 `False` 。
+3. 通过 `form.<NAME>.data` 可以访问表单中单个值。
 
-Forms in Templates
+模板中的表单
 ------------------
 
-Now to the template side.  When you pass the form to the templates you can
-easily render them there.  Look at the following example template to see
-how easy this is.  WTForms does half the form generation for us already.
-To make it even nicer, we can write a macro that renders a field with
-label and a list of errors if there are any.
+现在我们来看看模板。把表单传递给模板后就可以轻松渲染它们了。看一看下面的示例
+模板就可以知道有多轻松了。 WTForms 替我们完成了一半表单生成工作。为了做得更好，
+我们可以写一个宏，通过这个宏渲染带有一个标签的字段和错误列表（如果有的话）。
 
-Here's an example `_formhelpers.html` template with such a macro:
+以下是一个使用宏的示例 `_formhelpers.html` 模板：
 
 .. sourcecode:: html+jinja
 
@@ -94,16 +85,12 @@ Here's an example `_formhelpers.html` template with such a macro:
       </dd>
     {% endmacro %}
 
-This macro accepts a couple of keyword arguments that are forwarded to
-WTForm's field function that renders the field for us.  The keyword
-arguments will be inserted as HTML attributes.  So for example you can
-call ``render_field(form.username, class='username')`` to add a class to
-the input element.  Note that WTForms returns standard Python unicode
-strings, so we have to tell Jinja2 that this data is already HTML escaped
-with the `|safe` filter.
+上例中的宏接受一堆传递给 WTForm 字段函数的参数，为我们渲染字段。参数会作为 HTML
+属性插入。例如你可以调用 ``render_field(form.username, class='username')`` 来
+为输入元素添加一个类。注意： WTForms 返回标准的 Python unicode 字符串，因此我们
+必须使用 `|safe` 过滤器告诉 Jinja2 这些数据已经经过 HTML 转义了。
 
-Here the `register.html` template for the function we used above which
-takes advantage of the `_formhelpers.html` template:
+以下是使用了上面的 `_formhelpers.html` 的 `register.html` 模板：
 
 .. sourcecode:: html+jinja
 
@@ -119,8 +106,7 @@ takes advantage of the `_formhelpers.html` template:
       <p><input type=submit value=Register>
     </form>
 
-For more information about WTForms, head over to the `WTForms
-website`_.
+更多关于 WTForms 的信息请移步 `WTForms 官方网站`_ 。
 
 .. _WTForms: http://wtforms.simplecodes.com/
-.. _WTForms website: http://wtforms.simplecodes.com/
+.. _WTForms 官方网站: http://wtforms.simplecodes.com/
