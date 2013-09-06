@@ -66,25 +66,21 @@ Flask 的一个重要设计原则是可以在同一个 Pyhton 进程中运行多
 
 更多信息参见 :ref:`extension-dev` 。
 
-Context Usage
+环境的用法
 -------------
 
-The context is typically used to cache resources on there that need to be
-created on a per-request or usage case.  For instance database connects
-are destined to go there.  When storing things on the application context
-unique names should be chosen as this is a place that is shared between
-Flask applications and extensions.
+环境的典型用途是缓存一个请求需要预备或使用的资源，例如一个数据库连接。因为环境
+是一个 Flask 的应用和扩展共享的地方，所以储存的资源必须使用独一无二的名称。
 
-The most common usage is to split resource management into two parts:
+最常见的用法是把资源管理分为以下两个部分：
 
-1.  an implicit resource caching on the context.
-2.  a context teardown based resource deallocation.
+1.  在环境中缓存一个隐式的资源。
+2.  资源释放后的环境解散。
 
-Generally there would be a ``get_X()`` function that creates resource
-``X`` if it does not exist yet and otherwise returns the same resource,
-and a ``teardown_X()`` function that is registered as teardown handler.
+通常会有一个形如 ``get_X()`` 函数，这个函数的用途是当资源 ``X`` 存在时就返回
+这个资源，否则就创建这个资源。还会有一个 ``teardown_X()`` 函数用作解散句柄。
 
-This is an example that connects to a database::
+这是一个连接数据库的例子::
 
     import sqlite3
     from flask import g
@@ -101,11 +97,10 @@ This is an example that connects to a database::
         if db is not None:
             db.close()
 
-The first time ``get_db()`` is called the connection will be established.
-To make this implicit a :class:`~werkzeug.local.LocalProxy` can be used::
+第一次调用 ``get_db()`` 时，连接将会被建立。建立的过程中隐式地使用了一个
+:class:`~werkzeug.local.LocalProxy` 类::
 
     from werkzeug.local import LocalProxy
     db = LocalProxy(get_db)
 
-That way a user can directly access ``db`` which internally calls
-``get_db()``.
+这样，用户就可以通过 ``get_db()`` 来直接访问 ``db`` 了。
