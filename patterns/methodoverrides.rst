@@ -1,4 +1,4 @@
-Adding HTTP Method Overrides
+添加 HTTP 方法重载
 ============================
 
 一些 HTTP 代理不支持所有 HTTP 方法或者不支持一些较新的 HTTP 方法（例如 PACTH
