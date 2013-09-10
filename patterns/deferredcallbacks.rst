@@ -1,33 +1,26 @@
 .. _deferred-callbacks:
 
-Deferred Request Callbacks
+延迟的请求回调
 ==========================
 
-One of the design principles of Flask is that response objects are created
-and passed down a chain of potential callbacks that can modify them or
-replace them.  When the request handling starts, there is no response
-object yet.  It is created as necessary either by a view function or by
-some other component in the system.
+Flask 的设计思路之一是：响应对象创建后被传递给一串回调函数，这些回调函数可以修改
+或替换响应对象。当请求处理开始的时候，响应对象还没有被创建。响应对象是由一个视图
+函数或者系统中的其他组件按需创建的。
 
-But what happens if you want to modify the response at a point where the
-response does not exist yet?  A common example for that would be a
-before-request function that wants to set a cookie on the response object.
+但是当响应对象还没有创建时，我们如何修改响应对象呢？比如在一个请求前函数中，我们
+需要根据响应对象设置一个 cookie 。
 
-One way is to avoid the situation.  Very often that is possible.  For
-instance you can try to move that logic into an after-request callback
-instead.  Sometimes however moving that code there is just not a very
-pleasant experience or makes code look very awkward.
+通常我们选择避开这种情形。例如可以尝试把应用逻辑移动到请求后函数中。但是，有时候
+这个方法让人不爽，或者让代码变得很丑陋。
 
-As an alternative possibility you can attach a bunch of callback functions
-to the :data:`~flask.g` object and call them at the end of the request.
-This way you can defer code execution from anywhere in the application.
+变通的方法是把一堆回调函数贴到 :data:`~flask.g` 对象上，并且在请求结束时调用这些
+回调函数。这样你就可以在应用的任意地方延迟回调函数的执行。
 
 
-The Decorator
+装饰器
 -------------
 
-The following decorator is the key.  It registers a function on a list on
-the :data:`~flask.g` object::
+下面的装饰器是一个关键，它在 :data:`~flask.g` 对象上注册一个函数列表::
 
     from flask import g
 
@@ -38,13 +31,12 @@ the :data:`~flask.g` object::
         return f
 
 
-Calling the Deferred
+调用延迟的回调函数
 --------------------
 
-Now you can use the `after_this_request` decorator to mark a function to
-be called at the end of the request.  But we still need to call them.  For
-this the following function needs to be registered as
-:meth:`~flask.Flask.after_request` callback::
+至此，通过使用 `after_this_request` 装饰器，使得函数在请求结束时可以被调用。现在
+我们来实现这个调用过程。我们把这些函数注册为
+:meth:`~flask.Flask.after_request` 回调函数::
 
     @app.after_request
     def call_after_request_callbacks(response):
@@ -53,12 +45,11 @@ this the following function needs to be registered as
         return response
 
 
-A Practical Example
+一个实例
 -------------------
 
-Now we can easily at any point in time register a function to be called at
-the end of this particular request.  For example you can remember the
-current language of the user in a cookie in the before-request function::
+现在我们可以方便地随时随地为特定请求注册一个函数，让这个函数在请求结束时被调用。
+例如，你可以在请求前函数中把用户的当前语言记录到 cookie 中::
 
     from flask import request
 

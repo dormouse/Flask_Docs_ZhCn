@@ -1,19 +1,16 @@
-Streaming Contents
+流内容
 ==================
 
-Sometimes you want to send an enormous amount of data to the client, much
-more than you want to keep in memory.  When you are generating the data on
-the fly though, how do you send that back to the client without the
-roundtrip to the filesystem?
+有时候你会需要把大量数据传送到客户端，不在内存中保存这些数据。当你想把运行中产生
+的数据不经过文件系统，而是直接发送给客户端时，应当怎么做呢？
 
-The answer is by using generators and direct responses.
+答案是使用生成器和直接响应。
 
-Basic Usage
+基本用法
 -----------
 
-This is a basic view function that generates a lot of CSV data on the fly.
-The trick is to have an inner function that uses a generator to generate
-data and to then invoke that function and pass it to a response object::
+下面是一个在运行中产生大量 CSV 数据的基本视图函数。其技巧是调用一个内联函数生成
+数据，把这个函数传递给一个响应对象::
 
     from flask import Response
 
@@ -24,16 +21,14 @@ data and to then invoke that function and pass it to a response object::
                 yield ','.join(row) + '\n'
         return Response(generate(), mimetype='text/csv')
 
-Each ``yield`` expression is directly sent to the browser.  Note though
-that some WSGI middlewares might break streaming, so be careful there in
-debug environments with profilers and other things you might have enabled.
+每个 ``yield`` 表达式被直接传送给浏览器。注意，有一些 WSGI 中间件可能会打断流
+内容，因此在使用分析器或者其他工具的调试环境中要小心一些。
 
-Streaming from Templates
+模板中的流内容
 ------------------------
 
-The Jinja2 template engine also supports rendering templates piece by
-piece.  This functionality is not directly exposed by Flask because it is
-quite uncommon, but you can easily do it yourself::
+Jinja2 模板引擎也支持分片渲染模板。这个功能不是直接被 Flask 支持的，因为它太
+特殊了，但是你可以方便地自已来做::
 
     from flask import Response
 
@@ -49,26 +44,21 @@ quite uncommon, but you can easily do it yourself::
         rows = iter_all_rows()
         return Response(stream_template('the_template.html', rows=rows))
 
-The trick here is to get the template object from the Jinja2 environment
-on the application and to call :meth:`~jinja2.Template.stream` instead of
-:meth:`~jinja2.Template.render` which returns a stream object instead of a
-string.  Since we're bypassing the Flask template render functions and
-using the template object itself we have to make sure to update the render
-context ourselves by calling :meth:`~flask.Flask.update_template_context`.
-The template is then evaluated as the stream is iterated over.  Since each
-time you do a yield the server will flush the content to the client you
-might want to buffer up a few items in the template which you can do with
-``rv.enable_buffering(size)``.  ``5`` is a sane default.
+上例的技巧是从 Jinja2 环境中获得应用的模板对象，并调用
+:meth:`~jinja2.Template.stream` 来代替 :meth:`~jinja2.Template.render` ，返回
+一个流对象来代替一个字符串。由于我们绕过了 Flask 的模板渲染函数使用了模板对象
+本身，因此我们需要调用 :meth:`~flask.Flask.update_template_context` ，以确保
+更新被渲染的内容。这样，模板遍历流内容。由于每次产生内容后，服务器都会把内容
+发送给客户端，因此可能需要缓存来保存内容。我们使用了
+``rv.enable_buffering(size)`` 来进行缓存。 ``5`` 是一个比较明智的缺省值。
 
-Streaming with Context
+环境中的流内容
 ----------------------
 
 .. versionadded:: 0.9
 
-Note that when you stream data, the request context is already gone the
-moment the function executes.  Flask 0.9 provides you with a helper that
-can keep the request context around during the execution of the
-generator::
+注意，当你生成流内容时，请求环境已经在函数执行时消失了。 Flask 0.9 为你提供了
+一点帮助，让你可以在生成器运行期间保持请求环境::
 
     from flask import stream_with_context, request, Response
 
@@ -80,5 +70,6 @@ generator::
             yield '!'
         return Response(stream_with_context(generate()))
 
-Without the :func:`~flask.stream_with_context` function you would get a
-:class:`RuntimeError` at that point.
+如果没有使用 :func:`~flask.stream_with_context` 函数，那么就会引发
+:class:`RuntimeError` 错误。
+
