@@ -5,7 +5,7 @@
 
 Flask 依赖两个外部库： `Werkzeug <http://werkzeug.pocoo.org/>`_ 和 `Jinja2
 <http://jinja.pocoo.org/2/>`_ 。Werkzeug 是一个 WSGI 套件。 WSGI 是 Web 应用与
-多种服务器之前的标准 Python 接口，即用于开发，也用于部署。 Jinja2 是用于渲染
+多种服务器之间的标准 Python 接口，即用于开发，也用于部署。 Jinja2 是用于渲染
 模板的。
 
 那么如何快速在你的计算机上装好所有东西？本节会介绍多种方法，但是最强力的方法是
@@ -28,7 +28,7 @@ virtualenv 有什么用？如果你象我一样热爱 Python ，那么除了基�
 向后兼容，更不幸的是任何成熟的应用都不是零依赖。如果两个项目依赖出现冲突，
 怎么办？
 
-Virtualenv 就是救星！它是基本原理是为每个项目安装一套 Python ，多套 Python
+Virtualenv 就是救星！它的基本原理是为每个项目安装一套 Python ，多套 Python
 并存。但它不是真正地安装多套独立的 Python 拷贝，而是使用了一种巧妙的方法让不同
 的项目处于各自独立的环境中。让我们来看看 virtualenv 是如何运行的！
 
