@@ -8,7 +8,7 @@
 相关配置放在了一起。对于小型应用来说，可以把配置直接放在模块中。但是更加清晰的
 方案是把配置放在一个独立的 `.ini` 或 `.py` 文件中，并在模块中导入配置的值。
 
-In `flaskr.py` 文件中::
+在 `flaskr.py` 文件中::
 
     # all the imports
     import sqlite3
