@@ -22,7 +22,7 @@
     USERNAME = 'admin'
     PASSWORD = 'default'
 
-接着创建真正的应用，并用同一文件中的配置来初始化，In `flaskr.py` 文件中::
+接着创建真正的应用，并用同一文件中的配置来初始化，在 `flaskr.py` 文件中::
 
     # create our little application :)
     app = Flask(__name__)
