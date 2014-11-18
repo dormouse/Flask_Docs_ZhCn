@@ -5,12 +5,10 @@ API
 
 .. module:: flask
 
-This part of the documentation covers all the interfaces of Flask.  For
-parts where Flask depends on external libraries, we document the most
-important right here and provide links to the canonical documentation.
+这一章文档涵盖了 Flask 所有的接口，对于部分 Flask 所依赖的外部库，我们将最
+重要的内容呈现在这里，并提供官方文档链接。
 
-
-Application Object
+应用对象
 ------------------
 
 .. autoclass:: Flask
