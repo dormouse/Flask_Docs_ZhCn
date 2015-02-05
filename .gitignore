@@ -1,4 +1,7 @@
 _build
 *.pyc
+_theme/*.pyc
 flask/*.pyc
 werkzeug/*.pyc
+.gitignore.swp
+
