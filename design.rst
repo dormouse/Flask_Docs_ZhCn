@@ -1,24 +1,22 @@
 .. _design:
 
-Design Decisions in Flask
-=========================
+Flask 的设计思路
+================
 
-If you are curious why Flask does certain things the way it does and not
-differently, this section is for you.  This should give you an idea about
-some of the design decisions that may appear arbitrary and surprising at
-first, especially in direct comparison with other frameworks.
+为什么 Flask 要这样做，而不是那样做？如果你对这点好奇，那么本节可以满足
+你的好奇心。当与其他框架直接进行比较时， Flask 的设计思路乍看可能显得武断
+并且令人吃惊，下面我们就来看看为什么在设计的时候进行这样决策。
 
 
-The Explicit Application Object
--------------------------------
+显式的应用对象
+--------------
 
-A Python web application based on WSGI has to have one central callable
-object that implements the actual application.  In Flask this is an
-instance of the :class:`~flask.Flask` class.  Each Flask application has
-to create an instance of this class itself and pass it the name of the
-module, but why can't Flask do that itself?
+一个基于 WSGI 的 Python web 应用必须有一个实现实际的应用的中心调用对象。
+在 Flask 中，中心调用对象是一个 :class:`~flask.Flask` 类的实例。每个 Flask
+应用必须创建一个该类的实例，并且把模块的名称传递给该实例。但是为什么 Flask
+不自动把这些事都做好呢？
 
-Without such an explicit application object the following code::
+下面的代码::
 
     from flask import Flask
     app = Flask(__name__)
@@ -27,7 +25,7 @@ Without such an explicit application object the following code::
     def index():
         return 'Hello World!'
 
-Would look like this instead::
+如果没有一个显式的应用对象，那么会是这样的::
 
     from hypothetical_flask import route
 
@@ -35,49 +33,32 @@ Would look like this instead::
     def index():
         return 'Hello World!'
 
-There are three major reasons for this.  The most important one is that
-implicit application objects require that there may only be one instance at
-the time.  There are ways to fake multiple applications with a single
-application object, like maintaining a stack of applications, but this
-causes some problems I won't outline here in detail.  Now the question is:
-when does a microframework need more than one application at the same
-time?  A good example for this is unittesting.  When you want to test
-something it can be very helpful to create a minimal application to test
-specific behavior.  When the application object is deleted everything it
-allocated will be freed again.
+使用对象的主要有三个原因。最重要的一个原因是显式对象可以保证实例的唯一性。
+有很多方法可以用单个应用对象来冒充多应用，比如维护一个应用堆栈，但是这样
+将会导致一些问题，这里我就不展开了。现在的问题是：一个微框架何时会需要
+多应用？最好的回答是当进行单元测试的时候。在进行测试时，创建一个最小应用
+用于测试特定的功能，是非常有用的。当这个最小应用的应用对象被删除时，将会
+释放其占用的所有资源。
 
-Another thing that becomes possible when you have an explicit object lying
-around in your code is that you can subclass the base class
-(:class:`~flask.Flask`) to alter specific behavior.  This would not be
-possible without hacks if the object were created ahead of time for you
-based on a class that is not exposed to you.
+另外当使用显式对象时，你可以继承基类（ :class:`~flask.Flask` ），
+以便于修改特定的功能。如果不使用显式对象，那么就无从下手了。
 
-But there is another very important reason why Flask depends on an
-explicit instantiation of that class: the package name.  Whenever you
-create a Flask instance you usually pass it `__name__` as package name.
-Flask depends on that information to properly load resources relative
-to your module.  With Python's outstanding support for reflection it can
-then access the package to figure out where the templates and static files
-are stored (see :meth:`~flask.Flask.open_resource`).  Now obviously there
-are frameworks around that do not need any configuration and will still be
-able to load templates relative to your application module.  But they have
-to use the current working directory for that, which is a very unreliable
-way to determine where the application is.  The current working directory
-is process-wide and if you are running multiple applications in one
-process (which could happen in a webserver without you knowing) the paths
-will be off.  Worse: many webservers do not set the working directory to
-the directory of your application but to the document root which does not
-have to be the same folder.
+第二个原因也很重要，那就是 Flask 需要包的名称。当你创建一个 Flask 实例时，
+通常会传递 `__name__` 作为包的名称。 Flask 根据包的名称来载入也模块相关
+的正确资源。通过 Python 杰出的反射功能，就可以找到模板和静态文件（参见
+:meth:`~flask.Flask.open_resource` ）。很显然，有其他的框架不需要任何配置
+就可以载入与模块相关的模板。但其前提是必须使用当前工作目录，这是一个不可靠
+的实现方式。当前工作目录是进程级的，如果有多个应用使用同一个进程（ web
+服务器可能在你不知情的情况下这样做），那么当前工作目录就不可用了。还有更
+糟糕的情况：许多 web 服务器把文档根目录作为当前工作目录，如果你的应用所在
+的目录不是文档根目录，那么就会出错。
 
-The third reason is "explicit is better than implicit".  That object is
-your WSGI application, you don't have to remember anything else.  If you
-want to apply a WSGI middleware, just wrap it and you're done (though
-there are better ways to do that so that you do not lose the reference
-to the application object :meth:`~flask.Flask.wsgi_app`).
+第三个原因是“显式比隐式更好”。这个对象就是你的 WSGI 应用，你不必再记住其他
+东西。如果你要实现一个 WSGI 中间件，那么只要封装它就可以了（还有更好的
+方式，可以不丢失应用对象的引用，参见： :meth:`~flask.Flask.wsgi_app` ）。
 
-Furthermore this design makes it possible to use a factory function to
-create the application which is very helpful for unittesting and similar
-things (:ref:`app-factories`).
+再者，只有这样设计才能使用工厂函数来创建应用，方便单元测试和类似的工作
+（参见： :ref:`app-factories` ）。
 
 The Routing System
 ------------------
