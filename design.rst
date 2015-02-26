@@ -60,61 +60,50 @@ Flask 的设计思路
 再者，只有这样设计才能使用工厂函数来创建应用，方便单元测试和类似的工作
 （参见： :ref:`app-factories` ）。
 
-The Routing System
-------------------
 
-Flask uses the Werkzeug routing system which was designed to
-automatically order routes by complexity.  This means that you can declare
-routes in arbitrary order and they will still work as expected.  This is a
-requirement if you want to properly implement decorator based routing
-since decorators could be fired in undefined order when the application is
-split into multiple modules.
+路由系统
+--------
 
-Another design decision with the Werkzeug routing system is that routes
-in Werkzeug try to ensure that URLs are unique.  Werkzeug will go quite far
-with that in that it will automatically redirect to a canonical URL if a route
-is ambiguous.
+Flask 使用 Werkzeug 路由系统，该系统是自动根据复杂度来为路由排序的。也就是
+说你可以以任意顺序来声明路由，路由系统仍然能够正常工作。为什么要实现这个
+功能？因为当应用被切分成多个模块时，基于路由的装饰器会以乱序触发，所以这个
+功能是必须的。
+
+另一点是 Werkzeug 路由系统必须确保 URL 是唯一的，并且会把模糊路由重定向到
+标准的 URL 。
 
 
-One Template Engine
--------------------
+唯一模板引擎
+------------
 
-Flask decides on one template engine: Jinja2.  Why doesn't Flask have a
-pluggable template engine interface?  You can obviously use a different
-template engine, but Flask will still configure Jinja2 for you.  While
-that limitation that Jinja2 is *always* configured will probably go away,
-the decision to bundle one template engine and use that will not.
+Flask 原生只使用 Jinja2 模板引擎。为什么不设计一个可插拔的模板引擎接口？
+当然，你可以在 Flask 中使用其他模板引擎，但是当前 Flask 原生只会支持
+Jinja2 。将来也许 Flask 会使用其他引擎，但是永远只会绑定一个模板引擎。
 
-Template engines are like programming languages and each of those engines
-has a certain understanding about how things work.  On the surface they
-all work the same: you tell the engine to evaluate a template with a set
-of variables and take the return value as string.
+模板引擎与编程语言类似，每个引擎都有自己的一套工作方式。表面上它们都看
+上去差不多：你把一套变量丢给引擎，然后得到字符串形式的模板。
 
-But that's about where similarities end.  Jinja2 for example has an
-extensive filter system, a certain way to do template inheritance, support
-for reusable blocks (macros) that can be used from inside templates and
-also from Python code, uses Unicode for all operations, supports
-iterative template rendering, configurable syntax and more.  On the other
-hand an engine like Genshi is based on XML stream evaluation, template
-inheritance by taking the availability of XPath into account and more.
-Mako on the other hand treats templates similar to Python modules.
+但是相似之处也仅限于此。例如 Jinja2 有丰富的过滤系统、有一定的模板继承
+能力、支持从模板内或者 Python 代码内复用块（宏）、所有操作都使用
+Unicode 、支持迭代模板渲染以及可配置语法等等。而比如 Genshi 基于 XML 流
+赋值，其模板继承基于 XPath 的能力。再如 Mako 使用类似 Python 模块的方式
+来处理模板。
 
-When it comes to connecting a template engine with an application or
-framework there is more than just rendering templates.  For instance,
-Flask uses Jinja2's extensive autoescaping support.  Also it provides
-ways to access macros from Jinja2 templates.
+当一个应用或者框架与一个模板引擎结合在一起的时候，事情就不只是渲染模板
+这么简单了。例如， Flask 使用了 Jinja2 的强大的自动转义功能。同时 Flask
+也为 Jinja2 提供了在模板中操作宏的途径。
 
-A template abstraction layer that would not take the unique features of
-the template engines away is a science on its own and a too large
-undertaking for a microframework like Flask.
+一个不失模板引擎独特性的模板抽象层本身就是一门学问，因此这不是一个 Flask
+之类的微框架应该考虑的事情。
 
-Furthermore extensions can then easily depend on one template language
-being present.  You can easily use your own templating language, but an
-extension could still depend on Jinja itself.
+此外，只使用一个模板语言可以方便扩展。你可以使用你自己的模板语言，但扩展
+仍然使用 Jinja 。
 
 
 Micro with Dependencies
 -----------------------
+
+为什么 Flask 自称是微框架，但是还是依赖两个库（ Werkzeug 和 Jinja2 ）？
 
 Why does Flask call itself a microframework and yet it depends on two
 libraries (namely Werkzeug and Jinja2).  Why shouldn't it?  If we look
