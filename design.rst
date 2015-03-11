@@ -100,30 +100,21 @@ Unicode 、支持迭代模板渲染以及可配置语法等等。而比如 Gensh
 仍然使用 Jinja 。
 
 
-Micro with Dependencies
+基于依赖的微框架
 -----------------------
 
 为什么 Flask 自称是微框架，但是还是依赖两个库（ Werkzeug 和 Jinja2 ）？
+为什么它不这样做呢？如我我们去看web开发的Ruby阵营，他们有一个与WSGI非常
+相似的协议。除了他们把它叫做Rack这一点以外，它非常像Ruby的一个WSGI实现。
+但是几乎所有的Ruby世界的应用都没有直接与Rack协同工作，而是在。Python中有
+两个与Ract等价的库：一个是WebOb（过去的Paste），另一个是Werkzeug。Paste
+依然存在，但是以我的理解，它与WebOb相比之下，有些过时了。WebOb与Werkzeug
+的开发都以一个相似的理念为出发点：成为一个其他应用可以使用的出色的WSGI实现。
 
-Why does Flask call itself a microframework and yet it depends on two
-libraries (namely Werkzeug and Jinja2).  Why shouldn't it?  If we look
-over to the Ruby side of web development there we have a protocol very
-similar to WSGI.  Just that it's called Rack there, but besides that it
-looks very much like a WSGI rendition for Ruby.  But nearly all
-applications in Ruby land do not work with Rack directly, but on top of a
-library with the same name.  This Rack library has two equivalents in
-Python: WebOb (formerly Paste) and Werkzeug.  Paste is still around but
-from my understanding it's sort of deprecated in favour of WebOb.  The
-development of WebOb and Werkzeug started side by side with similar ideas
-in mind: be a good implementation of WSGI for other applications to take
-advantage.
-
-Flask is a framework that takes advantage of the work already done by
-Werkzeug to properly interface WSGI (which can be a complex task at
-times).  Thanks to recent developments in the Python package
-infrastructure, packages with dependencies are no longer an issue and
-there are very few reasons against having libraries that depend on others.
-
+几乎所有正确接入WSGI的工作都由Werkzeug完成（有时这可是一个复杂的工作），
+Flask框架正是基于完整了这些工作的Werkzeug之上。感谢最近的Pyhon包基础建设的
+开发，有依赖关系的包已经不会成为问题，而且几乎没有理由去反对去使用依赖其他库
+的库。
 
 Thread Locals
 -------------
