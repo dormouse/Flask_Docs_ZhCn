@@ -117,37 +117,36 @@ Unicode 、支持迭代模板渲染以及可配置语法等等。而比如 Gensh
 包依赖问题已经解决，几乎没有理由不使用包依赖的方式。
 
 
-Thread Locals
+线程本地对象
 -------------
 
-Flask uses thread local objects (context local objects in fact, they
-support greenlet contexts as well) for request, session and an extra
-object you can put your own things on (:data:`~flask.g`).  Why is that and
-isn't that a bad idea?
+是的，通常情况下使用线程局域变量不是一个明智的主意。它们在不基于线程概念的服务器上会导致问题，并且使得大型应用难以维护。但 Flask 不仅为大型应用或异步服务器设计。 Flask 想要使得编写一个传统 web 应用的过程快速而简单。
 
-Yes it is usually not such a bright idea to use thread locals.  They cause
-troubles for servers that are not based on the concept of threads and make
-large applications harder to maintain.  However Flask is just not designed
-for large applications or asynchronous servers.  Flask wants to make it
-quick and easy to write a traditional web application.
+一些关于基于 Flask 大型应用的灵感，见文档的 聚沙成塔 一节。
 
-Also see the :ref:`becomingbig` section of the documentation for some
-inspiration for larger applications based on Flask.
+Flask 使用线程本地对象（实际是环境本地对象，它们同意支持 greenlet 环境）
+来支持请求、会话和一个可以放置你自己的东西的额外对象（ :data:`~flask.g` ）。
+为什么要这样做？这不是一个坏主意吗？
+
+是的，通常情况下使用线程本地对象不是一个明智的选择，这会在不是基于线程理念的
+服务器上造成麻烦，并且加大大型应用的维护难度。但是 Flask 不仅是为大型应用或
+异步服务器设计的， Flask 还想简化和加速传统 web 应用的开发。
+
+一些关于基于 Flask 大型应用的灵感，见文档的 :ref:`becomingbig` 一节。
 
 
-What Flask is, What Flask is Not
---------------------------------
+Flask 是什么，不是什么
+----------------------
 
-Flask will never have a database layer.  It will not have a form library
-or anything else in that direction.  Flask itself just bridges to Werkzeug
-to implement a proper WSGI application and to Jinja2 to handle templating.
-It also binds to a few common standard library packages such as logging.
-Everything else is up for extensions.
+Flask 永远不会包含数据库层，也不会有表单库或是这个方面的其它东西。
+Flask 本身只是 Werkezug 和 Jinja2 的之间的桥梁，前者实现一个合适的
+WSGI 应用，后者处理模板。 当然， Flask 也绑定了一些通用的标准库包，比如
+logging 。 除此之外其它所有一切都交给扩展来实现。
 
-Why is this the case?  Because people have different preferences and
-requirements and Flask could not meet those if it would force any of this
-into the core.  The majority of web applications will need a template
-engine in some sort.  However not every application needs a SQL database.
+为什么呢？因为人们有不同的偏好和需求， Flask 不可能把所有的需求都囊括在
+核心里。大多数 web 应用会需要一个模板引擎。然而不是每个应用都需要一个
+SQL 数据库的。
 
-The idea of Flask is to build a good foundation for all applications.
-Everything else is up to you or extensions.
+Flask 的理念是为所有应用建立一个良好的基础，其余的一切都取决于你自己或者
+扩展。
+
