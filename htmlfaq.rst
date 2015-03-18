@@ -1,49 +1,39 @@
-HTML/XHTML FAQ
-==============
+HTML/XHTML 常见问答
+===================
 
-The Flask documentation and example applications are using HTML5.  You
-may notice that in many situations, when end tags are optional they are
-not used, so that the HTML is cleaner and faster to load.  Because there
-is much confusion about HTML and XHTML among developers, this document tries
-to answer some of the major questions.
+Flask 的文档和示例应用使用 HTML5 。你可能会注意到，在许多情况下，当结束标记
+是可选的时候，并不使用它们，这样 HTML 会更简洁且加载更迅速。因为在开发者中，
+有许多关于 HTML 和 XHTML 的混淆，本文档尝试回答一些主要的疑问。
 
 
-History of XHTML
-----------------
+XHTML 的历史
+------------
 
-For a while, it appeared that HTML was about to be replaced by XHTML.
-However, barely any websites on the Internet are actual XHTML (which is
-HTML processed using XML rules).  There are a couple of major reasons
-why this is the case.  One of them is Internet Explorer's lack of proper
-XHTML support. The XHTML spec states that XHTML must be served with the MIME
-type `application/xhtml+xml`, but Internet Explorer refuses to read files
-with that MIME type.
-While it is relatively easy to configure Web servers to serve XHTML properly,
-few people do.  This is likely because properly using XHTML can be quite
-painful.
+有一段时间， XHTML 横空出世，大有取代 HTML 之势。然而时至今日，鲜有真正使用
+XHTML （根据 XML 规则处理的 HTML ）的网站。出现这种情况的原因很多。其一是
+Internet Explorer 对 XHTML 支持不完善。 根据规范要求 XHTML 必须使用
+`application/xhtml+xml` MIME 类型，但是 Internet Explorer 却拒绝读取这个
+MIME 类型的文件。
 
-One of the most important causes of pain is XML's draconian (strict and
-ruthless) error handling.  When an XML parsing error is encountered,
-the browser is supposed to show the user an ugly error message, instead
-of attempting to recover from the error and display what it can.  Most of
-the (X)HTML generation on the web is based on non-XML template engines
-(such as Jinja, the one used in Flask) which do not protect you from
-accidentally creating invalid XHTML.  There are XML based template engines,
-such as Kid and the popular Genshi, but they often come with a larger
-runtime overhead and, are not as straightforward to use because they have
-to obey XML rules.
+虽然通过配置 Web 服务器来为 XHTML 提供正确的服务相对简单，但是却很少有人这么
+做。这可能是因为正确地使用 XHTML 是一件很痛苦的事情。
 
-The majority of users, however, assumed they were properly using XHTML.
-They wrote an XHTML doctype at the top of the document and self-closed all
-the necessary tags (``<br>`` becomes ``<br/>`` or ``<br></br>`` in XHTML).
-However, even if the document properly validates as XHTML, what really
-determines XHTML/HTML processing in browsers is the MIME type, which as
-said before is often not set properly. So the valid XHTML was being treated
-as invalid HTML.
+痛中之通是 XML 苛刻的（严厉且无情）错误处理。当 XML 处理中遭遇错误时，浏览器
+会把一个丑陋的错误消息显示给用户，而不是尝试从错误中恢并显示出能显示的部分。
+web 上大多数的 (X)HTML 是基于非 XML 的模板引擎（比如 Flask 所使用的 Jinja）
+生成的。而这些模板引擎并不会阻止你偶然创建无效的 XHTML 。也有基于 XML 的模板
+引擎，诸如 Kid 和流行的 Genshi ，但是它们通常具有更大的运行时开销， 并且用
+起来很不爽，因为它们必须遵守 XML 规则。
 
-XHTML also changed the way JavaScript is used. To properly work with XHTML,
-programmers have to use the namespaced DOM interface with the XHTML
-namespace to query for HTML elements.
+大多数用户，不管怎样，假设他们正确地使用了 XHTML 。他们在文档的顶部写下一个
+XHTML doctype ，并且闭合了所有必要闭合的标签（ 在 XHTML 中 ``<br>`` 要写作
+``<br />`` 或 ``<br></br>`` ）。即使文档可以正确地通过 XHTML 验证，然而真正
+决定浏览器中 XHTML/HTML 处理的是前面提到的，经常不被正确设置的 MIME 类型。
+一旦类型错误，有效的 XHTML 会被视作无效的 HTML 处理。
+
+XHTML 也改变了使用 JavaScript 的方式。要在 XHTML 下正确地工作，程序员不得不
+使用带有 XHTML 名称空间的 DOM 接口来查询 HTML 元素。
+
 
 History of HTML5
 ----------------
