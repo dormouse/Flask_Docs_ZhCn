@@ -1,10 +1,10 @@
 基于 Celery 的后台任务
 =============================
 
-Celery 是一个用于 Pythone 的，带有电池的任务序列。以前它有一个 Flask 的集成，
-但是从版本 3 开始，它进行了一些内部的重构，已经不需要这个集成了。本文主要说明
-如果在 Flask 中正确使用 Celery 。本文假设你已经阅读过了其官方文档中的
-`Celery 入门
+Celery 是一个 Python 编写的是一个异步任务队列/基于分布式消息传递的作业队列。
+以前它有一个 Flask 的集成，但是从版本 3 开始，它进行了一些内部的重构，已经
+不需要这个集成了。本文主要说明如何在 Flask 中正确使用 Celery 。本文假设你
+已经阅读过了其官方文档中的 `Celery 入门
 <http://docs.celeryproject.org/en/master/getting-started/first-steps-with-celery.html>`_
 
 安装 Celery
