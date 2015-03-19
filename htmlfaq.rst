@@ -35,32 +35,27 @@ XHTML 也改变了使用 JavaScript 的方式。要在 XHTML 下正确地工作�
 使用带有 XHTML 名称空间的 DOM 接口来查询 HTML 元素。
 
 
-History of HTML5
-----------------
+HTML5 的历史
+------------
 
-Development of the HTML5 specification was started in 2004 under the name
-"Web Applications 1.0" by the Web Hypertext Application Technology Working
-Group, or WHATWG (which was formed by the major browser vendors Apple,
-Mozilla, and Opera) with the goal of writing a new and improved HTML
-specification, based on existing browser behavior instead of unrealistic
-and backwards-incompatible specifications.
+HTML5 规范是由网络超文本应用技术工作组（ WHATWG ）于 2004 年开始制定的，最初
+的名称是“ Web 应用1.0 ”。 WHATWG 由主要的浏览器供应商苹果、 Mozilla 和 Opera
+组成。 HTML5 规范的目标是编写一个新的更好的 HTML 规范，该规范是基于现有浏览器
+的行为的，而不是不切实际的，不向后兼容的。
 
-For example, in HTML4 ``<title/Hello/`` theoretically parses exactly the
-same as ``<title>Hello</title>``.  However, since people were using
-XHTML-like tags along the lines of ``<link />``, browser vendors implemented
-the XHTML syntax over the syntax defined by the specification.
+例如，在 HTML4 中 ``<title/Hello/`` 与 ``<title>Hello</title>`` 理论上完全
+相同。然而，由于人们沿用了 ``<link />`` 之类的 XHTML-like 标签， 浏览器就会
+识别为 XHTML 而不是 HTML 。
 
-In 2007, the specification was adopted as the basis of a new HTML
-specification under the umbrella of the W3C, known as HTML5.  Currently,
-it appears that XHTML is losing traction, as the XHTML 2 working group has
-been disbanded and HTML5 is being implemented by all major browser vendors.
+2007 年， W3C 以这个规范为基础，制定了一个新的 HTML 规范，也就是 HTML5 。现在，
+随着 XHTML 2 工作组的解散，而且 HTML5 正在被所有主流浏览器供应商实现，XHTML
+逐渐失去了吸引力。
 
-HTML versus XHTML
------------------
+HTML 对比 XHTML
+---------------
 
-The following table gives you a quick overview of features available in
-HTML 4.01, XHTML 1.1 and HTML5. (XHTML 1.0 is not included, as it was
-superseded by XHTML 1.1 and the barely-used XHTML5.)
+下面的表格展示 HTML 4.01 、 XHTML 1.1 和 HTML5 简要功能比价。（不包括 XHTML
+1.0 ，因为它已经被 XHTML 1.1 和几乎不使用的 XHTML5 代替。）
 
 .. tabularcolumns:: |p{9cm}|p{2cm}|p{2cm}|p{2cm}|
 
@@ -69,34 +64,33 @@ superseded by XHTML 1.1 and the barely-used XHTML5.)
 +=========================================+==========+==========+==========+
 | ``<tag/value/`` == ``<tag>value</tag>`` | |Y| [1]_ | |N|      | |N|      |
 +-----------------------------------------+----------+----------+----------+
-| ``<br/>`` supported                     | |N|      | |Y|      | |Y| [2]_ |
+| 支持 ``<br/>``                          | |N|      | |Y|      | |Y| [2]_ |
 +-----------------------------------------+----------+----------+----------+
-| ``<script/>`` supported                 | |N|      | |Y|      | |N|      |
+| 支持  ``<script/>``                     | |N|      | |Y|      | |N|      |
 +-----------------------------------------+----------+----------+----------+
-| should be served as `text/html`         | |Y|      | |N| [3]_ | |Y|      |
+| 应该解析为 `text/html`                  | |Y|      | |N| [3]_ | |Y|      |
 +-----------------------------------------+----------+----------+----------+
-| should be served as                     | |N|      | |Y|      | |N|      |
+| 应该解析为                              | |N|      | |Y|      | |N|      |
 | `application/xhtml+xml`                 |          |          |          |
 +-----------------------------------------+----------+----------+----------+
-| strict error handling                   | |N|      | |Y|      | |N|      |
+| 严格的错误处理                          | |N|      | |Y|      | |N|      |
 +-----------------------------------------+----------+----------+----------+
-| inline SVG                              | |N|      | |Y|      | |Y|      |
+| 内联 SVG                                | |N|      | |Y|      | |Y|      |
 +-----------------------------------------+----------+----------+----------+
-| inline MathML                           | |N|      | |Y|      | |Y|      |
+| 内联 MathML                             | |N|      | |Y|      | |Y|      |
 +-----------------------------------------+----------+----------+----------+
-| ``<video>`` tag                         | |N|      | |N|      | |Y|      |
+| ``<video>`` 标记                        | |N|      | |N|      | |Y|      |
 +-----------------------------------------+----------+----------+----------+
-| ``<audio>`` tag                         | |N|      | |N|      | |Y|      |
+| ``<audio>`` 标记                        | |N|      | |N|      | |Y|      |
 +-----------------------------------------+----------+----------+----------+
-| New semantic tags like ``<article>``    | |N|      | |N|      | |Y|      |
+| 新的语义标记，比如 ``<article>``        | |N|      | |N|      | |Y|      |
 +-----------------------------------------+----------+----------+----------+
 
-.. [1] This is an obscure feature inherited from SGML. It is usually not
-       supported by browsers, for reasons detailed above.
-.. [2] This is for compatibility with server code that generates XHTML for
-       tags such as ``<br>``.  It should not be used in new code.
-.. [3] XHTML 1.0 is the last XHTML standard that allows to be served
-       as `text/html` for backwards compatibility reasons.
+.. [1] 这是一个从 SGML 继承过来的隐晦的功能。由于上述的原因，它通常不被浏览器
+       支持。
+.. [2] 这用于兼容根据 XHTML 规范为 ``<br>`` 之类的标记生成的服务代码。它不应该
+       在新代码中出现。
+.. [3] XHTML 1.0 是考虑向后兼容，允许呈现为 `text/html` 的最后一个 XHTML 标准。
 
 .. |Y| image:: _static/yes.png
        :alt: Yes
