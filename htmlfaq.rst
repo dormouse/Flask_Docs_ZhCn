@@ -51,6 +51,7 @@ HTML5 规范是由网络超文本应用技术工作组（ WHATWG ）于 2004 年
 随着 XHTML 2 工作组的解散，而且 HTML5 正在被所有主流浏览器供应商实现，XHTML
 逐渐失去了吸引力。
 
+
 HTML 对比 XHTML
 ---------------
 
@@ -97,30 +98,26 @@ HTML 对比 XHTML
 .. |N| image:: _static/no.png
        :alt: No
 
-What does "strict" mean?
+
+“严格”意味着什么？
 ------------------------
 
-HTML5 has strictly defined parsing rules, but it also specifies exactly
-how a browser should react to parsing errors - unlike XHTML, which simply
-states parsing should abort. Some people are confused by apparently
-invalid syntax that still generates the expected results (for example,
-missing end tags or unquoted attribute values).
+HTML5 严格地定义了解析规则，但是同时也明确地规定了浏览器如何处理解析错误。
+而不是像 XHTML 一样，只是简单的终止解析。有的人对有显而易见的语法错误的标记
+任然能够得到预想的结果感到疑惑不解（例如结尾标记缺失或者属性值未用引号包裹）。
 
-Some of these work because of the lenient error handling most browsers use
-when they encounter a markup error, others are actually specified.  The
-following constructs are optional in HTML5 by standard, but have to be
-supported by browsers:
+之所以能够得到预想的结果，有的是因为大多数浏览器会宽容处理错误标记，有的是因为
+错误已经被指定了解决方式。以下结构在 HTML5 标准中是可选的，但一定被浏览器支持：
 
--   Wrapping the document in an ``<html>`` tag
--   Wrapping header elements in ``<head>`` or the body elements in
-    ``<body>``
--   Closing the ``<p>``, ``<li>``, ``<dt>``, ``<dd>``, ``<tr>``,
-    ``<td>``, ``<th>``, ``<tbody>``, ``<thead>``, or ``<tfoot>`` tags.
--   Quoting attributes, so long as they contain no whitespace or
-    special characters (like ``<``, ``>``, ``'``, or ``"``).
--   Requiring boolean attributes to have a value.
+-   用 ``<html>`` 标签包裹文档。
+-   把页首元素包裹在 ``<head>`` 里或把主体元素包裹在 ``<body>`` 里。
+-   闭合 ``<p>`` 、 ``<li>`` 、 ``<dt>`` 、 ``<dd>`` 、 ``<tr>`` 、
+    ``<td>`` 、 ``<th>`` 、 ``<tbody>`` 、 ``<thead>`` 或 ``<tfoot>`` 标签。
+-   用引号包裹属性值，只要它们不含有空白字符或其特殊字符（比如 ``<`` 、
+    ``>`` 、 ``'`` 或 ``"`` ）。
+-   布尔属性必须赋值。
 
-This means the following page in HTML5 is perfectly valid:
+这意味着下面的页面在 HTML5 中是完全有效的:
 
 .. sourcecode:: html
 
@@ -149,43 +146,40 @@ This means the following page in HTML5 is perfectly valid:
     </div>
 
 
-New technologies in HTML5
--------------------------
+HTML5 中的新技术
+----------------
 
-HTML5 adds many new features that make Web applications easier to write
-and to use.
+HTML5 增加了许多新功能，使得网络应用易写易用。
 
--   The ``<audio>`` and ``<video>`` tags provide a way to embed audio and
-    video without complicated add-ons like QuickTime or Flash.
--   Semantic elements like ``<article>``, ``<header>``, ``<nav>``, and
-    ``<time>`` that make content easier to understand.
--   The ``<canvas>`` tag, which supports a powerful drawing API, reducing
-    the need for server-generated images to present data graphically.
--   New form control types like ``<input type="date">`` that allow user
-    agents to make entering and validating values easier.
--   Advanced JavaScript APIs like Web Storage, Web Workers, Web Sockets,
-    geolocation, and offline applications.
+-   ``<audio>`` 和 ``<video>`` 标记提供了不使用 QuickTime 或 Flash 之类的
+    复杂附件的嵌入音频和视频的方式。
+-   像 ``<article>`` 、 ``<header>`` 、 ``<nav>`` 和 ``<time>`` 之类的语义化
+    元素，使得内容易于理解。
+-   ``<canvas>`` 标记支持强大的绘图 API ，减少了图形化展示数据时在服务器端生成
+    图像的需求。
+-   新的表单控件类型，比如 ``<input type="data">`` 方便用户代理输入和验证数据。
+-   高级 JavaScript API ，诸如 Web Storage 、 Web Workers 、 Web Sockets 、
+    地理位置以及离线应用。
 
-Many other features have been added, as well. A good guide to new features
-in HTML5 is Mark Pilgrim's soon-to-be-published book, `Dive Into HTML5`_.
-Not all of them are supported in browsers yet, however, so use caution.
+除了上述功能之外， HTML5 还添加了许多其它的特性。 Mark Pilgrim 即将出版的
+`Dive Into HTML5`_ 一书是 HTML5 新特性的优秀指导书。目前，并不是所有的新特性
+都已被浏览器支持，无论如何，请谨慎使用。
 
 .. _Dive Into HTML5: http://www.diveintohtml5.org/
 
-What should be used?
---------------------
 
-Currently, the answer is HTML5.  There are very few reasons to use XHTML
-considering the latest developments in Web browsers.  To summarize the
-reasons given above:
+应该使用什么？
+--------------
 
--   Internet Explorer (which, sadly, currently leads in market share)
-    has poor support for XHTML.
--   Many JavaScript libraries also do not support XHTML, due to the more
-    complicated namespacing API it requires.
--   HTML5 adds several new features, including semantic tags and the
-    long-awaited ``<audio>`` and ``<video>`` tags.
--   It has the support of most browser vendors behind it.
--   It is much easier to write, and more compact.
+当前情况下，答案是 HTML5 。考虑到 web 浏览器最新的开发，几乎没有理由再使用
+XHTML 。综上所述：
 
-For most applications, it is undoubtedly better to use HTML5 than XHTML.
+-   Internet Explorer （令人悲伤的是目前市场份额处于领先） 对 XHTML 支持不佳。
+-   许多 JavaScript 库也不支持 XHTML ，原因是它需要复杂的命名空间 API 。
+-   HTML5 添加了数个新特性，包括语义标记和期待已久的 ``<audio>`` 和
+    ``<video>`` 标记。
+-   它背后获得了大多数浏览器供应商的支持。
+-   它易于编写，而且更简洁。
+
+对于大多数应用，毫无疑问使用 HTML5 比 XHTML 更好。
+
