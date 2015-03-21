@@ -1,59 +1,50 @@
-Security Considerations
+安全注意事项
 =======================
 
-Web applications usually face all kinds of security problems and it's very
-hard to get everything right.  Flask tries to solve a few of these things
-for you, but there are a couple more you have to take care of yourself.
+Web 应用常常会面对各种各样的安全问题，因此要把所有问题都解决是很难的。 Flask
+尝试为你解决许多安全问题，但是更多的还是只能靠你自己。
 
 .. _xss:
 
-Cross-Site Scripting (XSS)
---------------------------
+跨站脚本攻击（XSS）
+-------------------
 
-Cross site scripting is the concept of injecting arbitrary HTML (and with
-it JavaScript) into the context of a website.  To remedy this, developers
-have to properly escape text so that it cannot include arbitrary HTML
-tags.  For more information on that have a look at the Wikipedia article
-on `Cross-Site Scripting
-<http://en.wikipedia.org/wiki/Cross-site_scripting>`_.
+跨站脚本攻击是指在一个网站的环境中注入恶任意的 HTML （包括附带的 JavaScript
+）。要防防御这种攻击，开发者需要正确地转义文本，使其不能包含恶意的 HTML 标记。
+更多的相关信息请参维基百科上在文章： `Cross-Site Scripting
+<http://en.wikipedia.org/wiki/Cross-site_scripting>`_ 。
 
-Flask configures Jinja2 to automatically escape all values unless
-explicitly told otherwise.  This should rule out all XSS problems caused
-in templates, but there are still other places where you have to be
-careful:
+在 Flask 中，除非显式指明不转义， Jinja2 会自动转义所有值。这样可以排除所有
+模板导致的 XSS 问题，但是其它地方仍需小心：
 
--   generating HTML without the help of Jinja2
--   calling :class:`~flask.Markup` on data submitted by users
--   sending out HTML from uploaded files, never do that, use the
-    `Content-Disposition: attachment` header to prevent that problem.
--   sending out textfiles from uploaded files.  Some browsers are using
-    content-type guessing based on the first few bytes so users could
-    trick a browser to execute HTML.
+-   不使用 Jinja2 生成 HTML 。
+-   在用户提交的数据上调用了 :class:`~flask.Markup` 。
+-   发送上传的 HTML ，永远不要这么做，使用 `Content-Disposition: attachment`
+    标头来避免这个问题。
+-   发送上传的文本文件。一些浏览器基于文件开头几个字节来猜测文件的
+    content-type ，用户可以利用这个漏洞来欺骗浏览器，通过伪装文本文件来执行
+    HTML 。
 
-Another thing that is very important are unquoted attributes.  While
-Jinja2 can protect you from XSS issues by escaping HTML, there is one
-thing it cannot protect you from: XSS by attribute injection.  To counter
-this possible attack vector, be sure to always quote your attributes with
-either double or single quotes when using Jinja expressions in them:
+另一件非常重要的漏洞是不用引号包裹的属性值。虽然 Jinja2 可以通过转义 HTML
+来保护你免受 XSS 问题，但是仍无法避免一种情况：属性注入的 XSS 。为了免受这种
+攻击，必须确保在属性中使用 Jinja 表达式时，始终用单引号或双引号包裹:
 
 .. sourcecode:: html+jinja
 
    <a href="{{ href }}">the text</a>
 
-Why is this necessary?  Because if you would not be doing that, an
-attacker could easily inject custom JavaScript handlers.  For example an
-attacker could inject this piece of HTML+JavaScript:
+为什么必须这么做？因为如果不这么做，攻击者可以轻易地注入自制的 JavaScript
+处理器。例如一个攻击者可以注入以下 HTML+JavaScript 代码：
 
 .. sourcecode:: html
 
    onmouseover=alert(document.cookie)
 
-When the user would then move with the mouse over the link, the cookie
-would be presented to the user in an alert window.  But instead of showing
-the cookie to the user, a good attacker might also execute any other
-JavaScript code.  In combination with CSS injections the attacker might
-even make the element fill out the entire page so that the user would
-just have to have the mouse anywhere on the page to trigger the attack.
+当用户鼠标停放在这个链接上时，会在警告窗口里显示 cookie 信息。一个精明的攻击者
+可能还会执行其它的 JavaScript 代码，而不是把 cookie 显示给用户。结合 CSS 注入，
+攻击者甚至可以把元素填满整个页面，这样用户把鼠标停放在页面上的任何地方都会触发
+攻击。
+
 
 Cross-Site Request Forgery (CSRF)
 ---------------------------------
