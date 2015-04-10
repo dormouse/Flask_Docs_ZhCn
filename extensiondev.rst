@@ -125,9 +125,8 @@ flask_sqlite3.py
 初始化类：
 
     初始化类与初始化函数的工作方式大致相同，区别是类在以后可以进一步改动。
-    例如，查看一下 `OAuth extension`_ 的工作方式：有一个 `OAuth` 对象提供
-    一些辅助函数（比如 `OAuth.remote_app` ）来创建使用 OAuth 的远程应用的
-    引用。
+    例如，查看一下 `OAuth 扩展`_ 的工作方式：有一个 `OAuth` 对象提供一些
+    辅助函数（比如 `OAuth.remote_app` ）来创建使用 OAuth 的远程应用的引用。
 
 
 使用哪种方式取决于你。对于 SQLite 3 扩展，我们会使用基于类的方式，因为这样
@@ -254,26 +253,22 @@ flask_sqlite3.py
 使用 _app_ctx_stack
 --------------------
 
-In the example above, before every request, a ``sqlite3_db`` variable is
-assigned to ``_app_ctx_stack.top``.  In a view function, this variable is
-accessible using the ``connection`` property of ``SQLite3``.  During the
-teardown of a request, the ``sqlite3_db`` connection is closed.  By using
-this pattern, the *same* connection to the sqlite3 database is accessible
-to anything that needs it for the duration of the request.
+在上面的例子中，在每个请求之前，一个 ``sqlite3_db`` 变量被分配到
+``_app_ctx_stack.top`` 。在一个视图函数中，这个变量可以使用 ``SQLite3``
+的属性 ``connection`` 来访问。在请求解散时， ``sqlite3_db`` 连接被关闭。
+通过使用这个模式，在请求持续的期间，可以访问 *相同* 的 sqlite3 数据库连接。
 
-If the :data:`~flask._app_ctx_stack` does not exist because the user uses
-an old version of Flask, it is recommended to fall back to
-:data:`~flask._request_ctx_stack` which is bound to a request.
+如果 :data:`~flask._app_ctx_stack` 因为用户使用了老版本的 Flask 不存在，
+建议退化到绑定在请求中的 :data:`~flask._request_ctx_stack` 。
 
-Teardown Behavior
------------------
+解散形为
+--------
 
-*This is only relevant if you want to support Flask 0.6 and older*
+*本段只有在想要支持 Flask 0.6 版本和更老版本时有用*
 
-Due to the change in Flask 0.7 regarding functions that are run at the end
-of the request your extension will have to be extra careful there if it
-wants to continue to support older versions of Flask.  The following
-pattern is a good way to support both::
+因为在 Flask 0.7 版本中修改了在请求的最后运行的相关函数，所以如果你的扩展
+需要继续支持 Flask 的老版本，那么必须格外小心。下面的模式是一个新旧兼顾的
+好方法::
 
     def close_connection(response):
         ctx = _request_ctx_stack.top
@@ -285,99 +280,75 @@ pattern is a good way to support both::
     else:
         app.after_request(close_connection)
 
-Strictly speaking the above code is wrong, because teardown functions are
-passed the exception and typically don't return anything.  However because
-the return value is discarded this will just work assuming that the code
-in between does not touch the passed parameter.
+严格地讲，上面的代码是错误的，因为解散函数接受异常且典型地不返回任何东西。
+然而，因为返回值被丢弃，假设中间的代码不触碰传递的参数，这刚好有用。
 
-Learn from Others
------------------
+学习借鉴
+--------
 
-This documentation only touches the bare minimum for extension
-development.  If you want to learn more, it's a very good idea to check
-out existing extensions on the `Flask 扩展注册表`_.  If you feel
-lost there is still the `mailinglist`_ and the `IRC channel`_ to get some
-ideas for nice looking APIs.  Especially if you do something nobody before
-you did, it might be a very good idea to get some more input.  This not
-only to get an idea about what people might want to have from an
-extension, but also to avoid having multiple developers working on pretty
-much the same side by side.
+本文只是谈了一些扩展开发的皮毛。如果想要深入，那么查看 `Flask 扩展注册表`_
+上已有的扩展是明智的。如果你感到迷失，还可以通过 `邮件列表`_ 和
+`IRC 频道`_ 学习到优秀的 APIs 。尤其当你要开发一个全新的扩展时，建议先多看
+多问多听，这样不仅可以知道别人的需求，同时也避免多人重复开发。
 
-Remember: good API design is hard, so introduce your project on the
-mailinglist, and let other developers give you a helping hand with
-designing the API.
+谨记：设计优秀的 API 是艰难的。因此请先在邮件列表里介绍你的项目，让其他
+开发者在 API 设计上助你一臂之力。
 
-The best Flask extensions are extensions that share common idioms for the
-API.  And this can only work if collaboration happens early.
+最好的 Flask 扩展是那些共享 API 智慧的扩展，因此越早共享越有效。
 
-Approved Extensions
--------------------
+已审核的扩展
+------------
 
-Flask also has the concept of approved extensions.  Approved extensions
-are tested as part of Flask itself to ensure extensions do not break on
-new releases.  These approved extensions are listed on the `Flask 扩展注册表`_ and marked appropriately.  If you want your own
-extension to be approved you have to follow these guidelines:
+Flask 有已审核的扩展的概念。已审核的扩展会被视作 Flask 的一部分来测试，以
+保证扩展在新版本发布时不会出问题。这些已审核的扩展会在 `Flask 扩展注册表`_
+中列出，并有相应的标记。如果你想要自己的扩展通过审核，请遵循以下的指导方针：
 
-0.  An approved Flask extension requires a maintainer. In the event an
-    extension author would like to move beyond the project, the project should
-    find a new maintainer including full source hosting transition and PyPI
-    access.  If no maintainer is available, give access to the Flask core team.
-1.  An approved Flask extension must provide exactly one package or module
-    named ``flask_extensionname``.  They might also reside inside a
-    ``flaskext`` namespace packages though this is discouraged now.
-2.  It must ship a testing suite that can either be invoked with ``make test``
-    or ``python setup.py test``.  For test suites invoked with ``make
-    test`` the extension has to ensure that all dependencies for the test
-    are installed automatically.  If tests are invoked with ``python setup.py
-    test``, test dependencies can be specified in the `setup.py` file.  The
-    test suite also has to be part of the distribution.
-3.  APIs of approved extensions will be checked for the following
-    characteristics:
+0.  一个已审核的 Flask 扩展需要一个维护者。如果一个扩展作者想要放弃项目，
+    那么项目应该寻找一个新的维护者，包括移交完整的源码托管和 PyPI 访问。
+    如果找不到新的维护者，请赋予 Flask 核心团队访问权限。
+1.  一个已审核的 Flask 扩展必须提供一个名如 ``flask_extensionname`` 的包或
+    模块。它们也可以存在于一个 ``flaskext`` 命名空间包内部，但是现在不推荐
+    这么做。
+2.  它必须带有测试套件，套件可以使用 ``make test`` 或者
+    ``python setup.py test`` 来调用。如果是使用 ``make test`` 调用的测试
+    套件，那么必须保证所有的依赖可以自动安装。如果是使用 ``python setup.py
+    test`` 调用的测试套件，那么测试的依赖可以在 `setup.py` 文件中定义。
+    测试套件分发的必要组成部分。
+3.  已审核的扩展的 API 可以通过下面特性的检查:
+    
+    -   一个已审核的扩展必须支持在同一个 Python 进程中运行的多个应用。
+    -   它必须支持使用工厂模式创建应用
 
-    -   an approved extension has to support multiple applications
-        running in the same Python process.
-    -   it must be possible to use the factory pattern for creating
-        applications.
-
-4.  The license must be BSD/MIT/WTFPL licensed.
-5.  The naming scheme for official extensions is *Flask-ExtensionName* or
-    *ExtensionName-Flask*.
-6.  Approved extensions must define all their dependencies in the
-    `setup.py` file unless a dependency cannot be met because it is not
-    available on PyPI.
-7.  The extension must have documentation that uses one of the two Flask
-    themes for Sphinx documentation.
-8.  The setup.py description (and thus the PyPI description) has to
-    link to the documentation, website (if there is one) and there
-    must be a link to automatically install the development version
-    (``PackageName==dev``).
-9.  The ``zip_safe`` flag in the setup script must be set to ``False``,
-    even if the extension would be safe for zipping.
-10. An extension currently has to support Python 2.6 as well as
-    Python 2.7
+4.  许可协议必须是 BSD/MIT/WTFPL 协议。
+5.  官方扩展的命名模式是 *Flask-ExtensionName* 或 *ExtensionName-Flask* 。
+6.  已审核的扩展必须在 `setup.py` 文件里定义所有的依赖关系，除非在 PyPI
+    上不可用。
+7.  扩展的文档必须使用两种 Flask 的 Sphinx 文档主题中的一个。
+8.  setup.py 描述（即 PyPI 描述）必须链接到文档、网站（如果有的话），
+    并且必须有自动安装开发版本的链接（ ``PackageName==dev`` ）。
+9.  安装脚本中的 ``zip_safe`` 标志必须被设置为 ``False`` ，即使扩展对于
+    压缩是安全的。
+10. 现行扩展必须支持 Python 2.6 和 Python 2.7 。
 
 
 .. _ext-import-transition:
 
-Extension Import Transition
----------------------------
+扩展导入的迁移
+--------------
 
-For a while we recommended using namespace packages for Flask extensions.
-This turned out to be problematic in practice because many different
-competing namespace package systems exist and pip would automatically
-switch between different systems and this caused a lot of problems for
-users.
+一段时间，我们曾推荐对 Flask 扩展使用命名空间包。但这在实践中被证明是有
+问题的，因为许多不同命名空间包系统存在竞争，并且 pip 会自动在不同的系统
+中切换，这给用户带来了许多问题。
 
-Instead we now recommend naming packages ``flask_foo`` instead of the now
-deprecated ``flaskext.foo``.  Flask 0.8 introduces a redirect import
-system that lets uses import from ``flask.ext.foo`` and it will try
-``flask_foo`` first and if that fails ``flaskext.foo``.
+现在，我们推荐命名包为 ``flask_foo`` 替代过时的 ``flaskext.foo`` 。Flask
+0.8 引入了重定向导入系统，允许从 ``flask.ext.foo`` 导入，并且如果
+``flaskext.foo`` 失败时，会首先尝试 ``flask_foo`` 。
 
-Flask extensions should urge users to import from ``flask.ext.foo``
-instead of ``flask_foo`` or ``flaskext_foo`` so that extensions can
-transition to the new package name without affecting users.
+Flask 扩展应该鼓励用户从 ``flask.ext.foo`` 导入，而不是 ``flask_foo``
+或 ``flaskext_foo`` ，这样扩展可以迁移到新的包名称而不烦扰用户。
 
 
-.. _OAuth extension: http://packages.python.org/Flask-OAuth/
-.. _mailinglist: http://flask.pocoo.org/mailinglist/
-.. _IRC channel: http://flask.pocoo.org/community/irc/
+.. _OAuth 扩展: http://packages.python.org/Flask-OAuth/
+.. _邮件列表: http://flask.pocoo.org/mailinglist/
+.. _IRC 频道: http://flask.pocoo.org/community/irc/
+
