@@ -168,4 +168,4 @@ Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 U
 
     url_for('.index')
 
-如果当前请求被分配到 admi 蓝图端点时，上例会链接到 ``admin.index`` 。
+如果当前请求被分配到 admin 蓝图端点时，上例会链接到 ``admin.index`` 。
