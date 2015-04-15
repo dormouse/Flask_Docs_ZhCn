@@ -120,32 +120,27 @@ Pocoo 风格指南
 - 常量： ``UPPERCASE_WITH_UNDERSCORES``
 - 预编译正则表达式： ``name_re``
 
-Protected members are prefixed with a single underscore.  Double
-underscores are reserved for mixin classes.
+被保护的成员以单个下划线作为前缀，混合类则使用双下划线。
 
-On classes with keywords, trailing underscores are appended.  Clashes with
-builtins are allowed and **must not** be resolved by appending an
-underline to the variable name.  If the function needs to access a
-shadowed builtin, rebind the builtin to a different name instead.
+如果使用关键字作为类的名称，那么在名称末尾添加下划线。与内置构件冲突是允许
+的，请 **一定不要** 用在变量名后添加下划线的方式解决冲突。如果函数需要访问
+一个隐蔽的内置构件，请重新绑定内置构件到一个不同的名字。
 
-Function and method arguments:
-  - class methods: ``cls`` as first parameter
-  - instance methods: ``self`` as first parameter
-  - lambdas for properties might have the first parameter replaced
-    with ``x`` like in ``display_name = property(lambda x: x.real_name
-    or x.username)``
+函数和方法参数:
+  - 类方法: ``cls`` 作为第一个参数
+  - 实例方法: ``self`` 作为第一个参数
+  - 用于属性的 lambda 表达式应该把第一个参数替换为 ``x`` ，
+    像 ``display_name = property(lambda x: x.real_name or x.username)``
+    中一样
 
 
-Docstrings
+文档字符串
 ----------
 
-Docstring conventions:
-  All docstrings are formatted with reStructuredText as understood by
-  Sphinx.  Depending on the number of lines in the docstring, they are
-  laid out differently.  If it's just one line, the closing triple
-  quote is on the same line as the opening, otherwise the text is on
-  the same line as the opening quote and the triple quote that closes
-  the string on its own line::
+文档字符串约定:
+  所有的文档字符串为 Sphinx 可理解的 reStructuredText 格式。它们的形态
+  因行数不同而不同。如果只有一行，三引号闭合在同一行，否则开头的三引号
+  与文本在同一行，结尾的三引号独立一行::  
 
     def foo():
         """This is a simple docstring"""
@@ -157,10 +152,9 @@ Docstring conventions:
         is on its own line.
         """
 
-Module header:
-  The module header consists of an utf-8 encoding declaration (if non
-  ASCII letters are used, but it is recommended all the time) and a
-  standard docstring::
+模块头:
+  模块头包含一个 utf-8 编码声明（即使没有使用非 ASCII 字符，也始终推
+  荐这么做）和一个标准的文档字符串::
 
     # -*- coding: utf-8 -*-
     """
@@ -173,16 +167,14 @@ Module header:
         :license: LICENSE_NAME, see LICENSE_FILE for more details.
     """
 
-  Please keep in mind that proper copyrights and license files are a
-  requirement for approved Flask extensions.
+  谨记使用合适的版权和许可证文件以利于通过 Flask 扩展审核。
 
 
-Comments
---------
+注释
+----
 
-Rules for comments are similar to docstrings.  Both are formatted with
-reStructuredText.  If a comment is used to document an attribute, put a
-colon after the opening pound sign (``#``)::
+注释的规则与文档字符串类似。两者都使用 reStructuredText 格式。如果一个
+注释被用于一个说明类属性，在起始的井号（ ``#`` ）后加一个冒号::
 
     class User(object):
         #: the name of the user as unicode string
