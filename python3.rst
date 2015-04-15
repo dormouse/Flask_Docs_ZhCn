@@ -1,61 +1,51 @@
 .. _python3_support:
 
-Python 3 Support
-================
+Python 3 支持
+=============
 
-Flask and all of its dependencies support Python 3 so you can in theory
-start working on it already.  There are however a few things you should be
-aware of before you start using Python 3 for your next project.
+Flask 及其所有依赖包都支持 Python 3 ，因此理论上来说你能够在 Python 3
+使用。然而在 Python 3 环境下开始你的下一个项目之前你需要留心一些事情。
 
-Requirements
-------------
+要求
+----
 
-If you want to use Flask with Python 3 you will need to use Python 3.3 or
-higher.  3.2 and older are *not* supported.
+如果你要在 Python 3 环境下使用 Flask ，那么必须使用 Python 3.3 或者更高
+版本。3.2 以及更早的版本是 *不* 支持的。
 
-In addition to that you need to use the latest and greatest versions of
-`itsdangerous`, `Jinja2` and `Werkzeug`.
+除此之外你还必须使用最新的 `itsdangerous`, `Jinja2` and `Werkzeug` 版本。
 
-API Stability
--------------
+API 稳定性
+----------
 
-Some of the decisions made in regards to unicode and byte untilization on
-Python 3 make it hard to write low level code.  This mainly affects WSGI
-middlewares and interacting with the WSGI provided information.  Werkzeug
-wraps all that information in high-level helpers but some of those were
-specifically added for the Python 3 support and are quite new.
+Python 3 的 unicode 和字节使用方式使编写底层代码变得困难。主要影响了 WSGI
+中间件以及与 WSGI 提供的信息进行交互。 Werkzeug 已经用高级帮助器封装了所有
+信息，但是其中一些是专门为支持 Python 3 添加的，还比较新。
 
-A lot of the documentation out there on using WSGI leaves out those
-details as it was written before WSGI was updated to Python 3.  While the
-API for Werkzeug and Flask on Python 2.x should not change much we cannot
-guarantee that this won't happen on Python 3.
+许多关于 WSGI 细节的文档编写于 WSGI 支持 Python 3 之前。尽管 Werkzeug 和
+Flask 在 Python 2.x 版本的 API 在支持 Python 3 时基本不用改动，但是不作
+保证。
 
-Few Users
----------
+用户少
+------
 
-Python 3 currently has less than 1% of the users of Python 2 going by PyPI
-download stats.  As a result many of the problems you will encounter are
-probably hard to search for on the internet if they are Python 3 specific.
+根据 PyPI 下载统计， Python 3 用户不到 Python 2 用户的 1％ 。因此，如果你
+遇到 Python3 的特定问题，那么恐怕很难在互联网上搜索到答案。
 
-Small Ecosystem
----------------
+小生态系统
+----------
 
-The majority of the Flask extensions, all of the documentation and the
-vast majority of the PyPI provided libraries do not support Python 3 yet.
-Even if you start your project with knowing that all you will need is
-supported by Python 3 you don't know what happens six months from now.  If
-you are adventurous you can start porting libraries on your own, but that
-is nothing for the faint of heart.
+大多数 Flask 扩、所有的文档和绝大多数 PyPI 提供的库都还不支持 Python 3 。
+即使你现在清楚地知道 Python 3 支持你的项目以及项目所需要的一切，但是谁能
+预料半年以后的事呢？如果你富于冒险精神，那么可以自己移植库，但最好乞求一颗
+勇敢的心。
 
-Recommendations
----------------
+建议
+----
 
-Unless you are already familiar with the differences in the versions we
-recommend sticking to current versions of Python until the ecosystem
-caught up.
+除非你已经很熟悉版本的差异，否则在生态系统成熟之前，建议仍然使用当前版本的
+Python 。
 
-The majority of the upgrade pain is in the lower-level libararies like
-Flask and Werkzeug and not in the actual high-level application code.  For
-instance all of the Flask examples that are in the Flask repository work
-out of the box on both 2.x and 3.x and did not require a single line of
-code changed.
+升级之痛苦大部分针对低级别的库，例如 Flask 和 Werkzeug ，而不是较高级别的
+应用程序。例如， Flask 仓库中的所有示例都同时支持 Python 2 和 Python 3 ，
+不需要改动一行代码。
+
