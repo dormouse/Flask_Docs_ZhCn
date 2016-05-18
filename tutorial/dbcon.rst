@@ -20,7 +20,6 @@ Flask 中可以使用 :meth:`~flask.Flask.before_request` 、
         db = getattr(g, 'db', None)
         if db is not None:
             db.close()
-        g.db.close()
 
 使用 :meth:`~flask.Flask.before_request` 装饰的函数会在请求之前调用，且不传递
 参数。使用 :meth:`~flask.Flask.after_request` 装饰的函数会在请求之后调用，且
