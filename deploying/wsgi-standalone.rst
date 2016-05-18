@@ -36,7 +36,7 @@ Tornado
 
     from tornado.wsgi import WSGIContainer
     from tornado.httpserver import HTTPServer
-    from toranado.ioloop import IOLoop
+    from tornado.ioloop import IOLoop
     from yourapplication import app
 
     http_server = HTTPServer(WSGIContainer(app))
