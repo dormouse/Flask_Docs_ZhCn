@@ -31,11 +31,17 @@ Patches and Suggestions
 - Chris Edgemon
 - Chris Grindstaff
 - Christopher Grebs
+- Daniel Neuhäuser
+- David Lord @davidism
+- Edmond Burnett
 - Florent Xicluna
 - Georg Brandl
+- Jeff Widman @jeffwidman
 - Justin Quick
 - Kenneth Reitz
+- Keyan Pishdadian
 - Marian Sigler
+- Martijn Pieters
 - Matt Campell
 - Matthew Frazier
 - Michael van Tellingen
@@ -45,7 +51,6 @@ Patches and Suggestions
 - Stephane Wirtel
 - Thomas Schranz
 - Zhao Xiaohong
-- Edmond Burnett
 
 General License Definitions
 ---------------------------
@@ -67,7 +72,7 @@ documentation.
 Flask License
 -------------
 
-Copyright (c) 2013 by Armin Ronacher and contributors.  See AUTHORS
+Copyright (c) 2015 by Armin Ronacher and contributors.  See AUTHORS
 for more details.
 
 Some rights reserved.
@@ -108,7 +113,7 @@ Flask Artwork License
 
 Copyright (c) 2010 by Armin Ronacher.
 
-Some rights reserved.
+Some righ/Users/dormouse/project/Flask_Docs_ZhCn/license.rstts reserved.
 
 This logo or a modified version may be used by anyone to refer to the
 Flask project, but does not indicate endorsement by the project.

@@ -3,6 +3,8 @@
 使用蓝图的模块化应用
 ====================================
 
+.. currentmodule:: flask
+
 .. versionadded:: 0.7
 
 为了在一个或多个应用中，使应用模块化并且支持常用方案， Flask 引入了 *蓝图*
@@ -130,8 +132,8 @@ Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 U
     admin = Blueprint('admin', __name__, static_folder='static')
 
 缺省情况下，路径最右端的部分是在 URL 中暴露的部分。上例中的文件夹为
-``static`` ，那么 URL 应该是蓝图加上 ``/static`` 。蓝图注册为 ``/admin`` ，那么
-静态文件夹就是 ``/admin/static`` 。
+:file:`static` ，那么 URL 应该是蓝图加上 ``/static`` 。蓝图注册为 ``/admin`` ，
+那么静态文件夹就是 ``/admin/static`` 。
 
 端点的名称是 `blueprint_name.static` ，因此你可以使用和应用中的文件夹一样的方法
 来生成其 URL::
@@ -152,7 +154,23 @@ Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 U
 
 假设你的蓝图便于 ``yourapplication/admin`` 中，要渲染的模板是
 ``'admin/index.html'`` ， `template_folder` 参数值为 ``templates`` ，那么真正的
-模板文件为： ``yourapplication/admin/templates/admin/index.html`` 。
+模板文件为： :file:`yourapplication/admin/templates/admin/index.html` 。
+
+更详细一点说：如果你有一个名为 ``admin`` 的蓝图，该蓝图指定的模版文件是
+:file:`index.html` ，那么最好按照如下结构存放模版文件::
+
+    yourpackage/
+        blueprints/
+            admin/
+                templates/
+                    admin/
+                        index.html
+                __init__.py
+
+这样，当你需要渲染模板的时候就可以使用 :file:`admin/index.html` 来找到模板。
+如果没有载入正确的模板，那么应该启用 ``EXPLAIN_TEMPLATE_LOADING`` 配置变量。
+启用这个变量以后，每次调用 ``render_template`` 时， Flask 会打印出定位模板的
+步骤，方便调试。
 
 创建 URL
 -------------
@@ -169,3 +187,17 @@ Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 U
     url_for('.index')
 
 如果当前请求被分配到 admin 蓝图端点时，上例会链接到 ``admin.index`` 。
+
+错误处理器
+--------------
+
+蓝图和 :class:`Flask` 应用对象一样支持错误处理器装饰器，因此为蓝图自定义错误
+处理页面非常方便。
+
+下面是一个处理“ 404 页面无法找到 ”的例子::
+
+    @simple_page.errorhandler(404)
+    def page_not_found(e):
+        return render_template('pages/404.html')
+
+更多信息参见 :ref:`errorpages` 。

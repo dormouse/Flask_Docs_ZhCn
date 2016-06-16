@@ -3,10 +3,133 @@ Flask Changelog
 
 Here you can see the full list of changes between each Flask release.
 
+Version 0.11.1
+--------------
+
+Bugfix release, released on June 7th 2016.
+
+- Fixed a bug that prevented ``FLASK_APP=foobar/__init__.py`` from working. See
+  pull request ``#1872``.
+
+Version 0.11
+------------
+
+Released on May 29th 2016, codename Absinthe.
+
+- Added support to serializing top-level arrays to :func:`flask.jsonify`. This
+  introduces a security risk in ancient browsers. See
+  :ref:`json-security` for details.
+- Added before_render_template signal.
+- Added `**kwargs` to :meth:`flask.Test.test_client` to support passing
+  additional keyword arguments to the constructor of
+  :attr:`flask.Flask.test_client_class`.
+- Added ``SESSION_REFRESH_EACH_REQUEST`` config key that controls the
+  set-cookie behavior.  If set to ``True`` a permanent session will be
+  refreshed each request and get their lifetime extended, if set to
+  ``False`` it will only be modified if the session actually modifies.
+  Non permanent sessions are not affected by this and will always
+  expire if the browser window closes.
+- Made Flask support custom JSON mimetypes for incoming data.
+- Added support for returning tuples in the form ``(response, headers)``
+  from a view function.
+- Added :meth:`flask.Config.from_json`.
+- Added :attr:`flask.Flask.config_class`.
+- Added :meth:`flask.config.Config.get_namespace`.
+- Templates are no longer automatically reloaded outside of debug mode. This
+  can be configured with the new ``TEMPLATES_AUTO_RELOAD`` config key.
+- Added a workaround for a limitation in Python 3.3's namespace loader.
+- Added support for explicit root paths when using Python 3.3's namespace
+  packages.
+- Added :command:`flask` and the ``flask.cli`` module to start the local
+  debug server through the click CLI system.  This is recommended over the old
+  ``flask.run()`` method as it works faster and more reliable due to a
+  different design and also replaces ``Flask-Script``.
+- Error handlers that match specific classes are now checked first,
+  thereby allowing catching exceptions that are subclasses of HTTP
+  exceptions (in ``werkzeug.exceptions``).  This makes it possible
+  for an extension author to create exceptions that will by default
+  result in the HTTP error of their choosing, but may be caught with
+  a custom error handler if desired.
+- Added :meth:`flask.Config.from_mapping`.
+- Flask will now log by default even if debug is disabled.  The log format is
+  now hardcoded but the default log handling can be disabled through the
+  ``LOGGER_HANDLER_POLICY`` configuration key.
+- Removed deprecated module functionality.
+- Added the ``EXPLAIN_TEMPLATE_LOADING`` config flag which when enabled will
+  instruct Flask to explain how it locates templates.  This should help
+  users debug when the wrong templates are loaded.
+- Enforce blueprint handling in the order they were registered for template
+  loading.
+- Ported test suite to py.test.
+- Deprecated ``request.json`` in favour of ``request.get_json()``.
+- Add "pretty" and "compressed" separators definitions in jsonify() method.
+  Reduces JSON response size when JSONIFY_PRETTYPRINT_REGULAR=False by removing
+  unnecessary white space included by default after separators.
+- JSON responses are now terminated with a newline character, because it is a
+  convention that UNIX text files end with a newline and some clients don't
+  deal well when this newline is missing. See
+  https://github.com/pallets/flask/pull/1262 -- this came up originally as a
+  part of https://github.com/kennethreitz/httpbin/issues/168
+- The automatically provided ``OPTIONS`` method is now correctly disabled if
+  the user registered an overriding rule with the lowercase-version
+  ``options`` (issue ``#1288``).
+- ``flask.json.jsonify`` now supports the ``datetime.date`` type (pull request
+  ``#1326``).
+- Don't leak exception info of already catched exceptions to context teardown
+  handlers (pull request ``#1393``).
+- Allow custom Jinja environment subclasses (pull request ``#1422``).
+- ``flask.g`` now has ``pop()`` and ``setdefault`` methods.
+- Turn on autoescape for ``flask.templating.render_template_string`` by default
+  (pull request ``#1515``).
+- ``flask.ext`` is now deprecated (pull request ``#1484``).
+- ``send_from_directory`` now raises BadRequest if the filename is invalid on
+  the server OS (pull request ``#1763``).
+- Added the ``JSONIFY_MIMETYPE`` configuration variable (pull request ``#1728``).
+- Exceptions during teardown handling will no longer leave bad application
+  contexts lingering around.
+
+Version 0.10.2
+--------------
+
+(bugfix release, release date to be announced)
+
+- Fixed broken `test_appcontext_signals()` test case.
+- Raise an :exc:`AttributeError` in :func:`flask.helpers.find_package` with a
+  useful message explaining why it is raised when a PEP 302 import hook is used
+  without an `is_package()` method.
+- Fixed an issue causing exceptions raised before entering a request or app
+  context to be passed to teardown handlers.
+- Fixed an issue with query parameters getting removed from requests in
+  the test client when absolute URLs were requested.
+- Made `@before_first_request` into a decorator as intended.
+- Fixed an etags bug when sending a file streams with a name.
+- Fixed `send_from_directory` not expanding to the application root path
+  correctly.
+- Changed logic of before first request handlers to flip the flag after
+  invoking.  This will allow some uses that are potentially dangerous but
+  should probably be permitted.
+- Fixed Python 3 bug when a handler from `app.url_build_error_handlers`
+  reraises the `BuildError`.
+
+Version 0.10.1
+--------------
+
+(bugfix release, released on June 14th 2013)
+
+- Fixed an issue where ``|tojson`` was not quoting single quotes which
+  made the filter not work properly in HTML attributes.  Now it's
+  possible to use that filter in single quoted attributes.  This should
+  make using that filter with angular.js easier.
+- Added support for byte strings back to the session system.  This broke
+  compatibility with the common case of people putting binary data for
+  token verification into the session.
+- Fixed an issue where registering the same method twice for the same endpoint
+  would trigger an exception incorrectly.
+
 Version 0.10
 ------------
 
-Released on June 13nd 2013, codename Limoncello.
+Released on June 13th 2013, codename Limoncello.
 
 - Changed default cookie serialization format from pickle to JSON to
   limit the impact an attacker can do if the secret key leaks.  See
@@ -95,7 +218,7 @@ Released on July 1st 2012, codename Campari.
   explicitly.
 - Unregister a circular dependency between the WSGI environment and
   the request object when shutting down the request.  This means that
-  environ ``werkzeug.request`` will be `None` after the response was
+  environ ``werkzeug.request`` will be ``None`` after the response was
   returned to the WSGI server but has the advantage that the garbage
   collector is not needed on CPython to tear down the request unless
   the user created circular dependencies themselves.
@@ -116,8 +239,8 @@ Released on July 1st 2012, codename Campari.
 - The :func:`flask.get_flashed_messages` function now allows rendering flashed
   message categories in separate blocks, through a ``category_filter``
   argument.
-- The :meth:`flask.Flask.run` method now accepts `None` for `host` and `port`
-  arguments, using default values when `None`.  This allows for calling run
+- The :meth:`flask.Flask.run` method now accepts ``None`` for `host` and `port`
+  arguments, using default values when ``None``.  This allows for calling run
   using configuration values, e.g. ``app.run(app.config.get('MYHOST'),
   app.config.get('MYPORT'))``, with proper behavior whether or not a config
   file is provided.
@@ -238,7 +361,7 @@ Released on June 28th 2011, codename Grappa
 
 - Added :meth:`~flask.Flask.make_default_options_response`
   which can be used by subclasses to alter the default
-  behavior for `OPTIONS` responses.
+  behavior for ``OPTIONS`` responses.
 - Unbound locals now raise a proper :exc:`RuntimeError` instead
   of an :exc:`AttributeError`.
 - Mimetype guessing and etag support based on file objects is now
@@ -251,10 +374,10 @@ Released on June 28th 2011, codename Grappa
   1.0 the old behavior will continue to work but issue dependency
   warnings.
 - fixed a problem for Flask to run on jython.
-- added a `PROPAGATE_EXCEPTIONS` configuration variable that can be
+- added a ``PROPAGATE_EXCEPTIONS`` configuration variable that can be
   used to flip the setting of exception propagation which previously
-  was linked to `DEBUG` alone and is now linked to either `DEBUG` or
-  `TESTING`.
+  was linked to ``DEBUG`` alone and is now linked to either ``DEBUG`` or
+  ``TESTING``.
 - Flask no longer internally depends on rules being added through the
   `add_url_rule` function and can now also accept regular werkzeug
   rules added to the url map.
@@ -291,8 +414,8 @@ Version 0.6.1
 
 Bugfix release, released on December 31st 2010
 
-- Fixed an issue where the default `OPTIONS` response was
-  not exposing all valid methods in the `Allow` header.
+- Fixed an issue where the default ``OPTIONS`` response was
+  not exposing all valid methods in the ``Allow`` header.
 - Jinja2 template loading syntax now allows "./" in front of
   a template load path.  Previously this caused issues with
   module setups.
@@ -337,7 +460,7 @@ Released on July 27th 2010, codename Whisky
   prefix.  This makes it possible to bind a whole module to a
   configurable subdomain.
 
-.. _blinker: http://pypi.python.org/pypi/blinker
+.. _blinker: https://pypi.python.org/pypi/blinker
 
 Version 0.5.2
 -------------
@@ -362,7 +485,7 @@ Released on July 6th 2010, codename Calvados
 
 - fixed a bug with subdomains that was caused by the inability to
   specify the server name.  The server name can now be set with
-  the `SERVER_NAME` config key.  This key is now also used to set
+  the ``SERVER_NAME`` config key.  This key is now also used to set
   the session cookie cross-subdomain wide.
 - autoescaping is no longer active for all templates.  Instead it
   is only active for ``.html``, ``.htm``, ``.xml`` and ``.xhtml``.
@@ -394,8 +517,8 @@ Released on June 18th 2010, codename Rakia
   requests that do not pop the request stack for testing.
 - because the Python standard library caches loggers, the name of
   the logger is configurable now to better support unittests.
-- added `TESTING` switch that can activate unittesting helpers.
-- the logger switches to `DEBUG` mode now if debug is enabled.
+- added ``TESTING`` switch that can activate unittesting helpers.
+- the logger switches to ``DEBUG`` mode now if debug is enabled.
 
 Version 0.3.1
 -------------
@@ -448,3 +571,4 @@ Version 0.1
 -----------
 
 First public preview release.
+
