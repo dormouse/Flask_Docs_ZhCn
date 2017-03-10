@@ -1,5 +1,6 @@
 _build
 *.pyc
+*.swp
 _theme/*.pyc
 flask/*.pyc
 werkzeug/*.pyc
