@@ -1,3 +1,5 @@
+.. _errorpages:
+
 Custom Error Pages
 ==================
 
@@ -37,7 +39,7 @@ even if the application behaves correctly:
 
 *500 Internal Server Error*
     Usually happens on programming errors or if the server is overloaded.
-    A terrible good idea to have a nice page there, because your
+    A terribly good idea is to have a nice page there, because your
     application *will* fail sooner or later (see also:
     :ref:`application-errors`).
 
@@ -55,6 +57,9 @@ An error handler is registered with the :meth:`~flask.Flask.errorhandler`
 decorator and the error code of the exception.  Keep in mind that Flask
 will *not* set the error code for you, so make sure to also provide the
 HTTP status code when returning a response.
+
+Please note that if you add an error handler for "500 Internal Server
+Error", Flask will not trigger it if it's running in Debug mode.
 
 Here an example implementation for a "404 Page Not Found" exception::
 
@@ -75,3 +80,4 @@ An example template might be this:
      <p>What you were looking for is just not there.
      <p><a href="{{ url_for('index') }}">go somewhere nice</a>
    {% endblock %}
+

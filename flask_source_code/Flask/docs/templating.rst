@@ -9,7 +9,7 @@ An extension can depend on Jinja2 being present.
 This section only gives a very quick introduction into how Jinja2
 is integrated into Flask.  If you want information on the template
 engine's syntax itself, head over to the official `Jinja2 Template
-Documentation <http://jinja.pocoo.org/2/documentation/templates>`_ for
+Documentation <http://jinja.pocoo.org/docs/templates>`_ for
 more information.
 
 Jinja Setup
@@ -18,7 +18,10 @@ Jinja Setup
 Unless customized, Jinja2 is configured by Flask as follows:
 
 -   autoescaping is enabled for all templates ending in ``.html``,
-    ``.htm``, ``.xml`` as well as ``.xhtml``
+    ``.htm``, ``.xml`` as well as ``.xhtml`` when using
+    :func:`~flask.templating.render_template`.
+-   autoescaping is enabled for all strings when using
+    :func:`~flask.templating.render_template_string`.
 -   a template has the ability to opt in/out autoescaping with the
     ``{% autoescape %}`` tag.
 -   Flask inserts a couple of global functions and helpers into the
@@ -38,20 +41,29 @@ by default:
 
    .. versionadded:: 0.6
 
+   .. versionchanged:: 0.10
+      This is now always available, even in imported templates.
+
 .. data:: request
    :noindex:
 
-   The current request object (:class:`flask.request`)
+   The current request object (:class:`flask.request`).  This variable is
+   unavailable if the template was rendered without an active request
+   context.
 
 .. data:: session
    :noindex:
 
-   The current session object (:class:`flask.session`)
+   The current session object (:class:`flask.session`).  This variable
+   is unavailable if the template was rendered without an active request
+   context.
 
 .. data:: g
    :noindex:
 
-   The request-bound object for global variables (:data:`flask.g`)
+   The request-bound object for global variables (:data:`flask.g`).  This
+   variable is unavailable if the template was rendered without an active
+   request context.
 
 .. function:: url_for
    :noindex:
@@ -96,9 +108,9 @@ by Jinja2 itself:
    is for example very helpful if you try to generate JavaScript on the
    fly.
 
-   Note that inside `script` tags no escaping must take place, so make
-   sure to disable escaping with ``|safe`` if you intend to use it inside
-   `script` tags:
+   Note that inside ``script`` tags no escaping must take place, so make
+   sure to disable escaping with ``|safe`` before Flask 0.10 if you intend
+   to use it inside ``script`` tags:
 
    .. sourcecode:: html+jinja
 
@@ -106,13 +118,11 @@ by Jinja2 itself:
            doSomethingWith({{ user.username|tojson|safe }});
        </script>
 
-   That the ``|tojson`` filter escapes forward slashes properly for you.
-
 Controlling Autoescaping
 ------------------------
 
 Autoescaping is the concept of automatically escaping special characters
-of you.  Special characters in the sense of HTML (or XML, and thus XHTML)
+for you.  Special characters in the sense of HTML (or XML, and thus XHTML)
 are ``&``, ``>``, ``<``, ``"`` as well as ``'``.  Because these characters
 carry specific meanings in documents on their own you have to replace them
 by so called "entities" if you want to use them for text.  Not doing so
@@ -122,7 +132,7 @@ characters in text, but can also lead to security problems.  (see
 
 Sometimes however you will need to disable autoescaping in templates.
 This can be the case if you want to explicitly inject HTML into pages, for
-example if they come from a system that generate secure HTML like a
+example if they come from a system that generates secure HTML like a
 markdown to HTML converter.
 
 There are three ways to accomplish that:
@@ -179,7 +189,7 @@ you have a Python list in context called `mylist`::
 Context Processors
 ------------------
 
-To inject new variables automatically into the context of a template
+To inject new variables automatically into the context of a template,
 context processors exist in Flask.  Context processors run before the
 template is rendered and have the ability to inject new values into the
 template context.  A context processor is a function that returns a
@@ -202,7 +212,7 @@ functions)::
     @app.context_processor
     def utility_processor():
         def format_price(amount, currency=u'€'):
-            return u'{0:.2f}{1}.format(amount, currency)
+            return u'{0:.2f}{1}'.format(amount, currency)
         return dict(format_price=format_price)
 
 The context processor above makes the `format_price` function available to all

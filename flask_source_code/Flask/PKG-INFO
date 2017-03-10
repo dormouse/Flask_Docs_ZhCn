@@ -1,8 +1,8 @@
 Metadata-Version: 1.1
 Name: Flask
-Version: 0.9
+Version: 0.12
 Summary: A microframework based on Werkzeug, Jinja2 and good intentions
-Home-page: http://github.com/mitsuhiko/flask/
+Home-page: http://github.com/pallets/flask/
 Author: Armin Ronacher
 Author-email: armin.ronacher@active-4.com
 License: BSD
@@ -16,7 +16,9 @@ Description:
         Flask is Fun
         ````````````
         
-        ::
+        Save in a hello.py:
+        
+        .. code:: python
         
             from flask import Flask
             app = Flask(__name__)
@@ -31,11 +33,15 @@ Description:
         And Easy to Setup
         `````````````````
         
-        ::
+        And run it:
+        
+        .. code:: bash
         
             $ pip install Flask
             $ python hello.py
              * Running on http://localhost:5000/
+        
+         Ready for production? `Read this first <http://flask.pocoo.org/docs/deploying/>`.
         
         Links
         `````
@@ -43,7 +49,7 @@ Description:
         * `website <http://flask.pocoo.org/>`_
         * `documentation <http://flask.pocoo.org/docs/>`_
         * `development version
-          <http://github.com/mitsuhiko/flask/zipball/master#egg=Flask-dev>`_
+          <http://github.com/pallets/flask/zipball/master#egg=Flask-dev>`_
         
         
 Platform: any
@@ -53,8 +59,12 @@ Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: BSD License
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python
-Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 2.6
 Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
 Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
 Classifier: Topic :: Software Development :: Libraries :: Python Modules

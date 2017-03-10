@@ -19,7 +19,7 @@ instead.  Sometimes however moving that code there is just not a very
 pleasant experience or makes code look very awkward.
 
 As an alternative possibility you can attach a bunch of callback functions
-to the :data:`~flask.g` object and call then at the end of the request.
+to the :data:`~flask.g` object and call them at the end of the request.
 This way you can defer code execution from anywhere in the application.
 
 
@@ -49,16 +49,16 @@ this the following function needs to be registered as
     @app.after_request
     def call_after_request_callbacks(response):
         for callback in getattr(g, 'after_request_callbacks', ()):
-            response = callback(response)
+            callback(response)
         return response
 
 
 A Practical Example
 -------------------
 
-Now we can easily at any point in time register a function to be called at
-the end of this particular request.  For example you can remember the
-current language of the user in a cookie in the before-request function::
+At any time during a request, we can register a function to be called at the
+end of the request.  For example you can remember the current language of the
+user in a cookie in the before-request function::
 
     from flask import request
 

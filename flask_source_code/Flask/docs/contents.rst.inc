@@ -23,6 +23,8 @@ instructions for web development with Flask.
    reqcontext
    blueprints
    extensions
+   cli
+   server
    shell
    patterns/index
    deploying/index
@@ -53,6 +55,7 @@ Design notes, legal information and changelog are here for the interested.
    unicode
    extensiondev
    styleguide
+   python3
    upgrading
    changelog
    license

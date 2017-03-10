@@ -56,9 +56,9 @@ The following configuration values are used internally by Flask:
 ``TESTING``                       enable/disable testing mode
 ``PROPAGATE_EXCEPTIONS``          explicitly enable or disable the
                                   propagation of exceptions.  If not set or
-                                  explicitly set to `None` this is
-                                  implicitly true if either `TESTING` or
-                                  `DEBUG` is true.
+                                  explicitly set to ``None`` this is
+                                  implicitly true if either ``TESTING`` or
+                                  ``DEBUG`` is true.
 ``PRESERVE_CONTEXT_ON_EXCEPTION`` By default if the application is in
                                   debug mode the request context is not
                                   popped on exceptions to enable debuggers
@@ -80,16 +80,33 @@ The following configuration values are used internally by Flask:
                                   that is not set for ``'/'``.
 ``SESSION_COOKIE_HTTPONLY``       controls if the cookie should be set
                                   with the httponly flag.  Defaults to
-                                  `True`.
+                                  ``True``.
 ``SESSION_COOKIE_SECURE``         controls if the cookie should be set
                                   with the secure flag.  Defaults to
-                                  `False`.
+                                  ``False``.
 ``PERMANENT_SESSION_LIFETIME``    the lifetime of a permanent session as
                                   :class:`datetime.timedelta` object.
                                   Starting with Flask 0.8 this can also be
                                   an integer representing seconds.
+``SESSION_REFRESH_EACH_REQUEST``  this flag controls how permanent
+                                  sessions are refreshed.  If set to ``True``
+                                  (which is the default) then the cookie
+                                  is refreshed each request which
+                                  automatically bumps the lifetime.  If
+                                  set to ``False`` a `set-cookie` header is
+                                  only sent if the session is modified.
+                                  Non permanent sessions are not affected
+                                  by this.
 ``USE_X_SENDFILE``                enable/disable x-sendfile
 ``LOGGER_NAME``                   the name of the logger
+``LOGGER_HANDLER_POLICY``         the policy of the default logging
+                                  handler.  The default is ``'always'``
+                                  which means that the default logging
+                                  handler is always active.  ``'debug'``
+                                  will only activate logging in debug
+                                  mode, ``'production'`` will only log in
+                                  production and ``'never'`` disables it
+                                  entirely.
 ``SERVER_NAME``                   the name and port number of the server.
                                   Required for subdomain support (e.g.:
                                   ``'myapp.dev:5000'``)  Note that
@@ -110,11 +127,12 @@ The following configuration values are used internally by Flask:
                                   reject incoming requests with a
                                   content length greater than this by
                                   returning a 413 status code.
-``SEND_FILE_MAX_AGE_DEFAULT``:    Default cache control max age to use with
+``SEND_FILE_MAX_AGE_DEFAULT``     Default cache control max age to use with
                                   :meth:`~flask.Flask.send_static_file` (the
                                   default static file handler) and
-                                  :func:`~flask.send_file`, in
-                                  seconds. Override this value on a per-file
+                                  :func:`~flask.send_file`, as
+                                  :class:`datetime.timedelta` or as seconds.
+                                  Override this value on a per-file
                                   basis using the
                                   :meth:`~flask.Flask.get_send_file_max_age`
                                   hook on :class:`~flask.Flask` or
@@ -142,6 +160,42 @@ The following configuration values are used internally by Flask:
 ``PREFERRED_URL_SCHEME``          The URL scheme that should be used for
                                   URL generation if no URL scheme is
                                   available.  This defaults to ``http``.
+``JSON_AS_ASCII``                 By default Flask serialize object to
+                                  ascii-encoded JSON.  If this is set to
+                                  ``False`` Flask will not encode to ASCII
+                                  and output strings as-is and return
+                                  unicode strings.  ``jsonify`` will
+                                  automatically encode it in ``utf-8``
+                                  then for transport for instance.
+``JSON_SORT_KEYS``                By default Flask will serialize JSON
+                                  objects in a way that the keys are
+                                  ordered.  This is done in order to
+                                  ensure that independent of the hash seed
+                                  of the dictionary the return value will
+                                  be consistent to not trash external HTTP
+                                  caches.  You can override the default
+                                  behavior by changing this variable.
+                                  This is not recommended but might give
+                                  you a performance improvement on the
+                                  cost of cacheability.
+``JSONIFY_PRETTYPRINT_REGULAR``   If this is set to ``True`` (the default)
+                                  jsonify responses will be pretty printed
+                                  if they are not requested by an
+                                  XMLHttpRequest object (controlled by
+                                  the ``X-Requested-With`` header)
+``JSONIFY_MIMETYPE``              MIME type used for jsonify responses.
+``TEMPLATES_AUTO_RELOAD``         Whether to check for modifications of
+                                  the template source and reload it
+                                  automatically. By default the value is
+                                  ``None`` which means that Flask checks
+                                  original file only in debug mode.
+``EXPLAIN_TEMPLATE_LOADING``      If this is enabled then every attempt to
+                                  load a template will write an info
+                                  message to the logger explaining the
+                                  attempts to locate the template.  This
+                                  can be useful to figure out why
+                                  templates cannot be found or wrong
+                                  templates appear to be loaded.
 ================================= =========================================
 
 .. admonition:: More on ``SERVER_NAME``
@@ -156,12 +210,12 @@ The following configuration values are used internally by Flask:
    browsers will not allow cross-subdomain cookies to be set on a
    server name without dots in it.  So if your server name is
    ``'localhost'`` you will not be able to set a cookie for
-   ``'localhost'`` and every subdomain of it.  Please chose a different
+   ``'localhost'`` and every subdomain of it.  Please choose a different
    server name in that case, like ``'myapplication.local'`` and add
    this name + the subdomains you want to use into your host config
    or setup a local `bind`_.
 
-.. _bind: https://www.isc.org/software/bind
+.. _bind: https://www.isc.org/downloads/bind/
 
 .. versionadded:: 0.4
    ``LOGGER_NAME``
@@ -183,6 +237,13 @@ The following configuration values are used internally by Flask:
 
 .. versionadded:: 0.9
    ``PREFERRED_URL_SCHEME``
+
+.. versionadded:: 0.10
+   ``JSON_AS_ASCII``, ``JSON_SORT_KEYS``, ``JSONIFY_PRETTYPRINT_REGULAR``
+
+.. versionadded:: 0.11
+   ``SESSION_REFRESH_EACH_REQUEST``, ``TEMPLATES_AUTO_RELOAD``,
+   ``LOGGER_HANDLER_POLICY``, ``EXPLAIN_TEMPLATE_LOADING``
 
 Configuring from Files
 ----------------------
@@ -240,7 +301,7 @@ a little harder.  There is no single 100% solution for this problem in
 general, but there are a couple of things you can keep in mind to improve
 that experience:
 
-1.  create your application in a function and register blueprints on it.
+1.  Create your application in a function and register blueprints on it.
     That way you can create multiple instances of your application with
     different configurations attached which makes unittesting a lot
     easier.  You can use this to pass in configuration as needed.
@@ -249,6 +310,7 @@ that experience:
     limit yourself to request-only accesses to the configuration you can
     reconfigure the object later on as needed.
 
+.. _config-dev-prod:
 
 Development / Production
 ------------------------
@@ -264,13 +326,13 @@ in the example above::
     app.config.from_object('yourapplication.default_settings')
     app.config.from_envvar('YOURAPPLICATION_SETTINGS')
 
-Then you just have to add a separate `config.py` file and export
+Then you just have to add a separate :file:`config.py` file and export
 ``YOURAPPLICATION_SETTINGS=/path/to/config.py`` and you are done.  However
 there are alternative ways as well.  For example you could use imports or
 subclassing.
 
 What is very popular in the Django world is to make the import explicit in
-the config file by adding an ``from yourapplication.default_settings
+the config file by adding ``from yourapplication.default_settings
 import *`` to the top of the file and then overriding the changes by hand.
 You could also inspect an environment variable like
 ``YOURAPPLICATION_MODE`` and set that to `production`, `development` etc
@@ -301,10 +363,10 @@ To enable such a config you just have to call into
 There are many different ways and it's up to you how you want to manage
 your configuration files.  However here a list of good recommendations:
 
--   keep a default configuration in version control.  Either populate the
+-   Keep a default configuration in version control.  Either populate the
     config with this default configuration or import it in your own
     configuration files before overriding values.
--   use an environment variable to switch between the configurations.
+-   Use an environment variable to switch between the configurations.
     This can be done from outside the Python interpreter and makes
     development and deployment much easier because you can quickly and
     easily switch between different configs without having to touch the
@@ -316,7 +378,7 @@ your configuration files.  However here a list of good recommendations:
     details about how to do that, head over to the
     :ref:`fabric-deployment` pattern.
 
-.. _fabric: http://fabfile.org/
+.. _fabric: http://www.fabfile.org/
 
 
 .. _instance-folders:

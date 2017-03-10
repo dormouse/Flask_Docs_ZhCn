@@ -14,7 +14,7 @@ with an example.
 Base Template
 -------------
 
-This template, which we'll call ``layout.html``, defines a simple HTML skeleton
+This template, which we'll call :file:`layout.html`, defines a simple HTML skeleton
 document that you might use for a simple two-column page. It's the job of
 "child" templates to fill the empty blocks with content:
 
@@ -28,14 +28,15 @@ document that you might use for a simple two-column page. It's the job of
         <title>{% block title %}{% endblock %} - My Webpage</title>
         {% endblock %}
       </head>
-    <body>
-      <div id="content">{% block content %}{% endblock %}</div>
-      <div id="footer">
-        {% block footer %}
-        &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
-        {% endblock %}
-      </div>
-    </body>
+      <body>
+        <div id="content">{% block content %}{% endblock %}</div>
+        <div id="footer">
+          {% block footer %}
+          &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.
+          {% endblock %}
+        </div>
+      </body>
+    </html>
 
 In this example, the ``{% block %}`` tags define four blocks that child templates
 can fill in. All the `block` tag does is tell the template engine that a

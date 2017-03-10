@@ -40,8 +40,8 @@ socket to the :class:`~flup.server.fcgi.WSGIServer`::
 The path has to be the exact same path you define in the server
 config.
 
-Save the `yourapplication.fcgi` file somewhere you will find it again.
-It makes sense to have that in `/var/www/yourapplication` or something
+Save the :file:`yourapplication.fcgi` file somewhere you will find it again.
+It makes sense to have that in :file:`/var/www/yourapplication` or something
 similar.
 
 Make sure to set the executable bit on that file so that the servers
@@ -54,18 +54,40 @@ can execute it:
 Configuring Apache
 ------------------
 
-The example above is good enough for a basic Apache deployment but your `.fcgi`
-file will appear in your application URL
-e.g. example.com/yourapplication.fcgi/news/. There are few ways to configure
-your application so that yourapplication.fcgi does not appear in the URL. A
-preferable way is to use the ScriptAlias configuration directive::
+The example above is good enough for a basic Apache deployment but your
+`.fcgi` file will appear in your application URL e.g.
+``example.com/yourapplication.fcgi/news/``. There are few ways to configure
+your application so that yourapplication.fcgi does not appear in the URL.
+A preferable way is to use the ScriptAlias and SetHandler configuration
+directives to route requests to the FastCGI server. The following example
+uses FastCgiServer to start 5 instances of the application which will
+handle all incoming requests::
+
+    LoadModule fastcgi_module /usr/lib64/httpd/modules/mod_fastcgi.so
+
+    FastCgiServer /var/www/html/yourapplication/app.fcgi -idle-timeout 300 -processes 5
 
     <VirtualHost *>
-        ServerName example.com
-        ScriptAlias / /path/to/yourapplication.fcgi/
+        ServerName webapp1.mydomain.com
+        DocumentRoot /var/www/html/yourapplication
+
+        AddHandler fastcgi-script fcgi
+        ScriptAlias / /var/www/html/yourapplication/app.fcgi/
+
+        <Location />
+            SetHandler fastcgi-script
+        </Location>
     </VirtualHost>
 
-If you cannot set ScriptAlias, for example on an shared web host, you can use
+These processes will be managed by Apache. If you're using a standalone
+FastCGI server, you can use the FastCgiExternalServer directive instead.
+Note that in the following the path is not real, it's simply used as an
+identifier to other
+directives such as AliasMatch::
+
+    FastCgiServer /var/www/html/yourapplication -host 127.0.0.1:3000
+
+If you cannot set ScriptAlias, for example on a shared web host, you can use
 WSGI middleware to remove yourapplication.fcgi from the URLs. Set .htaccess::
 
     <IfModule mod_fcgid.c>
@@ -95,8 +117,6 @@ Set yourapplication.fcgi::
     from yourapplication import app
 
     class ScriptNameStripper(object):
-       to_strip = '/yourapplication.fcgi'
-
        def __init__(self, app):
            self.app = app
 
@@ -128,17 +148,18 @@ A basic FastCGI configuration for lighttpd looks like that::
     )
 
     url.rewrite-once = (
-        "^(/static.*)$" => "$1",
+        "^(/static($|/.*))$" => "$1",
         "^(/.*)$" => "/yourapplication.fcgi$1"
+    )
 
 Remember to enable the FastCGI, alias and rewrite modules. This configuration
-binds the application to `/yourapplication`.  If you want the application to
+binds the application to ``/yourapplication``.  If you want the application to
 work in the URL root you have to work around a lighttpd bug with the
 :class:`~werkzeug.contrib.fixers.LighttpdCGIRootFix` middleware.
 
 Make sure to apply it only if you are mounting the application the URL
 root. Also, see the Lighty docs for more information on `FastCGI and Python
-<http://redmine.lighttpd.net/wiki/lighttpd/Docs:ModFastCGI>`_ (note that
+<http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModFastCGI>`_ (note that
 explicitly passing a socket to run() is no longer necessary).
 
 Configuring nginx
@@ -147,7 +168,7 @@ Configuring nginx
 Installing FastCGI applications on nginx is a bit different because by
 default no FastCGI parameters are forwarded.
 
-A basic flask FastCGI configuration for nginx looks like this::
+A basic Flask FastCGI configuration for nginx looks like this::
 
     location = /yourapplication { rewrite ^ /yourapplication/ last; }
     location /yourapplication { try_files $uri @yourapplication; }
@@ -159,9 +180,9 @@ A basic flask FastCGI configuration for nginx looks like this::
         fastcgi_pass unix:/tmp/yourapplication-fcgi.sock;
     }
 
-This configuration binds the application to `/yourapplication`.  If you
+This configuration binds the application to ``/yourapplication``.  If you
 want to have it in the URL root it's a bit simpler because you don't
-have to figure out how to calculate `PATH_INFO` and `SCRIPT_NAME`::
+have to figure out how to calculate ``PATH_INFO`` and ``SCRIPT_NAME``::
 
     location / { try_files $uri @yourapplication; }
     location @yourapplication {
@@ -174,7 +195,7 @@ have to figure out how to calculate `PATH_INFO` and `SCRIPT_NAME`::
 Running FastCGI Processes
 -------------------------
 
-Since Nginx and others do not load FastCGI apps, you have to do it by
+Since nginx and others do not load FastCGI apps, you have to do it by
 yourself.  `Supervisor can manage FastCGI processes.
 <http://supervisord.org/configuration.html#fcgi-program-x-section-settings>`_
 You can look around for other FastCGI process managers or write a script
@@ -189,14 +210,14 @@ manual solution which does not persist across system restart::
 Debugging
 ---------
 
-FastCGI deployments tend to be hard to debug on most webservers.  Very
+FastCGI deployments tend to be hard to debug on most web servers.  Very
 often the only thing the server log tells you is something along the
 lines of "premature end of headers".  In order to debug the application
 the only thing that can really give you ideas why it breaks is switching
 to the correct user and executing the application by hand.
 
 This example assumes your application is called `application.fcgi` and
-that your webserver user is `www-data`::
+that your web server user is `www-data`::
 
     $ su www-data
     $ cd /var/www/yourapplication
@@ -208,12 +229,12 @@ that your webserver user is `www-data`::
 In this case the error seems to be "yourapplication" not being on the
 python path.  Common problems are:
 
--   Relative paths being used.  Don't rely on the current working directory
+-   Relative paths being used.  Don't rely on the current working directory.
 -   The code depending on environment variables that are not set by the
     web server.
 -   Different python interpreters being used.
 
 .. _nginx: http://nginx.org/
 .. _lighttpd: http://www.lighttpd.net/
-.. _cherokee: http://www.cherokee-project.com/
-.. _flup: http://trac.saddi.com/flup
+.. _cherokee: http://cherokee-project.com/
+.. _flup: https://pypi.python.org/pypi/flup

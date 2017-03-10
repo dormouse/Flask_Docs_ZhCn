@@ -3,8 +3,8 @@
 Installation
 ============
 
-Flask depends on two external libraries, `Werkzeug
-<http://werkzeug.pocoo.org/>`_ and `Jinja2 <http://jinja.pocoo.org/2/>`_.
+Flask depends on some external libraries, like `Werkzeug
+<http://werkzeug.pocoo.org/>`_ and `Jinja2 <http://jinja.pocoo.org/>`_.
 Werkzeug is a toolkit for WSGI, the standard Python interface between web
 applications and a variety of servers for both development and deployment.
 Jinja2 renders templates.
@@ -13,10 +13,9 @@ So how do you get all that on your computer quickly?  There are many ways you
 could do that, but the most kick-ass method is virtualenv, so let's have a look
 at that first.
 
-You will need Python 2.5 or higher to get started, so be sure to have an
-up-to-date Python 2.x installation.  At the time of writing, the WSGI
-specification has not yet been finalized for Python 3, so Flask cannot support
-the 3.x series of Python.
+You will need Python 2.6 or newer to get started, so be sure to have an
+up-to-date Python 2.x installation.  For using Flask with Python 3 have a
+look at :ref:`python3-support`.
 
 .. _virtualenv:
 
@@ -41,34 +40,30 @@ installations of Python, one for each project.  It doesn't actually install
 separate copies of Python, but it does provide a clever way to keep different
 project environments isolated.  Let's see how virtualenv works.
 
-If you are on Mac OS X or Linux, chances are that one of the following two
-commands will work for you::
-
-    $ sudo easy_install virtualenv
-
-or even better::
+If you are on Mac OS X or Linux, chances are that the following
+command will work for you::
 
     $ sudo pip install virtualenv
 
-One of these will probably install virtualenv on your system.  Maybe it's even
+It will probably install virtualenv on your system.  Maybe it's even
 in your package manager.  If you use Ubuntu, try::
 
     $ sudo apt-get install python-virtualenv
 
-If you are on Windows and don't have the `easy_install` command, you must
+If you are on Windows and don't have the ``easy_install`` command, you must
 install it first.  Check the :ref:`windows-easy-install` section for more
 information about how to do that.  Once you have it installed, run the same
-commands as above, but without the `sudo` prefix.
+commands as above, but without the ``sudo`` prefix.
 
 Once you have virtualenv installed, just fire up a shell and create
-your own environment.  I usually create a project folder and a `venv`
+your own environment.  I usually create a project folder and a :file:`venv`
 folder within::
 
     $ mkdir myproject
     $ cd myproject
     $ virtualenv venv
     New python executable in venv/bin/python
-    Installing distribute............done.
+    Installing setuptools, pip............done.
 
 Now, whenever you want to work on a project, you only have to activate the
 corresponding environment.  On OS X and Linux, do the following::
@@ -77,12 +72,18 @@ corresponding environment.  On OS X and Linux, do the following::
 
 If you are a Windows user, the following command is for you::
 
-    $ venv\scripts\activate
+    $ venv\Scripts\activate
 
 Either way, you should now be using your virtualenv (notice how the prompt of
 your shell has changed to show the active environment).
 
-Now you can just enter the following command to get Flask activated in your
+And if you want to go back to the real world, use the following command::
+
+    $ deactivate
+
+After doing this, the prompt of your shell should be as familiar as before.
+
+Now, let's move on. Enter the following command to get Flask activated in your
 virtualenv::
 
     $ pip install Flask
@@ -94,29 +95,29 @@ System-Wide Installation
 ------------------------
 
 This is possible as well, though I do not recommend it.  Just run
-`pip` with root privileges::
+``pip`` with root privileges::
 
     $ sudo pip install Flask
 
 (On Windows systems, run it in a command-prompt window with administrator
-privileges, and leave out `sudo`.)
+privileges, and leave out ``sudo``.)
 
 
 Living on the Edge
 ------------------
 
 If you want to work with the latest version of Flask, there are two ways: you
-can either let `pip` pull in the development version, or you can tell
+can either let ``pip`` pull in the development version, or you can tell
 it to operate on a git checkout.  Either way, virtualenv is recommended.
 
 Get the git checkout in a new virtualenv and run in development mode::
 
-    $ git clone http://github.com/mitsuhiko/flask.git
+    $ git clone http://github.com/pallets/flask.git
     Initialized empty Git repository in ~/dev/flask/.git/
     $ cd flask
-    $ virtualenv venv --distribute
+    $ virtualenv venv
     New python executable in venv/bin/python
-    Installing distribute............done.
+    Installing setuptools, pip............done.
     $ . venv/bin/activate
     $ python setup.py develop
     ...
@@ -126,49 +127,39 @@ This will pull in the dependencies and activate the git head as the current
 version inside the virtualenv.  Then all you have to do is run ``git pull
 origin`` to update to the latest version.
 
-To just get the development version without git, do this instead::
-
-    $ mkdir flask
-    $ cd flask
-    $ virtualenv venv --distribute
-    $ . venv/bin/activate
-    New python executable in venv/bin/python
-    Installing distribute............done.
-    $ pip install Flask==dev
-    ...
-    Finished processing dependencies for Flask==dev
-
 .. _windows-easy-install:
 
-`pip` and `distribute` on Windows
------------------------------------
+`pip` and `setuptools` on Windows
+---------------------------------
 
-On Windows, installation of `easy_install` is a little bit trickier, but still
-quite easy.  The easiest way to do it is to download the
-`distribute_setup.py`_ file and run it.  The easiest way to run the file is to
-open your downloads folder and double-click on the file.
+Sometimes getting the standard "Python packaging tools" like ``pip``, ``setuptools``
+and ``virtualenv`` can be a little trickier, but nothing very hard. The crucial
+package you will need is pip - this will let you install
+anything else (like virtualenv). Fortunately there is a "bootstrap script"
+you can run to install.
 
-Next, add the `easy_install` command and other Python scripts to the
-command search path, by adding your Python installation's Scripts folder
-to the `PATH` environment variable.  To do that, right-click on the
-"Computer" icon on the Desktop or in the Start menu, and choose "Properties".
-Then click on "Advanced System settings" (in Windows XP, click on the
-"Advanced" tab instead).  Then click on the "Environment variables" button.
-Finally, double-click on the "Path" variable in the "System variables" section,
-and add the path of your Python interpreter's Scripts folder. Be sure to
-delimit it from existing values with a semicolon.  Assuming you are using
-Python 2.7 on the default path, add the following value::
+If you don't currently have ``pip``, then `get-pip.py` will install it for you.
 
+`get-pip.py`_
 
-    ;C:\Python27\Scripts
+It should be double-clickable once you download it. If you already have ``pip``,
+you can upgrade them by running::
 
-And you are done!  To check that it worked, open the Command Prompt and execute
-``easy_install``.  If you have User Account Control enabled on Windows Vista or
-Windows 7, it should prompt you for administrator privileges.
+    > pip install --upgrade pip setuptools
 
-Now that you have ``easy_install``, you can use it to install ``pip``::
+Most often, once you pull up a command prompt you want to be able to type ``pip``
+and ``python`` which will run those things, but this might not automatically happen
+on Windows, because it doesn't know where those executables are (give either a try!).
 
-    > easy_install pip
+To fix this, you should be able to navigate to your Python install directory
+(e.g :file:`C:\Python27`), then go to :file:`Tools`, then :file:`Scripts`, then find the
+:file:`win_add2path.py` file and run that. Open a **new** Command Prompt and
+check that you can now just type ``python`` to bring up the interpreter.
 
+Finally, to install `virtualenv`_, you can simply run::
 
-.. _distribute_setup.py: http://python-distribute.org/distribute_setup.py
+    > pip install virtualenv
+
+Then you can be off on your way following the installation instructions above.
+
+.. _get-pip.py: https://bootstrap.pypa.io/get-pip.py
