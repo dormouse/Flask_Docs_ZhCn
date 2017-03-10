@@ -16,10 +16,11 @@
 Flask 依赖两个外部库： `Jinja2`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的
 使用不在本文档的范围内，欲知详情请移步：
 
--   `Jinja2 文档 <http://jinja.pocoo.org/2/documentation/>`_
--   `Werkzeug 文档 <http://werkzeug.pocoo.org/documentation/>`_
+-   `Jinja2 文档 <http://jinja.pocoo.org/docs>`_
+-   `Werkzeug 文档 <http://werkzeug.pocoo.org/docs>`_
 
-.. _Jinja2: http://jinja.pocoo.org/2/
+
+.. _Jinja2: http://jinja.pocoo.org/
 .. _Werkzeug: http://werkzeug.pocoo.org/
 
 .. include:: contents.rst.inc
