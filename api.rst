@@ -5,10 +5,12 @@ API
 
 .. module:: flask
 
-这一章文档涵盖了 Flask 所有的接口，对于部分 Flask 所依赖的外部库，我们将最
-重要的内容呈现在这里，并提供官方文档链接。
+This part of the documentation covers all the interfaces of Flask.  For
+parts where Flask depends on external libraries, we document the most
+important right here and provide links to the canonical documentation.
 
-应用对象
+
+Application Object
 ------------------
 
 .. autoclass:: Flask
@@ -28,96 +30,43 @@ Incoming Request Data
 
 .. autoclass:: Request
    :members:
-
-   .. attribute:: form
-
-      A :class:`~werkzeug.datastructures.MultiDict` with the parsed form data from `POST`
-      or `PUT` requests.  Please keep in mind that file uploads will not
-      end up here,  but instead in the :attr:`files` attribute.
-
-   .. attribute:: args
-
-      A :class:`~werkzeug.datastructures.MultiDict` with the parsed contents of the query
-      string.  (The part in the URL after the question mark).
-
-   .. attribute:: values
-
-      A :class:`~werkzeug.datastructures.CombinedMultiDict` with the contents of both
-      :attr:`form` and :attr:`args`.
-
-   .. attribute:: cookies
-
-      A :class:`dict` with the contents of all cookies transmitted with
-      the request.
-
-   .. attribute:: stream
-
-      If the incoming form data was not encoded with a known mimetype
-      the data is stored unmodified in this stream for consumption.  Most
-      of the time it is a better idea to use :attr:`data` which will give
-      you that data as a string.  The stream only returns the data once.
-
-   .. attribute:: headers
-
-      The incoming request headers as a dictionary like object.
-
-   .. attribute:: data
-
-      Contains the incoming request data as string in case it came with
-      a mimetype Flask does not handle.
-
-   .. attribute:: files
-
-      A :class:`~werkzeug.datastructures.MultiDict` with files uploaded as part of a
-      `POST` or `PUT` request.  Each file is stored as
-      :class:`~werkzeug.datastructures.FileStorage` object.  It basically behaves like a
-      standard file object you know from Python, with the difference that
-      it also has a :meth:`~werkzeug.datastructures.FileStorage.save` function that can
-      store the file on the filesystem.
+   :inherited-members:
 
    .. attribute:: environ
 
       The underlying WSGI environment.
 
-   .. attribute:: method
-
-      The current request method (``POST``, ``GET`` etc.)
-
    .. attribute:: path
+   .. attribute:: full_path
    .. attribute:: script_root
    .. attribute:: url
    .. attribute:: base_url
    .. attribute:: url_root
 
-      Provides different ways to look at the current URL.  Imagine your
-      application is listening on the following URL::
+      Provides different ways to look at the current `IRI
+      <http://tools.ietf.org/html/rfc3987>`_.  Imagine your application is
+      listening on the following application root::
 
           http://www.example.com/myapplication
 
-      And a user requests the following URL::
+      And a user requests the following URI::
 
-          http://www.example.com/myapplication/page.html?x=y
+          http://www.example.com/myapplication/%CF%80/page.html?x=y
 
       In this case the values of the above mentioned attributes would be
       the following:
 
       ============= ======================================================
-      `path`        ``/page.html``
-      `script_root` ``/myapplication``
-      `base_url`    ``http://www.example.com/myapplication/page.html``
-      `url`         ``http://www.example.com/myapplication/page.html?x=y``
-      `url_root`    ``http://www.example.com/myapplication/``
+      `path`        ``u'/π/page.html'``
+      `full_path`   ``u'/π/page.html?x=y'``
+      `script_root` ``u'/myapplication'``
+      `base_url`    ``u'http://www.example.com/myapplication/π/page.html'``
+      `url`         ``u'http://www.example.com/myapplication/π/page.html?x=y'``
+      `url_root`    ``u'http://www.example.com/myapplication/'``
       ============= ======================================================
 
-   .. attribute:: is_xhr
 
-      `True` if the request was triggered via a JavaScript
-      `XMLHttpRequest`. This only works with libraries that support the
-      ``X-Requested-With`` header and set it to `XMLHttpRequest`.
-      Libraries that do that are prototype, jQuery and Mochikit and
-      probably some more.
-
-.. class:: request
+.. attribute:: request
 
    To access incoming request data, you can use the global `request`
    object.  Flask parses incoming request data for you and gives you
@@ -136,11 +85,11 @@ Response Objects
 ----------------
 
 .. autoclass:: flask.Response
-   :members: set_cookie, data, mimetype
+   :members: set_cookie, max_cookie_size, data, mimetype, is_json, get_json
 
    .. attribute:: headers
 
-      A :class:`Headers` object representing the response headers.
+      A :class:`~werkzeug.datastructures.Headers` object representing the response headers.
 
    .. attribute:: status
 
@@ -154,12 +103,12 @@ Response Objects
 Sessions
 --------
 
-If you have the :attr:`Flask.secret_key` set you can use sessions in Flask
-applications.  A session basically makes it possible to remember
-information from one request to another.  The way Flask does this is by
-using a signed cookie.  So the user can look at the session contents, but
-not modify it unless they know the secret key, so make sure to set that
-to something complex and unguessable.
+If you have set :attr:`Flask.secret_key` (or configured it from
+:data:`SECRET_KEY`) you can use sessions in Flask applications. A session makes
+it possible to remember information from one request to another. The way Flask
+does this is by using a signed cookie. The user can look at the session
+contents, but can't modify it unless they know the secret key, so make sure to
+set that to something complex and unguessable.
 
 To access the current session you can use the :class:`session` object:
 
@@ -174,14 +123,14 @@ To access the current session you can use the :class:`session` object:
 
    .. attribute:: new
 
-      `True` if the session is new, `False` otherwise.
+      ``True`` if the session is new, ``False`` otherwise.
 
    .. attribute:: modified
 
-      `True` if the session object detected a modification.  Be advised
+      ``True`` if the session object detected a modification.  Be advised
       that modifications on mutable structures are not picked up
       automatically, in that situation you have to explicitly set the
-      attribute to `True` yourself.  Here an example::
+      attribute to ``True`` yourself.  Here an example::
 
           # this change is not picked up because a mutable object (here
           # a list) is changed.
@@ -191,9 +140,9 @@ To access the current session you can use the :class:`session` object:
 
    .. attribute:: permanent
 
-      If set to `True` the session lives for
+      If set to ``True`` the session lives for
       :attr:`~flask.Flask.permanent_session_lifetime` seconds.  The
-      default is 31 days.  If set to `False` (which is the default) the
+      default is 31 days.  If set to ``False`` (which is the default) the
       session will be deleted when the user closes the browser.
 
 
@@ -222,18 +171,6 @@ implementation that Flask is using.
 .. autoclass:: SessionMixin
    :members:
 
-.. autodata:: session_json_serializer
-
-   This object provides dumping and loading methods similar to simplejson
-   but it also tags certain builtin Python objects that commonly appear in
-   sessions.  Currently the following extended values are supported in
-   the JSON it dumps:
-
-   -    :class:`~markupsafe.Markup` objects
-   -    :class:`~uuid.UUID` objects
-   -    :class:`~datetime.datetime` objects
-   -   :class:`tuple`\s
-
 .. admonition:: Notice
 
    The ``PERMANENT_SESSION_LIFETIME`` config key can also be an integer
@@ -251,6 +188,15 @@ Test Client
    :members:
 
 
+Test CLI Runner
+---------------
+
+.. currentmodule:: flask.testing
+
+.. autoclass:: FlaskCliRunner
+    :members:
+
+
 Application Globals
 -------------------
 
@@ -265,26 +211,22 @@ thing, like it does for :class:`request` and :class:`session`.
 
 .. data:: g
 
-   Just store on this whatever you want.  For example a database
-   connection or the user that is currently logged in.
+    A namespace object that can store data during an
+    :doc:`application context </appcontext>`. This is an instance of
+    :attr:`Flask.app_ctx_globals_class`, which defaults to
+    :class:`ctx._AppCtxGlobals`.
 
-   Starting with Flask 0.10 this is stored on the application context and
-   no longer on the request context which means it becomes available if
-   only the application context is bound and not yet a request.  This
-   is especially useful when combined with the :ref:`faking-resources`
-   pattern for testing.
+    This is a good place to store resources during a request. During
+    testing, you can use the :ref:`faking-resources` pattern to
+    pre-configure such resources.
 
-   Additionally as of 0.10 you can use the :meth:`get` method to
-   get an attribute or `None` (or the second argument) if it's not set.
-   These two usages are now equivalent::
+    This is a proxy. See :ref:`notes-on-proxies` for more information.
 
-        user = getattr(flask.g, 'user', None)
-        user = flask.g.get('user', None)
+    .. versionchanged:: 0.10
+        Bound to the application context instead of the request context.
 
-   It's now also possible to use the ``in`` operator on it to see if an
-   attribute is defined and it yields all keys on iteration.
-
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+.. autoclass:: flask.ctx._AppCtxGlobals
+    :members:
 
 
 Useful Functions and Classes
@@ -292,13 +234,17 @@ Useful Functions and Classes
 
 .. data:: current_app
 
-   Points to the application handling the request.  This is useful for
-   extensions that want to support multiple applications running side
-   by side.  This is powered by the application context and not by the
-   request context, so you can change the value of this proxy by
-   using the :meth:`~flask.Flask.app_context` method.
+    A proxy to the application handling the current request. This is
+    useful to access the application without needing to import it, or if
+    it can't be imported, such as when using the application factory
+    pattern or in blueprints and extensions.
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+    This is only available when an
+    :doc:`application context </appcontext>` is pushed. This happens
+    automatically during requests and CLI commands. It can be controlled
+    manually with :meth:`~flask.Flask.app_context`.
+
+    This is a proxy. See :ref:`notes-on-proxies` for more information.
 
 .. autofunction:: has_request_context
 
@@ -308,13 +254,7 @@ Useful Functions and Classes
 
 .. autofunction:: url_for
 
-.. function:: abort(code)
-
-   Raises an :exc:`~werkzeug.exceptions.HTTPException` for the given
-   status code.  For example to abort request handling with a page not
-   found exception, you would call ``abort(404)``.
-
-   :param code: the HTTP error code.
+.. autofunction:: abort
 
 .. autofunction:: redirect
 
@@ -346,9 +286,9 @@ JSON Support
 .. module:: flask.json
 
 Flask uses ``simplejson`` for the JSON implementation.  Since simplejson
-is provided both by the standard library as well as extension Flask will
+is provided by both the standard library as well as extension, Flask will
 try simplejson first and then fall back to the stdlib json module.  On top
-of that it will delegate access to the current application's JSOn encoders
+of that it will delegate access to the current application's JSON encoders
 and decoders for easier customization.
 
 So for starters instead of doing::
@@ -363,18 +303,18 @@ You can instead just do this::
     from flask import json
 
 For usage examples, read the :mod:`json` documentation in the standard
-lirbary.  The following extensions are by default applied to the stdlib's
+library.  The following extensions are by default applied to the stdlib's
 JSON module:
 
 1.  ``datetime`` objects are serialized as :rfc:`822` strings.
 2.  Any object with an ``__html__`` method (like :class:`~flask.Markup`)
-    will ahve that method called and then the return value is serialized
+    will have that method called and then the return value is serialized
     as string.
 
 The :func:`~htmlsafe_dumps` function of this json module is also available
-as filter called ``|tojson`` in Jinja2.  Note that inside `script`
+as filter called ``|tojson`` in Jinja2.  Note that inside ``script``
 tags no escaping must take place, so make sure to disable escaping
-with ``|safe`` if you intend to use it inside `script` tags unless
+with ``|safe`` if you intend to use it inside ``script`` tags unless
 you are using Flask 0.10 which implies that:
 
 .. sourcecode:: html+jinja
@@ -382,6 +322,15 @@ you are using Flask 0.10 which implies that:
     <script type=text/javascript>
         doSomethingWith({{ user.username|tojson|safe }});
     </script>
+
+.. admonition:: Auto-Sort JSON Keys
+
+    The configuration variable ``JSON_SORT_KEYS`` (:ref:`config`) can be
+    set to false to stop Flask from auto-sorting keys.  By default sorting
+    is enabled and outside of the app context sorting is turned on.
+
+    Notice that disabling key sorting can cause issues when using content
+    based HTTP caches and Python's hash randomization feature.
 
 .. autofunction:: jsonify
 
@@ -398,6 +347,8 @@ you are using Flask 0.10 which implies that:
 
 .. autoclass:: JSONDecoder
    :members:
+
+.. automodule:: flask.json.tag
 
 Template Rendering
 ------------------
@@ -416,22 +367,6 @@ Configuration
 .. autoclass:: Config
    :members:
 
-Extensions
-----------
-
-.. data:: flask.ext
-
-   This module acts as redirect import module to Flask extensions.  It was
-   added in 0.8 as the canonical way to import Flask extensions and makes
-   it possible for us to have more flexibility in how we distribute
-   extensions.
-
-   If you want to use an extension named “Flask-Foo” you would import it
-   from :data:`~flask.ext` as follows::
-
-        from flask.ext import foo
-
-   .. versionadded:: 0.8
 
 Stream Helpers
 --------------
@@ -446,65 +381,71 @@ Useful Internals
 
 .. data:: _request_ctx_stack
 
-   The internal :class:`~werkzeug.local.LocalStack` that is used to implement
-   all the context local objects used in Flask.  This is a documented
-   instance and can be used by extensions and application code but the
-   use is discouraged in general.
+    The internal :class:`~werkzeug.local.LocalStack` that holds
+    :class:`~flask.ctx.RequestContext` instances. Typically, the
+    :data:`request` and :data:`session` proxies should be accessed
+    instead of the stack. It may be useful to access the stack in
+    extension code.
 
-   The following attributes are always present on each layer of the
-   stack:
+    The following attributes are always present on each layer of the
+    stack:
 
-   `app`
+    `app`
       the active Flask application.
 
-   `url_adapter`
+    `url_adapter`
       the URL adapter that was used to match the request.
 
-   `request`
+    `request`
       the current request object.
 
-   `session`
+    `session`
       the active session object.
 
-   `g`
+    `g`
       an object with all the attributes of the :data:`flask.g` object.
 
-   `flashes`
+    `flashes`
       an internal cache for the flashed messages.
 
-   Example usage::
+    Example usage::
 
-      from flask import _request_ctx_stack
+        from flask import _request_ctx_stack
 
-      def get_session():
-          ctx = _request_ctx_stack.top
-          if ctx is not None:
-              return ctx.session
+        def get_session():
+            ctx = _request_ctx_stack.top
+            if ctx is not None:
+                return ctx.session
 
 .. autoclass:: flask.ctx.AppContext
    :members:
 
 .. data:: _app_ctx_stack
 
-   Works similar to the request context but only binds the application.
-   This is mainly there for extensions to store data.
+    The internal :class:`~werkzeug.local.LocalStack` that holds
+    :class:`~flask.ctx.AppContext` instances. Typically, the
+    :data:`current_app` and :data:`g` proxies should be accessed instead
+    of the stack. Extensions can access the contexts on the stack as a
+    namespace to store data.
 
-   .. versionadded:: 0.9
+    .. versionadded:: 0.9
 
 .. autoclass:: flask.blueprints.BlueprintSetupState
    :members:
 
+.. _core-signals-list:
+
 Signals
 -------
 
-.. when modifying this list, also update the one in signals.rst
-
 .. versionadded:: 0.6
 
-.. data:: signals_available
+.. data:: signals.signals_available
 
-   `True` if the signalling system is available.  This is the case
+   ``True`` if the signaling system is available.  This is the case
    when `blinker`_ is installed.
+
+The following signals exist in Flask:
 
 .. data:: template_rendered
 
@@ -512,17 +453,61 @@ Signals
    signal is invoked with the instance of the template as `template`
    and the context as dictionary (named `context`).
 
+   Example subscriber::
+
+        def log_template_renders(sender, template, context, **extra):
+            sender.logger.debug('Rendering template "%s" with context %s',
+                                template.name or 'string template',
+                                context)
+
+        from flask import template_rendered
+        template_rendered.connect(log_template_renders, app)
+
+.. data:: flask.before_render_template
+   :noindex:
+
+   This signal is sent before template rendering process. The
+   signal is invoked with the instance of the template as `template`
+   and the context as dictionary (named `context`).
+
+   Example subscriber::
+
+        def log_template_renders(sender, template, context, **extra):
+            sender.logger.debug('Rendering template "%s" with context %s',
+                                template.name or 'string template',
+                                context)
+
+        from flask import before_render_template
+        before_render_template.connect(log_template_renders, app)
+
 .. data:: request_started
 
-   This signal is sent before any request processing started but when the
-   request context was set up.  Because the request context is already
+   This signal is sent when the request context is set up, before
+   any request processing happens.  Because the request context is already
    bound, the subscriber can access the request with the standard global
    proxies such as :class:`~flask.request`.
+
+   Example subscriber::
+
+        def log_request(sender, **extra):
+            sender.logger.debug('Request context is set up')
+
+        from flask import request_started
+        request_started.connect(log_request, app)
 
 .. data:: request_finished
 
    This signal is sent right before the response is sent to the client.
    It is passed the response to be sent named `response`.
+
+   Example subscriber::
+
+        def log_response(sender, response, **extra):
+            sender.logger.debug('Request context is about to close down.  '
+                                'Response: %s', response)
+
+        from flask import request_finished
+        request_finished.connect(log_response, app)
 
 .. data:: got_request_exception
 
@@ -531,26 +516,77 @@ Signals
    in debug mode, where no exception handling happens.  The exception
    itself is passed to the subscriber as `exception`.
 
+   Example subscriber::
+
+        def log_exception(sender, exception, **extra):
+            sender.logger.debug('Got exception during processing: %s', exception)
+
+        from flask import got_request_exception
+        got_request_exception.connect(log_exception, app)
+
 .. data:: request_tearing_down
 
-   This signal is sent when the application is tearing down the request.
-   This is always called, even if an error happened.  An `exc` keyword
-   argument is passed with the exception that caused the teardown.
+   This signal is sent when the request is tearing down.  This is always
+   called, even if an exception is caused.  Currently functions listening
+   to this signal are called after the regular teardown handlers, but this
+   is not something you can rely on.
 
-   .. versionchanged:: 0.9
-      The `exc` parameter was added.
+   Example subscriber::
+
+        def close_db_connection(sender, **extra):
+            session.close()
+
+        from flask import request_tearing_down
+        request_tearing_down.connect(close_db_connection, app)
+
+   As of Flask 0.9, this will also be passed an `exc` keyword argument
+   that has a reference to the exception that caused the teardown if
+   there was one.
 
 .. data:: appcontext_tearing_down
 
-   This signal is sent when the application is tearing down the
-   application context.  This is always called, even if an error happened.
-   An `exc` keyword argument is passed with the exception that caused the
-   teardown.  The sender is the application.
+   This signal is sent when the app context is tearing down.  This is always
+   called, even if an exception is caused.  Currently functions listening
+   to this signal are called after the regular teardown handlers, but this
+   is not something you can rely on.
+
+   Example subscriber::
+
+        def close_db_connection(sender, **extra):
+            session.close()
+
+        from flask import appcontext_tearing_down
+        appcontext_tearing_down.connect(close_db_connection, app)
+
+   This will also be passed an `exc` keyword argument that has a reference
+   to the exception that caused the teardown if there was one.
 
 .. data:: appcontext_pushed
 
    This signal is sent when an application context is pushed.  The sender
-   is the application.
+   is the application.  This is usually useful for unittests in order to
+   temporarily hook in information.  For instance it can be used to
+   set a resource early onto the `g` object.
+
+   Example usage::
+
+        from contextlib import contextmanager
+        from flask import appcontext_pushed
+
+        @contextmanager
+        def user_set(app, user):
+            def handler(sender, **kwargs):
+                g.user = user
+            with appcontext_pushed.connected_to(handler, app):
+                yield
+
+   And in the testcode::
+
+        def test_user_me(self):
+            with user_set(app, 'john'):
+                c = app.test_client()
+                resp = c.get('/users/me')
+                assert resp.data == 'username=john'
 
    .. versionadded:: 0.10
 
@@ -562,17 +598,25 @@ Signals
 
    .. versionadded:: 0.10
 
+
 .. data:: message_flashed
 
    This signal is sent when the application is flashing a message.  The
    messages is sent as `message` keyword argument and the category as
    `category`.
 
+   Example subscriber::
+
+        recorded = []
+        def record(sender, message, category, **extra):
+            recorded.append((message, category))
+
+        from flask import message_flashed
+        message_flashed.connect(record, app)
+
    .. versionadded:: 0.10
 
-.. currentmodule:: None
-
-.. class:: flask.signals.Namespace
+.. class:: signals.Namespace
 
    An alias for :class:`blinker.base.Namespace` if blinker is available,
    otherwise a dummy class that creates fake signals.  This class is
@@ -586,7 +630,10 @@ Signals
       do nothing but will fail with a :exc:`RuntimeError` for all other
       operations, including connecting.
 
-.. _blinker: http://pypi.python.org/pypi/blinker
+
+.. _blinker: https://pypi.org/project/blinker/
+
+.. _class-based-views:
 
 Class-Based Views
 -----------------
@@ -627,7 +674,11 @@ The following converters are available:
 `int`       accepts integers
 `float`     like `int` but for floating point values
 `path`      like the default but also accepts slashes
+`any`       matches one of the items provided
+`uuid`      accepts UUID strings
 =========== ===============================================
+
+Custom converters can be defined using :attr:`flask.Flask.url_map`.
 
 Here are some examples::
 
@@ -691,9 +742,9 @@ instead of the `view_func` parameter.
 `**options`     the options to be forwarded to the underlying
                 :class:`~werkzeug.routing.Rule` object.  A change to
                 Werkzeug is handling of method options.  methods is a list
-                of methods this rule should be limited to (`GET`, `POST`
-                etc.).  By default a rule just listens for `GET` (and
-                implicitly `HEAD`).  Starting with Flask 0.6, `OPTIONS` is
+                of methods this rule should be limited to (``GET``, ``POST``
+                etc.).  By default a rule just listens for ``GET`` (and
+                implicitly ``HEAD``).  Starting with Flask 0.6, ``OPTIONS`` is
                 implicitly added and handled by the standard request
                 handling.  They have to be specified as keyword arguments.
 =============== ==========================================================
@@ -714,19 +765,19 @@ some defaults to :meth:`~flask.Flask.add_url_rule` or general behavior:
     cannot be customized from the function itself.
 
 -   `methods`: If methods are not provided when the URL rule is added,
-    Flask will look on the view function object itself is an `methods`
+    Flask will look on the view function object itself if a `methods`
     attribute exists.  If it does, it will pull the information for the
     methods from there.
 
 -   `provide_automatic_options`: if this attribute is set Flask will
     either force enable or disable the automatic implementation of the
-    HTTP `OPTIONS` response.  This can be useful when working with
-    decorators that want to customize the `OPTIONS` response on a per-view
+    HTTP ``OPTIONS`` response.  This can be useful when working with
+    decorators that want to customize the ``OPTIONS`` response on a per-view
     basis.
 
 -   `required_methods`: if this attribute is set, Flask will always add
     these methods when registering a URL rule even if the methods were
-    explicitly overriden in the ``route()`` call.
+    explicitly overridden in the ``route()`` call.
 
 Full example::
 
@@ -742,3 +793,30 @@ Full example::
 
 .. versionadded:: 0.8
    The `provide_automatic_options` functionality was added.
+
+Command Line Interface
+----------------------
+
+.. currentmodule:: flask.cli
+
+.. autoclass:: FlaskGroup
+   :members:
+
+.. autoclass:: AppGroup
+   :members:
+
+.. autoclass:: ScriptInfo
+   :members:
+
+.. autofunction:: load_dotenv
+
+.. autofunction:: with_appcontext
+
+.. autofunction:: pass_script_info
+
+   Marks a function so that an instance of :class:`ScriptInfo` is passed
+   as first argument to the click callback.
+
+.. autodata:: run_command
+
+.. autodata:: shell_command

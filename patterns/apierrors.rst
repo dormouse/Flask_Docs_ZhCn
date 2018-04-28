@@ -1,19 +1,23 @@
-实现 API 异常处理
+Implementing API Exceptions
 ===========================
 
-在 Flask 上经常会执行 RESTful API 。开发者首先会遇到的问题之一是用于 API 的内建
-异常处理不给力，回馈的内容不是很有用。
+It's very common to implement RESTful APIs on top of Flask.  One of the
+first things that developers run into is the realization that the builtin
+exceptions are not expressive enough for APIs and that the content type of
+:mimetype:`text/html` they are emitting is not very useful for API consumers.
 
-对于非法使用 API ，比使用 ``abort`` 更好的解决方式是实现你自己的异常处理类型，
-并安装相应句柄，输出符合用户格式要求的出错信息。
+The better solution than using ``abort`` to signal errors for invalid API
+usage is to implement your own exception type and install an error handler
+for it that produces the errors in the format the user is expecting.
 
-简单的异常类
+Simple Exception Class
 ----------------------
 
-基本的思路是引入一个新的异常，回馈一个合适的可读性高的信息、一个状态码和一些
-可选的负载，给错误提供更多的环境内容。
+The basic idea is to introduce a new exception that can take a proper
+human readable message, a status code for the error and some optional
+payload to give more context for the error.
 
-以下是一个简单的示例::
+This is a simple example::
 
     from flask import jsonify
 
@@ -32,25 +36,27 @@
             rv['message'] = self.message
             return rv
 
-这样一个视图就可以抛出带有出错信息的异常了。另外，还可以通过 `payload` 参数以
-字典的形式提供一些额外的负载。
+A view can now raise that exception with an error message.  Additionally
+some extra payload can be provided as a dictionary through the `payload`
+parameter.
 
-注册一个错误处理句柄
+Registering an Error Handler
 ----------------------------
 
-现在，视图可以抛出异常，但是会立即引发一个内部服务错误。这是因为没有为这个错误
-处理类注册句柄。句柄增加很容易，例如::
+At that point views can raise that error, but it would immediately result
+in an internal server error.  The reason for this is that there is no
+handler registered for this error class.  That however is easy to add::
 
-    @app.errorhandler(InvalidAPIUsage)
+    @app.errorhandler(InvalidUsage)
     def handle_invalid_usage(error):
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response
 
-在视图中的用法
+Usage in Views
 --------------
 
-以下是如何在视图中使用该功能::
+Here is how a view can use that functionality::
 
     @app.route('/foo')
     def get_foo():

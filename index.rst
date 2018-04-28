@@ -4,22 +4,22 @@
 =====================
 
 .. image:: _static/logo-full.png
-   :alt: Flask: web development, one drop at a time
-   :class: floatingflask
+    :alt: Flask: web development, one drop at a time
+    :align: right
 
-欢迎阅读 Flask 的文档。本文档分成几个部分，我推荐您先读
-《 :ref:`installation` 》，然后读《 :ref:`quickstart` 》。《 :ref:`tutorial` 》
-比快速上手文档更详细一点，该文档介绍了如何创建一个完整（尽管很小）的 Flask
-应用。如果你想深入研究 Flask ，那么需要阅读《 :ref:`api` 》。
+欢迎阅读 Flask 的文档。推荐您先阅读《 :ref:`installation` 》，然后阅读
+《 :ref:`quickstart` 》。《 :ref:`tutorial` 》比快速上手文档更详细一点，
+该文档介绍了如何创建一个完整（尽管很小）的 Flask 应用。
 《 :ref:`patterns` 》中介绍了一些常用的解决方案。
+其余的文档详细介绍了 Flask 的每一个组件。
+《 :ref:`api` 》提供了最详细的参考。
 
-Flask 依赖两个外部库： `Jinja2`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的
-使用不在本文档的范围内，欲知详情请移步：
+Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的文档请移步：
 
--   `Jinja2 文档 <http://jinja.pocoo.org/2/documentation/>`_
--   `Werkzeug 文档 <http://werkzeug.pocoo.org/documentation/>`_
+- `Jinja 文档 <http://jinja.pocoo.org/docs>`_
+- `Werkzeug 文档 <http://werkzeug.pocoo.org/docs>`_
 
-.. _Jinja2: http://jinja.pocoo.org/2/
-.. _Werkzeug: http://werkzeug.pocoo.org/
+.. _Jinja: https://www.palletsprojects.com/p/jinja/
+.. _Werkzeug: https://www.palletsprojects.com/p/werkzeug/
 
 .. include:: contents.rst.inc

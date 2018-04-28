@@ -1,255 +1,215 @@
 .. _application-errors:
 
-掌握应用错误
-===========================
+Application Errors
+==================
 
 .. versionadded:: 0.3
 
-应用出错，服务器出错。或早或晚，你会遇到产品出错。即使你的代码是百分百正确，
-还是会时常看见出错。为什么？因为其他相关东西会出错。以下是一些在代码完全正确的
-条件下服务器出错的情况：
+Applications fail, servers fail.  Sooner or later you will see an exception
+in production.  Even if your code is 100% correct, you will still see
+exceptions from time to time.  Why?  Because everything else involved will
+fail.  Here are some situations where perfectly fine code can lead to server
+errors:
 
--   客户端已经中断了请求，但应用还在读取数据。
--   数据库已经过载，无法处理查询。
--   文件系统没有空间。
--   硬盘完蛋了。
--   后台服务过载。
--   使用的库出现程序错误。
--   服务器与另一个系统的网络连接出错。
+-   the client terminated the request early and the application was still
+    reading from the incoming data
+-   the database server was overloaded and could not handle the query
+-   a filesystem is full
+-   a harddrive crashed
+-   a backend server overloaded
+-   a programming error in a library you are using
+-   network connection of the server to another system failed
 
-以上只是你会遇到的问题的一小部分。那么如果处理这些问题呢？如果你的应用运行在
-生产环境下，那么缺省情况下 Flask 会显示一个简单的出错页面，并把出错情况记录到
-:attr:`~flask.Flask.logger` 。
+And that's just a small sample of issues you could be facing.  So how do we
+deal with that sort of problem?  By default if your application runs in
+production mode, Flask will display a very simple page for you and log the
+exception to the :attr:`~flask.Flask.logger`.
 
-但要做得还不只这些，下面介绍一些更好的出错处理方法。
+But there is more you can do, and we will cover some better setups to deal
+with errors.
 
+Error Logging Tools
+-------------------
 
-报错邮件
-------------
+Sending error mails, even if just for critical ones, can become
+overwhelming if enough users are hitting the error and log files are
+typically never looked at. This is why we recommend using `Sentry
+<https://www.getsentry.com/>`_ for dealing with application errors.  It's
+available as an Open Source project `on GitHub
+<https://github.com/getsentry/sentry>`__ and is also available as a `hosted version
+<https://getsentry.com/signup/>`_ which you can try for free. Sentry
+aggregates duplicate errors, captures the full stack trace and local
+variables for debugging, and sends you mails based on new errors or
+frequency thresholds.
 
-如果应用在生产环境（在你的服务器中一般使用生产环境）下运行，那么缺省情况下不会
-看到任何日志信息。为什么？因为 Flask 是一个零配置的框架。既然没有配置，那么日志
-放在哪里呢？显然， Flask 不能来随便找一个地放给用户存放日志，因为如果用户在这个
-位置没有创建文件的权限就糟了。同时，对于大多数小应用来说，没人会去看日志。
+To use Sentry you need to install the `raven` client with extra `flask` dependencies::
 
-事实上，我现在可以负责任地说除非调试一个用户向你报告的错误，你是不会去看应用的
-日志文件的。你真下需要的是出错的时候马上给你发封电子邮件，及时提醒你，以便于
-进行处理。
+    $ pip install raven[flask]
 
-Flask 使用 Python 内置的日志系统，它可以发送你需要的错误报告电子邮件。以下是
-如何配置 Flask 日志记录器发送错误报告电子邮件的例子::
+And then add this to your Flask app::
 
-    ADMINS = ['yourname@example.com']
-    if not app.debug:
-        import logging
-        from logging.handlers import SMTPHandler
-        mail_handler = SMTPHandler('127.0.0.1',
-                                   'server-error@example.com',
-                                   ADMINS, 'YourApplication Failed')
-        mail_handler.setLevel(logging.ERROR)
-        app.logger.addHandler(mail_handler)
+    from raven.contrib.flask import Sentry
+    sentry = Sentry(app, dsn='YOUR_DSN_HERE')
 
-这个例子是什么意思？我们创建了一个新的 :class:`~logging.handlers.SMTPHandler`
-类。这个类会使用邮件服务器 ``127.0.0.1`` 向 *server-error@example.com* 的
-`ADMINS` 发送主题为 "YourApplication Failed" 的 电子邮件。如果你的邮件服务器
-需要认证，这是可行的，详见 :class:`~logging.handlers.SMTPHandler` 的文档。
+Or if you are using factories you can also init it later::
 
-我们还定义了只报送错误及错误以上级别的信息。因为我们不想得到警告或其他没用的
-日志，比如请求处理日志。
+    from raven.contrib.flask import Sentry
+    sentry = Sentry(dsn='YOUR_DSN_HERE')
 
-在你的产品中使用它们前，请查看一下 :ref:`logformat` ，以了解错误报告邮件的更多
-信息，磨刀不误砍柴功。
+    def create_app():
+        app = Flask(__name__)
+        sentry.init_app(app)
+        ...
+        return app
 
+The `YOUR_DSN_HERE` value needs to be replaced with the DSN value you get
+from your Sentry installation.
 
-日志文件
------------------
+Afterwards failures are automatically reported to Sentry and from there
+you can receive error notifications.
 
-报错邮件有了，可能还需要记录警告信息。这是一个好习惯，有利于除错。请注意，在
-核心系统中 Flask 本身不会发出任何警告。因此，在有问题时发出警告只能自力更生了。
+.. _error-handlers:
 
-虽然有许多日志记录系统，但不是每个系统都能做好基本日志记录的。以下可能是最值得
-关注的：
+Error handlers
+--------------
 
--   :class:`~logging.FileHandler` - 把日志信息记录到文件系统中的一个文件。
--   :class:`~logging.handlers.RotatingFileHandler` - 把日志信息记录到文件系统中
-    的一个文件，当信息达到一定数量后反转。
--   :class:`~logging.handlers.NTEventLogHandler` - 把日志信息记录到 Windows 的
-    事件日志中。如果你的应用部署在 Windows 下，就用这个吧。
--   :class:`~logging.handlers.SysLogHandler` - 把日志记录到一个 UNIX 系统日志。
+You might want to show custom error pages to the user when an error occurs.
+This can be done by registering error handlers.
 
-一旦你选定了日志记录器之后，使用方法类似上一节所讲的 SMTP 处理器，只是记录的
-级别应当低一点（我推荐 `WARNING` 级别）::
+An error handler is a normal view function that return a response, but instead
+of being registered for a route, it is registered for an exception or HTTP
+status code that would is raised while trying to handle a request.
 
-    if not app.debug:
-        import logging
-        from themodule import TheHandlerYouWant
-        file_handler = TheHandlerYouWant(...)
-        file_handler.setLevel(logging.WARNING)
-        app.logger.addHandler(file_handler)
+Registering
+```````````
 
-.. _logformat:
+Register handlers by decorating a function with
+:meth:`~flask.Flask.errorhandler`. Or use
+:meth:`~flask.Flask.register_error_handler` to register the function later.
+Remember to set the error code when returning the response. ::
 
-控制日志格式
---------------------------
+    @app.errorhandler(werkzeug.exceptions.BadRequest)
+    def handle_bad_request(e):
+        return 'bad request!', 400
 
-缺省情况下一个处理器只会把信息字符串写入一个文件或把信息作为电子邮件发送给你。
-但是一个日志应当记录更多的信息，因些应该认真地配置日志记录器。一个好的日志不光
-记录为什么会出错，更重要的是记录错在哪里。
+    # or, without the decorator
+    app.register_error_handler(400, handle_bad_request)
 
-格式化器使用一个格式化字符串作为实例化时的构造参数，这个字符串中的格式变量会在
-日志记录时自动转化。
+:exc:`werkzeug.exceptions.HTTPException` subclasses like
+:exc:`~werkzeug.exceptions.BadRequest` and their HTTP codes are interchangeable
+when registering handlers. (``BadRequest.code == 400``)
 
-举例:
+Non-standard HTTP codes cannot be registered by code because they are not known
+by Werkzeug. Instead, define a subclass of
+:class:`~werkzeug.exceptions.HTTPException` with the appropriate code and
+register and raise that exception class. ::
 
-电子邮件
+    class InsufficientStorage(werkzeug.exceptions.HTTPException):
+        code = 507
+        description = 'Not enough storage space.'
+
+    app.register_error_handler(InsuffcientStorage, handle_507)
+
+    raise InsufficientStorage()
+
+Handlers can be registered for any exception class, not just
+:exc:`~werkzeug.exceptions.HTTPException` subclasses or HTTP status
+codes. Handlers can be registered for a specific class, or for all subclasses
+of a parent class.
+
+Handling
 ````````
 
-::
+When an exception is caught by Flask while handling a request, it is first
+looked up by code. If no handler is registered for the code, it is looked up
+by its class hierarchy; the most specific handler is chosen. If no handler is
+registered, :class:`~werkzeug.exceptions.HTTPException` subclasses show a
+generic message about their code, while other exceptions are converted to a
+generic 500 Internal Server Error.
 
-    from logging import Formatter
-    mail_handler.setFormatter(Formatter('''
-    Message type:       %(levelname)s
-    Location:           %(pathname)s:%(lineno)d
-    Module:             %(module)s
-    Function:           %(funcName)s
-    Time:               %(asctime)s
+For example, if an instance of :exc:`ConnectionRefusedError` is raised, and a handler
+is registered for :exc:`ConnectionError` and :exc:`ConnectionRefusedError`,
+the more specific :exc:`ConnectionRefusedError` handler is called with the
+exception instance to generate the response.
 
-    Message:
+Handlers registered on the blueprint take precedence over those registered
+globally on the application, assuming a blueprint is handling the request that
+raises the exception. However, the blueprint cannot handle 404 routing errors
+because the 404 occurs at the routing level before the blueprint can be
+determined.
 
-    %(message)s
-    '''))
+.. versionchanged:: 0.11
 
-日志文件
-````````````
+   Handlers are prioritized by specificity of the exception classes they are
+   registered for instead of the order they are registered in.
 
-::
+Logging
+-------
 
-    from logging import Formatter
-    file_handler.setFormatter(Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-        '[in %(pathname)s:%(lineno)d]'
-    ))
-
-
-复杂日志格式
-``````````````````````
-
-以下是格式化字符串中一种重要的格式变量。注意，这并不包括全部格式变量，更多变更
-参见 :mod:`logging` 包的官方文档。
-
-.. tabularcolumns:: |p{3cm}|p{12cm}|
-
-+------------------+----------------------------------------------------+
-| 格式变量         | 说明                                               |
-+==================+====================================================+
-| ``%(levelname)s``| 文字形式的日志等级                                 |
-|                  | （ ``'DEBUG'`` 、 ``'INFO'`` 、 ``'WARNING'`` 、   |
-|                  | ``'ERROR'`` 和 ``'CRITICAL'`` ）。                 |
-+------------------+----------------------------------------------------+
-| ``%(pathname)s`` | 调用日志的源文件的完整路径（如果可用）。           |
-+------------------+----------------------------------------------------+
-| ``%(filename)s`` | 调用日志的源文件文件名。                           |
-+------------------+----------------------------------------------------+
-| ``%(module)s``   | 调用日志的模块名。                                 |
-+------------------+----------------------------------------------------+
-| ``%(funcName)s`` | 调用日志的函数名。                                 |
-+------------------+----------------------------------------------------+
-| ``%(lineno)d``   | 调用日志的代码的行号（如果可用）。                 |
-+------------------+----------------------------------------------------+
-| ``%(asctime)s``  | 调用日志的时间，缺省格式为                         |
-|                  | ``"2003-07-08 16:49:45,896"`` （逗号后面的数字为   |
-|                  | 毫秒）。通过重载                                   |
-|                  | :meth:`~logging.Formatter.formatTime` 方法可以改变 |
-|                  | 格式。                                             |
-+------------------+----------------------------------------------------+
-| ``%(message)s``  | 日志记录的消息，同 ``msg % args`` 。               |
-+------------------+----------------------------------------------------+
-
-如果要进一步定制格式，可以使用格式化器的子类。格式化器有三个有趣的方法：
-
-:meth:`~logging.Formatter.format`:
-    处理实际的格式化。它接收一个 :class:`~logging.LogRecord` 对象，返回格式化后
-    的字符串。
-:meth:`~logging.Formatter.formatTime`:
-    它用于 `asctime` 格式变量。重载它可以改变时间格式。
-:meth:`~logging.Formatter.formatException`
-    它用于异常格式化。接收一个 :attr:`~sys.exc_info` 元组并且必须返回一个
-    字符串。缺省情况下它够用了，不必重载。
-
-更多信息参见官方文档。
+See :ref:`logging` for information on how to log exceptions, such as by
+emailing them to admins.
 
 
-其他库
----------------
-
-至此，我们只配置了应用本身的日志记录器。其他库可能同样需要记录日志。例如，
-SQLAlchemy 在其核心中大量使用日志。在 :mod:`logging` 包中有一个方法可以一次性
-地配置所有日志记录器，但我不推荐这么做。因为当你在同一个 Python 解释器中同时
-运行两个独立的应用时就无法使用不同的日志设置了。
-
-相反，我建议使用 :func:`~logging.getLogger` 函数来鉴别是哪个日志记录器，并获取
-相应的处理器::
-
-    from logging import getLogger
-    loggers = [app.logger, getLogger('sqlalchemy'),
-               getLogger('otherlibrary')]
-    for logger in loggers:
-        logger.addHandler(mail_handler)
-        logger.addHandler(file_handler)
-
-
-排除应用错误
+Debugging Application Errors
 ============================
 
-:ref:`application-errors` 一文所讲的是如何为生产应用设置日志和出错通知。本文要
-讲的是部署中配置调试的要点和如何使用全功能的 Python 调试器深挖错误。
+For production applications, configure your application with logging and
+notifications as described in :ref:`application-errors`.  This section provides
+pointers when debugging deployment configuration and digging deeper with a
+full-featured Python debugger.
 
 
-有疑问时，请手动运行
+When in Doubt, Run Manually
 ---------------------------
 
-在生产环境中，配置应用时出错？如果你可以通过 shell 来访问主机，那么请首先在部署
-环境中验证是否可以通过 shell 手动运行你的应用。请确保验证时使用的帐户与配置的
-相同，这样可以排除用户权限引发的错误。你可以在你的生产服务器上，使用 Flask 内建
-的开发服务器，并且设置 `debug=True` ，这样有助于找到配置问题。但是，请
-**只能在可控的情况下临时这样做** ，绝不能在生产时使用 `debug=True` 。
+Having problems getting your application configured for production?  If you
+have shell access to your host, verify that you can run your application
+manually from the shell in the deployment environment.  Be sure to run under
+the same user account as the configured deployment to troubleshoot permission
+issues.  You can use Flask's builtin development server with `debug=True` on
+your production host, which is helpful in catching configuration issues, but
+**be sure to do this temporarily in a controlled environment.** Do not run in
+production with `debug=True`.
+
 
 .. _working-with-debuggers:
 
-使用调试器
+Working with Debuggers
 ----------------------
 
-为了更深入的挖掘错误，追踪代码的执行， Flask 提供一个开箱即用的调试器（参见
-:ref:`debug-mode` ）。如果你需要使用其他 Python 调试器，请注意调试器之间的干扰
-问题。在使用你自己的调试器前要做一些参数调整：
+To dig deeper, possibly to trace code execution, Flask provides a debugger out
+of the box (see :ref:`debug-mode`).  If you would like to use another Python
+debugger, note that debuggers interfere with each other.  You have to set some
+options in order to use your favorite debugger:
 
-* ``debug``        - 是否开启调试模式并捕捉异常
-* ``use_debugger`` - 是否使用 Flask 内建的调试器
-* ``use_reloader`` - 出现异常后是否重载或者派生进程
+* ``debug``        - whether to enable debug mode and catch exceptions
+* ``use_debugger`` - whether to use the internal Flask debugger
+* ``use_reloader`` - whether to reload and fork the process on exception
 
-``debug`` 必须设置为 True （即必须捕获异常），另两个随便。
+``debug`` must be True (i.e., exceptions must be caught) in order for the other
+two options to have any value.
 
-如果你正在使用 Aptana 或 Eclipse 排错，那么 ``use_debugger`` 和
-``use_reloader`` 都必须设置为 False 。
+If you're using Aptana/Eclipse for debugging you'll need to set both
+``use_debugger`` and ``use_reloader`` to False.
 
-一个有用的配置模式如下（当然要根据你的应用调整缩进）::
+A possible useful pattern for configuration is to set the following in your
+config.yaml (change the block as appropriate for your application, of course)::
 
    FLASK:
        DEBUG: True
        DEBUG_WITH_APTANA: True
 
-然后，在应用入口（ main.py ），修改如下::
+Then in your application's entry-point (main.py), you could have something like::
 
    if __name__ == "__main__":
-       # 为了让 aptana 可以接收到错误，设置 use_debugger=False
+       # To allow aptana to receive errors, set use_debugger=False
        app = create_app(config="config.yaml")
 
        if app.debug: use_debugger = True
        try:
-           # 如果使用其他调试器，应当关闭 Flask 的调试器。
+           # Disable Flask's debugger if external debugger is requested
            use_debugger = not(app.config.get('DEBUG_WITH_APTANA'))
        except:
            pass
        app.run(use_debugger=use_debugger, debug=app.debug,
                use_reloader=use_debugger, host='0.0.0.0')
-

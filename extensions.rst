@@ -1,42 +1,53 @@
-Flask 扩展
-================
+.. _extensions:
 
-Flask 扩展以各种方式扩展了 Flask 的功能，比如增强对数据库的支持等等。
+Extensions
+==========
 
-查找扩展
+Extensions are extra packages that add functionality to a Flask
+application. For example, an extension might add support for sending
+email or connecting to a database. Some extensions add entire new
+frameworks to help build certain types of applications, like a ReST API.
+
+
+Finding Extensions
 ------------------
 
-Flask 扩展都列在 `Flask 扩展注册`_ 中，并且可以使用 ``easy_install`` 或 ``pip``
-下载。如果你把一个扩展作为依赖添加到你的 ``requirements.rst`` 或 ``setup.py``
-文件，那么它们可以使用一个简单的命令安装或随着应用一起安装。
+Flask extensions are usually named "Flask-Foo" or "Foo-Flask". Many
+extensions are listed in the `Extension Registry`_, which can be updated
+by extension developers. You can also search PyPI for packages tagged
+with `Framework :: Flask <pypi_>`_.
 
-使用扩展
+
+Using Extensions
 ----------------
 
-扩展一般都有说明如何使用的文档，这些文档应该和扩展一起发行。扩展如何运行没有
-统一的要求，但是一般在常见位置导入扩展。假设一个扩展称为
-``Flask-Foo`` 或 ``Foo-Flask`` ，那么总是可以导入 ``flask.ext.foo``::
+Consult each extension's documentation for installation, configuration,
+and usage instructions. Generally, extensions pull their own
+configuration from :attr:`app.config <flask.Flask.config>` and are
+passed an application instance during initialization. For example,
+an extension caled "Flask-Foo" might be used like this::
 
-    from flask.ext import foo
+    from flask_foo import Foo
 
-Flask 0.8 以前的版本
---------------------
+    foo = Foo()
 
-如果你正在使用 Flask 0.7 版本或更早版本， :data:`flask.ext` 包是不存在的。你
-必须根据扩展的发行方式导入 ``flaskext.foo`` 或 ``flask_foo`` 。如果你要开发一个
-支持 Flask 0.7 版本或更早版本的应用，那么你应当还是从 :data:`flask.ext` 包中
-导入。我们提供了一个兼容模块用以兼容老版本的 Flask ，你可以从 github 下载：
-`flaskext_compat.py`_
+    app = Flask(__name__)
+    app.config.update(
+        FOO_BAR='baz',
+        FOO_SPAM='eggs',
+    )
 
-使用方法如下::
+    foo.init_app(app)
 
-    import flaskext_compat
-    flaskext_compat.activate()
 
-    from flask.ext import foo
+Building Extensions
+-------------------
 
-一旦 ``flaskext_compat`` 模块被激活， :data:`flask.ext` 就会存在，就可以从这个
-包导入扩展。
+While the `Extension Registry`_ contains many Flask extensions, you may
+not find an extension that fits your need. If this is the case, you can
+create your own. Read :ref:`extension-dev` to develop your own Flask
+extension.
 
-.. _Flask 扩展注册: http://flask.pocoo.org/extensions/
-.. _flaskext_compat.py: https://github.com/mitsuhiko/flask/raw/master/scripts/flaskext_compat.py
+
+.. _Extension Registry: http://flask.pocoo.org/extensions/
+.. _pypi: https://pypi.org/search/?c=Framework+%3A%3A+Flask

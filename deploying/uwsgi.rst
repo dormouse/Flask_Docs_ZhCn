@@ -3,61 +3,70 @@
 uWSGI
 =====
 
-uWSGI 也是部署 Flask 的途径之一,类似的部署途径还有 `nginx`_ 、 `lighttpd`_ 和
-`cherokee`_ 。其他部署途径的信息参见 :ref:`deploying-fastcgi` 和
-:ref:`deploying-wsgi-standalone` 。使用 uWSGI 协议来部署 WSGI 应用的先决条件是
-需要一个 uWSGI 服务器。 uWSGI 既是一个协议也是一个服务器。如果作为一个服务器，
-它可以服务于 uWSGI 、 FastCGI 和 HTTP 协议。
+uWSGI is a deployment option on servers like `nginx`_, `lighttpd`_, and
+`cherokee`_; see :ref:`deploying-fastcgi` and :ref:`deploying-wsgi-standalone`
+for other options.  To use your WSGI application with uWSGI protocol you will
+need a uWSGI server first. uWSGI is both a protocol and an application server;
+the application server can serve uWSGI, FastCGI, and HTTP protocols.
 
-最流行的 uWSGI 服务器是 `uwsgi`_ ，本文将使用它来举例，请先安装它。
+The most popular uWSGI server is `uwsgi`_, which we will use for this
+guide.  Make sure to have it installed to follow along.
 
-.. admonition:: 小心
+.. admonition:: Watch Out
 
-   请务必把 ``app.run()`` 放在 ``if __name__ == '__main__':`` 内部或者放在单独
-   的文件中，这样可以保证它不会被调用。因为，每调用一次就会开启一个本地 WSGI
-   服务器。当我们使用 uWSGI 部署应用时，不需要使用本地服务器。
+   Please make sure in advance that any ``app.run()`` calls you might
+   have in your application file are inside an ``if __name__ ==
+   '__main__':`` block or moved to a separate file.  Just make sure it's
+   not called because this will always start a local WSGI server which
+   we do not want if we deploy that application to uWSGI.
 
-
-使用 uwsgi 启动你的应用
+Starting your app with uwsgi
 ----------------------------
 
-`uwsgi` 是基于 python 模块中的 WSGI 调用的。假设 Flask 应用名称为 myapp.py ，
-可以使用以下命令：
+`uwsgi` is designed to operate on WSGI callables found in python modules.
+
+Given a flask application in myapp.py, use the following command:
 
 .. sourcecode:: text
 
-    $ uwsgi -s /tmp/uwsgi.sock --module myapp --callable app
+    $ uwsgi -s /tmp/yourapplication.sock --manage-script-name --mount /yourapplication=myapp:app
 
-或者这个命令也行：
+The ``--manage-script-name`` will move the handling of ``SCRIPT_NAME`` to uwsgi,
+since its smarter about that. It is used together with the ``--mount`` directive
+which will make requests to ``/yourapplication`` be directed to ``myapp:app``.
+If your application is accessible at root level, you can use a single ``/``
+instead of ``/yourapplication``. ``myapp`` refers to the name of the file of
+your flask application (without extension) or the module which provides ``app``.
+``app`` is the callable inside of your application (usually the line reads
+``app = Flask(__name__)``.
 
-.. sourcecode:: text
+If you want to deploy your flask application inside of a virtual environment,
+you need to also add ``--virtualenv /path/to/virtual/environment``. You might
+also need to add ``--plugin python`` or ``--plugin python3`` depending on which
+python version you use for your project.
 
-    $ uwsgi -s /tmp/uwsgi.sock -w myapp:app
-
-配置 nginx
+Configuring nginx
 -----------------
 
-一个 nginx 的基本 uWSGI 配置如下::
+A basic flask nginx configuration looks like this::
 
     location = /yourapplication { rewrite ^ /yourapplication/; }
     location /yourapplication { try_files $uri @yourapplication; }
     location @yourapplication {
       include uwsgi_params;
-      uwsgi_param SCRIPT_NAME /yourapplication;
-      uwsgi_modifier1 30;
-      uwsgi_pass unix:/tmp/uwsgi.sock;
+      uwsgi_pass unix:/tmp/yourapplication.sock;
     }
 
-这个配置把应用绑定到 `/yourapplication` 。如果你想要在根 URL 下运行应用非常
-简单，因为你不必指出 WSGI `PATH_INFO` 或让 uwsgi 修改器来使用它::
+This configuration binds the application to ``/yourapplication``.  If you want
+to have it in the URL root its a bit simpler::
 
     location / { try_files $uri @yourapplication; }
     location @yourapplication {
         include uwsgi_params;
-        uwsgi_pass unix:/tmp/uwsgi.sock;
+        uwsgi_pass unix:/tmp/yourapplication.sock;
     }
 
-.. _nginx: http://nginx.org/
-.. _lighttpd: http://www.lighttpd.net/
-.. _cherokee: http://www.cherokee-project.com/
+.. _nginx: https://nginx.org/
+.. _lighttpd: https://www.lighttpd.net/
+.. _cherokee: http://cherokee-project.com/
 .. _uwsgi: http://projects.unbit.it/uwsgi/

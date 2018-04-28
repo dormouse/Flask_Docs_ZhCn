@@ -1,63 +1,72 @@
 .. _extension-dev:
 
-Flask 扩展开发
-==============
+Flask Extension Development
+===========================
 
-Flask 作为一个微框架，为了让第三方库可以运作，经常需要做一些重复工作。为了
-避免重复劳动，我们创建了 `Flask 扩展注册表`_ ，把这些重复工作进行抽象，使
-其可以支持不同项目。
+Flask, being a microframework, often requires some repetitive steps to get
+a third party library working.  Because very often these steps could be
+abstracted to support multiple projects the `Flask Extension Registry`_
+was created.
 
-如果你需要创建自己的扩展，那么本文可以帮助你让扩展立马上线运行。
+If you want to create your own Flask extension for something that does not
+exist yet, this guide to extension development will help you get your
+extension running in no time and to feel like users would expect your
+extension to behave.
 
-.. _Flask 扩展注册表: http://flask.pocoo.org/extensions/
+.. _Flask Extension Registry: http://flask.pocoo.org/extensions/
 
-剖析一个扩展
+Anatomy of an Extension
 -----------------------
 
-扩展都放在一个名如 ``flask_something`` 的包中。其中的“ something ”就是
-扩展所要连接的库的名称。例如假设你要为 Flask 添加 `simplexml` 库的支持，
-那么扩展的包名称就应该是 ``flask_simplexml`` 。
+Extensions are all located in a package called ``flask_something``
+where "something" is the name of the library you want to bridge.  So for
+example if you plan to add support for a library named `simplexml` to
+Flask, you would name your extension's package ``flask_simplexml``.
 
-但是，真正扩展的名称（可读名称）应当形如“ Flask-SimpleXML ”。请确保名称
-中包含“ Flask ”，并且注意大小写。这样用户就可以在他们的 `setup.py` 文件
-中注册依赖。
+The name of the actual extension (the human readable name) however would
+be something like "Flask-SimpleXML".  Make sure to include the name
+"Flask" somewhere in that name and that you check the capitalization.
+This is how users can then register dependencies to your extension in
+their :file:`setup.py` files.
 
-Flask 设置了一个名为 :data:`flask.ext` 重定向包，用户应当使用这个包来导入
-扩展。假设你的扩展包名为 ``flask_something`` ，那么用户应当导入为
-``flask.ext.something`` 。这样做是为了从老的命名空间过渡，详见
-:ref:`ext-import-transition` 。
+But what do extensions look like themselves?  An extension has to ensure
+that it works with multiple Flask application instances at once.  This is
+a requirement because many people will use patterns like the
+:ref:`app-factories` pattern to create their application as needed to aid
+unittests and to support multiple configurations.  Because of that it is
+crucial that your application supports that kind of behavior.
 
-但是扩展具体是怎么样的呢？一个扩展必须保证可以同时在多个 Flask 应用中工作。
-这是必要条件，因为许多人为了进行单元测试，会使用类似 :ref:`app-factories`
-模式来创建应用并且需要支持多套配置。因此，你的应用支持这种行为非常重要。
+Most importantly the extension must be shipped with a :file:`setup.py` file and
+registered on PyPI.  Also the development checkout link should work so
+that people can easily install the development version into their
+virtualenv without having to download the library by hand.
 
-最重要的是，扩展必须与一个 `setup.py` 文件一起分发，并且在 PyPI 上注册。
-同时，用于开发的 checkout 链接也应该能工作，以便于在 virtualenv 中安装开发
-版本，而不是手动下载库。
+Flask extensions must be licensed under a BSD, MIT or more liberal license
+in order to be listed in the Flask Extension Registry.  Keep in mind
+that the Flask Extension Registry is a moderated place and libraries will
+be reviewed upfront if they behave as required.
 
-Flask 扩展必须使用 BSD 或 MIT 或更自由的许可证来许可，这样才能被添加进
-Flask 扩展注册表。请记住， Flask 扩展注册表是比较稳健的，并且扩展在发布前
-会进行预审是否符合要求。
+"Hello Flaskext!"
+-----------------
 
-“ Hello Flaskext! ”
----------------------
+So let's get started with creating such a Flask extension.  The extension
+we want to create here will provide very basic support for SQLite3.
 
-好吧，让我们开展创建一个 Flask 扩展。这个扩展的用途是提供最基本的 SQLite3
-支持。
-
-首先创建如下结构的文件夹和文件::
+First we create the following folder structure::
 
     flask-sqlite3/
         flask_sqlite3.py
         LICENSE
         README
 
-以下是最重要的文件及其内容：
+Here's the contents of the most important files:
 
 setup.py
 ````````
 
-接下来 `setup.py` 是必需的，该文件用于安装你的 Flask 扩展。文件内容如下::
+The next file that is absolutely required is the :file:`setup.py` file which is
+used to install your Flask extension.  The following contents are
+something you can work with::
 
     """
     Flask-SQLite3
@@ -98,63 +107,62 @@ setup.py
         ]
     )
 
-代码相当多，但是你可以从现有的扩展中直接复制/粘贴，并修改相应的内容。
+That's a lot of code but you can really just copy/paste that from existing
+extensions and adapt.
 
 flask_sqlite3.py
 ````````````````
 
-这个文件是你的扩展的具体实现。但是一个扩展到底是怎么样的？最佳实践是什么？
-继续阅读吧。
+Now this is where your extension code goes.  But how exactly should such
+an extension look like?  What are the best practices?  Continue reading
+for some insight.
 
-初始化扩展
-----------
+Initializing Extensions
+-----------------------
 
-许多扩展会需要某种类型的初始化步骤。例如，假设一个应用像文档中建议的一样
-（ :ref:`sqlite3` ）正在连接到 SQLite 。那么，扩展如何获知应用对象的名称？
+Many extensions will need some kind of initialization step.  For example,
+consider an application that's currently connecting to SQLite like the
+documentation suggests (:ref:`sqlite3`).  So how does the extension
+know the name of the application object?
 
-相当简单：你把名称传递给扩展。
+Quite simple: you pass it to it.
 
-推荐两种初始化扩展的方式:
+There are two recommended ways for an extension to initialize:
 
-初始化函数：
+initialization functions:
 
-    如果你的扩展名为 `helloworld` ，那么你可能有一个名为
-    ``init_helloworld(app[, extra_args])`` 的函数。该函数用来为应用初始化
-    扩展，它可以在处理器之前或之后。
+    If your extension is called `helloworld` you might have a function
+    called ``init_helloworld(app[, extra_args])`` that initializes the
+    extension for that application.  It could attach before / after
+    handlers etc.
 
-初始化类：
+classes:
 
-    初始化类与初始化函数的工作方式大致相同，区别是类在以后可以进一步改动。
-    例如，查看一下 `OAuth 扩展`_ 的工作方式：有一个 `OAuth` 对象提供一些
-    辅助函数（比如 `OAuth.remote_app` ）来创建使用 OAuth 的远程应用的引用。
+    Classes work mostly like initialization functions but can later be
+    used to further change the behavior.  For an example look at how the
+    `OAuth extension`_ works: there is an `OAuth` object that provides
+    some helper functions like `OAuth.remote_app` to create a reference to
+    a remote application that uses OAuth.
 
+What to use depends on what you have in mind.  For the SQLite 3 extension
+we will use the class-based approach because it will provide users with an
+object that handles opening and closing database connections.
 
-使用哪种方式取决于你。对于 SQLite 3 扩展，我们会使用基于类的方式，因为这样
-可以提供给用户一个用于打开和关闭数据库连接的对象。
+When designing your classes, it's important to make them easily reusable
+at the module level. This means the object itself must not under any
+circumstances store any application specific state and must be shareable
+between different applications.
 
-当使用类初始化方式时，重要的一点是鼓励在模块层内共享。这种情况下，对象本身
-在任何情况下不得存储任何应用的特定状态，而必须可以在不同的应用之间共享。
+The Extension Code
+------------------
 
-
-扩展的代码
-----------
-
-以下是 `flask_sqlite3.py` 的内容，可以复制/粘贴::
+Here's the contents of the `flask_sqlite3.py` for copy/paste::
 
     import sqlite3
-    from flask import current_app
-
-    # Find the stack on which we want to store the database connection.
-    # Starting with Flask 0.9, the _app_ctx_stack is the correct one,
-    # before that we need to use the _request_ctx_stack.
-    try:
-        from flask import _app_ctx_stack as stack
-    except ImportError:
-        from flask import _request_ctx_stack as stack
+    from flask import current_app, _app_ctx_stack
 
 
     class SQLite3(object):
-
         def __init__(self, app=None):
             self.app = app
             if app is not None:
@@ -162,50 +170,48 @@ flask_sqlite3.py
 
         def init_app(self, app):
             app.config.setdefault('SQLITE3_DATABASE', ':memory:')
-            # Use the newstyle teardown_appcontext if it's available,
-            # otherwise fall back to the request context
-            if hasattr(app, 'teardown_appcontext'):
-                app.teardown_appcontext(self.teardown)
-            else:
-                app.teardown_request(self.teardown)
+            app.teardown_appcontext(self.teardown)
 
         def connect(self):
             return sqlite3.connect(current_app.config['SQLITE3_DATABASE'])
 
         def teardown(self, exception):
-            ctx = stack.top
+            ctx = _app_ctx_stack.top
             if hasattr(ctx, 'sqlite3_db'):
                 ctx.sqlite3_db.close()
 
         @property
         def connection(self):
-            ctx = stack.top
+            ctx = _app_ctx_stack.top
             if ctx is not None:
                 if not hasattr(ctx, 'sqlite3_db'):
                     ctx.sqlite3_db = self.connect()
                 return ctx.sqlite3_db
 
 
-那么这是这些代码的含义是什么:
+So here's what these lines of code do:
 
-1.  ``__init__`` 方法接收应用对象，该对象是可选的。如果提供了该对象，那么
-    就调用 ``init_app`` 。
-2.  ``init_app`` 方法使得 ``SQLite3`` 对象不需要应用对象就可以实例化。这个
-    方法支持工厂模式来创建应用。 ``init_app`` 会配置数据库。如果不提供
-    配置，默认配置为内存数据库。此外， ``init_app`` 方法附加了 ``teardown``
-    处理器。它会试图使用新样式的应用环境处理器，并且如果它不存在，退回到
-    请求环境处理器。
-3.  接下来，我们定义了 ``connect`` 方法来打开一个数据库连接。
-4.  最后，我们添加一个 ``connection`` 属性，首次访问时打开数据库连接，并把
-    它存储在环境中。这也是处理资源的推荐方式：在资源第一次使用时获取资源，
-    即惰性获取。
+1.  The ``__init__`` method takes an optional app object and, if supplied, will
+    call ``init_app``.
+2.  The ``init_app`` method exists so that the ``SQLite3`` object can be
+    instantiated without requiring an app object.  This method supports the
+    factory pattern for creating applications.  The ``init_app`` will set the
+    configuration for the database, defaulting to an in memory database if
+    no configuration is supplied.  In addition, the ``init_app`` method attaches
+    the ``teardown`` handler.
+3.  Next, we define a ``connect`` method that opens a database connection.
+4.  Finally, we add a ``connection`` property that on first access opens
+    the database connection and stores it on the context.  This is also
+    the recommended way to handling resources: fetch resources lazily the
+    first time they are used.
 
-    注意这里，我们把数据库连接通过 ``_app_ctx_stack.top`` 附加到应用环境的
-    栈顶。扩展应该使用上下文的栈顶来存储它们自己的信息，并使用足够复杂的
-    名称。注意如果应用使用的是不支持它的老版本的 Flask 我们退回到
-    ``_request_ctx_stack.top`` 。
+    Note here that we're attaching our database connection to the top
+    application context via ``_app_ctx_stack.top``. Extensions should use
+    the top context for storing their own information with a sufficiently
+    complex name.
 
-那么为什么我们决定在此使用基于类的方法？因为我们的扩展是这样使用的::
+So why did we decide on a class-based approach here?  Because using our
+extension looks something like this::
 
     from flask import Flask
     from flask_sqlite3 import SQLite3
@@ -214,141 +220,126 @@ flask_sqlite3.py
     app.config.from_pyfile('the-config.cfg')
     db = SQLite3(app)
 
-你可以在视图中这样使用数据库::
+You can then use the database from views like this::
 
     @app.route('/')
     def show_all():
         cur = db.connection.cursor()
         cur.execute(...)
 
-同样地，如果在请求之外，并且使用支持应用环境的 Flask 0.9 或之后的版本，
-可以用同样的方式使用数据库::
+Likewise if you are outside of a request you can use the database by
+pushing an app context::
 
     with app.app_context():
         cur = db.connection.cursor()
         cur.execute(...)
 
-在 `with` 块的末尾，销毁处理器会自动执行。
+At the end of the ``with`` block the teardown handles will be executed
+automatically.
 
-另外， ``init_app`` 方法用于在创建应用时支持工厂模式::
+Additionally, the ``init_app`` method is used to support the factory pattern
+for creating apps::
 
     db = Sqlite3()
     # Then later on.
     app = create_app('the-config.cfg')
     db.init_app(app)
 
-记住已审核的 Flask 扩展必须支持用工厂模式来创建应用（下面会解释）。
+Keep in mind that supporting this factory pattern for creating apps is required
+for approved flask extensions (described below).
 
-.. admonition:: ``init_app`` 的注意事项
+.. admonition:: Note on ``init_app``
 
-   如你所见， ``init_app`` 不分配 ``app`` 到 ``self`` 。这是故意的！基于
-   类的 Flask 扩展必须只在应用传递到构造函数时才在对象上存储应用。这告诉
-   扩展：我对使用多个应用没有兴趣。
+   As you noticed, ``init_app`` does not assign ``app`` to ``self``.  This
+   is intentional!  Class based Flask extensions must only store the
+   application on the object when the application was passed to the
+   constructor.  This tells the extension: I am not interested in using
+   multiple applications.
 
-   当扩展需要找到当前应用，且没有一个指向当前应用的引用时，必须使用
-   :data:`~flask.current_app` 环境局部变量或用一种你可以显式传递应用的方法
-   更改 API 。
-    
+   When the extension needs to find the current application and it does
+   not have a reference to it, it must either use the
+   :data:`~flask.current_app` context local or change the API in a way
+   that you can pass the application explicitly.
 
-使用 _app_ctx_stack
+
+Using _app_ctx_stack
 --------------------
 
-在上面的例子中，在每个请求之前，一个 ``sqlite3_db`` 变量被分配到
-``_app_ctx_stack.top`` 。在一个视图函数中，这个变量可以使用 ``SQLite3``
-的属性 ``connection`` 来访问。在请求解散时， ``sqlite3_db`` 连接被关闭。
-通过使用这个模式，在请求持续的期间，可以访问 *相同* 的 sqlite3 数据库连接。
-
-如果 :data:`~flask._app_ctx_stack` 因为用户使用了老版本的 Flask 不存在，
-建议退化到绑定在请求中的 :data:`~flask._request_ctx_stack` 。
-
-解散形为
---------
-
-*本段只有在想要支持 Flask 0.6 版本和更老版本时有用*
-
-因为在 Flask 0.7 版本中修改了在请求的最后运行的相关函数，所以如果你的扩展
-需要继续支持 Flask 的老版本，那么必须格外小心。下面的模式是一个新旧兼顾的
-好方法::
-
-    def close_connection(response):
-        ctx = _request_ctx_stack.top
-        ctx.sqlite3_db.close()
-        return response
-
-    if hasattr(app, 'teardown_request'):
-        app.teardown_request(close_connection)
-    else:
-        app.after_request(close_connection)
-
-严格地讲，上面的代码是错误的，因为解散函数接受异常且典型地不返回任何东西。
-然而，因为返回值被丢弃，假设中间的代码不触碰传递的参数，这刚好有用。
-
-学习借鉴
---------
-
-本文只是谈了一些扩展开发的皮毛。如果想要深入，那么查看 `Flask 扩展注册表`_
-上已有的扩展是明智的。如果你感到迷失，还可以通过 `邮件列表`_ 和
-`IRC 频道`_ 学习到优秀的 APIs 。尤其当你要开发一个全新的扩展时，建议先多看
-多问多听，这样不仅可以知道别人的需求，同时也避免多人重复开发。
-
-谨记：设计优秀的 API 是艰难的。因此请先在邮件列表里介绍你的项目，让其他
-开发者在 API 设计上助你一臂之力。
-
-最好的 Flask 扩展是那些共享 API 智慧的扩展，因此越早共享越有效。
-
-已审核的扩展
-------------
-
-Flask 有已审核的扩展的概念。已审核的扩展会被视作 Flask 的一部分来测试，以
-保证扩展在新版本发布时不会出问题。这些已审核的扩展会在 `Flask 扩展注册表`_
-中列出，并有相应的标记。如果你想要自己的扩展通过审核，请遵循以下的指导方针：
-
-0.  一个已审核的 Flask 扩展需要一个维护者。如果一个扩展作者想要放弃项目，
-    那么项目应该寻找一个新的维护者，包括移交完整的源码托管和 PyPI 访问。
-    如果找不到新的维护者，请赋予 Flask 核心团队访问权限。
-1.  一个已审核的 Flask 扩展必须提供一个名如 ``flask_extensionname`` 的包或
-    模块。它们也可以存在于一个 ``flaskext`` 命名空间包内部，但是现在不推荐
-    这么做。
-2.  它必须带有测试套件，套件可以使用 ``make test`` 或者
-    ``python setup.py test`` 来调用。如果是使用 ``make test`` 调用的测试
-    套件，那么必须保证所有的依赖可以自动安装。如果是使用 ``python setup.py
-    test`` 调用的测试套件，那么测试的依赖可以在 `setup.py` 文件中定义。
-    测试套件分发的必要组成部分。
-3.  已审核的扩展的 API 可以通过下面特性的检查:
-    
-    -   一个已审核的扩展必须支持在同一个 Python 进程中运行的多个应用。
-    -   它必须支持使用工厂模式创建应用
-
-4.  许可协议必须是 BSD/MIT/WTFPL 协议。
-5.  官方扩展的命名模式是 *Flask-ExtensionName* 或 *ExtensionName-Flask* 。
-6.  已审核的扩展必须在 `setup.py` 文件里定义所有的依赖关系，除非在 PyPI
-    上不可用。
-7.  扩展的文档必须使用两种 Flask 的 Sphinx 文档主题中的一个。
-8.  setup.py 描述（即 PyPI 描述）必须链接到文档、网站（如果有的话），
-    并且必须有自动安装开发版本的链接（ ``PackageName==dev`` ）。
-9.  安装脚本中的 ``zip_safe`` 标志必须被设置为 ``False`` ，即使扩展对于
-    压缩是安全的。
-10. 现行扩展必须支持 Python 2.6 和 Python 2.7 。
+In the example above, before every request, a ``sqlite3_db`` variable is
+assigned to ``_app_ctx_stack.top``.  In a view function, this variable is
+accessible using the ``connection`` property of ``SQLite3``.  During the
+teardown of a request, the ``sqlite3_db`` connection is closed.  By using
+this pattern, the *same* connection to the sqlite3 database is accessible
+to anything that needs it for the duration of the request.
 
 
-.. _ext-import-transition:
+Learn from Others
+-----------------
 
-扩展导入的迁移
---------------
+This documentation only touches the bare minimum for extension
+development.  If you want to learn more, it's a very good idea to check
+out existing extensions on the `Flask Extension Registry`_.  If you feel
+lost there is still the `mailinglist`_ and the `IRC channel`_ to get some
+ideas for nice looking APIs.  Especially if you do something nobody before
+you did, it might be a very good idea to get some more input.  This not only
+generates useful feedback on what people might want from an extension, but
+also avoids having multiple developers working in isolation on pretty much the
+same problem.
 
-一段时间，我们曾推荐对 Flask 扩展使用命名空间包。但这在实践中被证明是有
-问题的，因为许多不同命名空间包系统存在竞争，并且 pip 会自动在不同的系统
-中切换，这给用户带来了许多问题。
+Remember: good API design is hard, so introduce your project on the
+mailinglist, and let other developers give you a helping hand with
+designing the API.
 
-现在，我们推荐命名包为 ``flask_foo`` 替代过时的 ``flaskext.foo`` 。Flask
-0.8 引入了重定向导入系统，允许从 ``flask.ext.foo`` 导入，并且如果
-``flaskext.foo`` 失败时，会首先尝试 ``flask_foo`` 。
+The best Flask extensions are extensions that share common idioms for the
+API.  And this can only work if collaboration happens early.
 
-Flask 扩展应该鼓励用户从 ``flask.ext.foo`` 导入，而不是 ``flask_foo``
-或 ``flaskext_foo`` ，这样扩展可以迁移到新的包名称而不烦扰用户。
+Approved Extensions
+-------------------
+
+Flask also has the concept of approved extensions.  Approved extensions
+are tested as part of Flask itself to ensure extensions do not break on
+new releases.  These approved extensions are listed on the `Flask
+Extension Registry`_ and marked appropriately.  If you want your own
+extension to be approved you have to follow these guidelines:
+
+0.  An approved Flask extension requires a maintainer. In the event an
+    extension author would like to move beyond the project, the project should
+    find a new maintainer including full source hosting transition and PyPI
+    access.  If no maintainer is available, give access to the Flask core team.
+1.  An approved Flask extension must provide exactly one package or module
+    named ``flask_extensionname``.
+2.  It must ship a testing suite that can either be invoked with ``make test``
+    or ``python setup.py test``.  For test suites invoked with ``make
+    test`` the extension has to ensure that all dependencies for the test
+    are installed automatically.  If tests are invoked with ``python setup.py
+    test``, test dependencies can be specified in the :file:`setup.py` file.  The
+    test suite also has to be part of the distribution.
+3.  APIs of approved extensions will be checked for the following
+    characteristics:
+
+   -   an approved extension has to support multiple applications
+       running in the same Python process.
+   -   it must be possible to use the factory pattern for creating
+       applications.
+
+4.  The license must be BSD/MIT/WTFPL licensed.
+5.  The naming scheme for official extensions is *Flask-ExtensionName* or
+    *ExtensionName-Flask*.
+6.  Approved extensions must define all their dependencies in the
+    :file:`setup.py` file unless a dependency cannot be met because it is not
+    available on PyPI.
+7.  The documentation must use the ``flask`` theme from the `Official
+    Pallets Themes`_.
+8.  The setup.py description (and thus the PyPI description) has to
+    link to the documentation, website (if there is one) and there
+    must be a link to automatically install the development version
+    (``PackageName==dev``).
+9. The ``zip_safe`` flag in the setup script must be set to ``False``,
+   even if the extension would be safe for zipping.
+10. An extension currently has to support Python 3.4 and newer and 2.7.
 
 
-.. _OAuth 扩展: http://packages.python.org/Flask-OAuth/
-.. _邮件列表: http://flask.pocoo.org/mailinglist/
-.. _IRC 频道: http://flask.pocoo.org/community/irc/
-
+.. _OAuth extension: https://pythonhosted.org/Flask-OAuth/
+.. _mailinglist: http://flask.pocoo.org/mailinglist/
+.. _IRC channel: http://flask.pocoo.org/community/irc/
+.. _Official Pallets Themes: https://pypi.org/project/pallets-sphinx-themes/

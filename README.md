@@ -7,9 +7,9 @@ Initiate and translated by Dormouse Young.
 
 ## 版本
 
-现在正在翻译的是 Flask 0.11.1 的文档。
+现在正在翻译的是 Flask 1.0 的文档。
 
-Flask 0.11.1 docs are being translating now.
+Flask 1.0 docs are being translating now.
 
 ## 线上地址
 
@@ -20,17 +20,19 @@ Flask 0.11.1 docs are being translating now.
 ### Html 文档
 
 主要步骤为：
+
 * 克隆本项目
 * 安装 sphinx
 * 生成文档（文档生成在 _bulid 目录下)
 
 命令示例：
+
 ```shell
 git clone git@github.com:dormouse/Flask_Docs_ZhCn.git
 cd Flask_Docs_ZhCn/
-mkvirtualenv flaskdoc
-pip install flask==0.11.1
-pip install sphinx
+conda create -n flask_doc python=3*
+source activate flask_doc
+pip install -r requirements.txt
 make html
 ```
 

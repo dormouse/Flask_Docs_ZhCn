@@ -1,64 +1,100 @@
 .. _larger-applications:
 
-大型应用
+Larger Applications
 ===================
 
-对于大型应用来说使用包代替模块是一个好主意。使用包非常简单。假设有一个小应用如
-下::
+For larger applications it's a good idea to use a package instead of a
+module.  That is quite simple.  Imagine a small application looks like
+this::
 
     /yourapplication
-        /yourapplication.py
+        yourapplication.py
         /static
-            /style.css
+            style.css
         /templates
             layout.html
             index.html
             login.html
             ...
 
-简单的包
+The :ref:`tutorial <tutorial>` is structured this way, see the
+:gh:`example code <examples/tutorial>`.
+
+Simple Packages
 ---------------
 
-要把上例中的小应用装换为大型应用只要在现有应用中创建一个名为 `yourapplication`
-的新文件夹，并把所有东西都移动到这个文件夹内。然后把 `yourapplication.py` 更名
-为 `__init__.py` 。（请首先删除所有 `.pyc` 文件，否则基本上会出问题）
+To convert that into a larger one, just create a new folder
+:file:`yourapplication` inside the existing one and move everything below it.
+Then rename :file:`yourapplication.py` to :file:`__init__.py`.  (Make sure to delete
+all ``.pyc`` files first, otherwise things would most likely break)
 
-修改完后应该如下例::
+You should then end up with something like that::
 
     /yourapplication
         /yourapplication
-            /__init__.py
+            __init__.py
             /static
-                /style.css
+                style.css
             /templates
                 layout.html
                 index.html
                 login.html
                 ...
 
-但是现在如何运行应用呢？原本的 ``python yourapplication/__init__.py`` 无法运行
-了。因为 Python 不希望包内的模块成为启动文件。但是这不是一个大问题，只要在
-`yourapplication` 文件夹旁添加一个 `runserver.py` 文件就可以了，其内容如下::
+But how do you run your application now?  The naive ``python
+yourapplication/__init__.py`` will not work.  Let's just say that Python
+does not want modules in packages to be the startup file.  But that is not
+a big problem, just add a new file called :file:`setup.py` next to the inner
+:file:`yourapplication` folder with the following contents::
 
-    from yourapplication import app
-    app.run(debug=True)
+    from setuptools import setup
 
-我们从中学到了什么？现在我们来重构一下应用以适应多模块。只要记住以下几点：
+    setup(
+        name='yourapplication',
+        packages=['yourapplication'],
+        include_package_data=True,
+        install_requires=[
+            'flask',
+        ],
+    )
 
-1. `Flask` 应用对象必须位于  `__init__.py` 文件中。这样每个模块就可以安全地导入
-   了，且  `__name__` 变量会解析到正确的包。
-2. 所有视图函数（在顶端有 :meth:`~flask.Flask.route` 的）必须在 `__init__.py`
-   文件中被导入。不是导入对象本身，而是导入视图模块。请 **在应用对象创建之后**
-   导入视图对象。
-   
-`__init__.py` 示例::
+In order to run the application you need to export an environment variable
+that tells Flask where to find the application instance::
+
+    export FLASK_APP=yourapplication
+
+If you are outside of the project directory make sure to provide the exact
+path to your application directory. Similarly you can turn on the
+development features like this::
+
+    export FLASK_ENV=development
+
+In order to install and run the application you need to issue the following
+commands::
+
+    pip install -e .
+    flask run
+
+What did we gain from this?  Now we can restructure the application a bit
+into multiple modules.  The only thing you have to remember is the
+following quick checklist:
+
+1. the `Flask` application object creation has to be in the
+   :file:`__init__.py` file.  That way each module can import it safely and the
+   `__name__` variable will resolve to the correct package.
+2. all the view functions (the ones with a :meth:`~flask.Flask.route`
+   decorator on top) have to be imported in the :file:`__init__.py` file.
+   Not the object itself, but the module it is in. Import the view module
+   **after the application object is created**.
+
+Here's an example :file:`__init__.py`::
 
     from flask import Flask
     app = Flask(__name__)
 
     import yourapplication.views
 
-`views.py` 内容如下::
+And this is what :file:`views.py` would look like::
 
     from yourapplication import app
 
@@ -66,35 +102,42 @@
     def index():
         return 'Hello World!'
 
-最终全部内容如下::
+You should then end up with something like that::
 
     /yourapplication
-        /runserver.py
+        setup.py
         /yourapplication
-            /__init__.py
-            /views.py
+            __init__.py
+            views.py
             /static
-                /style.css
+                style.css
             /templates
                 layout.html
                 index.html
                 login.html
                 ...
 
-.. admonition:: 回环导入
+.. admonition:: Circular Imports
 
-   回环导入是指两个模块互相导入，本例中我们添加的 `views.py` 就与 `__init__.py`
-   相互依赖。每个 Python 程序员都讨厌回环导入。一般情况下回环导入是个坏主意，但
-   在这里一点问题都没有。原因是我们没有真正使用 `__init__.py` 中的视图，只是
-   保证模块被导入，并且我们在文件底部才这样做。
+   Every Python programmer hates them, and yet we just added some:
+   circular imports (That's when two modules depend on each other.  In this
+   case :file:`views.py` depends on :file:`__init__.py`).  Be advised that this is a
+   bad idea in general but here it is actually fine.  The reason for this is
+   that we are not actually using the views in :file:`__init__.py` and just
+   ensuring the module is imported and we are doing that at the bottom of
+   the file.
 
-   但是这种方式还是有些问题，因为没有办法使用装饰器。要找到解决问题的灵感请参阅
-   :ref:`becomingbig` 一节。
+   There are still some problems with that approach but if you want to use
+   decorators there is no way around that.  Check out the
+   :ref:`becomingbig` section for some inspiration how to deal with that.
+
 
 .. _working-with-modules:
 
-使用蓝图
+Working with Blueprints
 -----------------------
 
-对于大型应用推荐把应用分隔为小块，每个小块使用蓝图辅助执行。关于这个主题的介绍
-请参阅 :ref:`blueprints` 一节 。
+If you have larger applications it's recommended to divide them into
+smaller groups where each group is implemented with the help of a
+blueprint.  For a gentle introduction into this topic refer to the
+:ref:`blueprints` chapter of the documentation.

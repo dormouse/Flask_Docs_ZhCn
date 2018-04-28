@@ -1,25 +1,30 @@
 .. _app-factories:
 
-应用工厂
+Application Factories
 =====================
 
-如果你已经在应用中使用了包和蓝图（ :ref:`blueprints` ），那么还有许多方法可以更
-进一步地改进你的应用。常用的方案是导入蓝图后创建应用对象，但是如果在一个函数中
-创建对象，那么就可以创建多个实例。
+If you are already using packages and blueprints for your application
+(:ref:`blueprints`) there are a couple of really nice ways to further improve
+the experience.  A common pattern is creating the application object when
+the blueprint is imported.  But if you move the creation of this object
+into a function, you can then create multiple instances of this app later.
 
-那么这样做有什么用呢？
+So why would you want to do this?
 
-1.  用于测试。可以针对不同的情况使用不同的配置来测试应用。
-2.  用于多实例，如果你需要运行同一个应用的不同版本的话。当然你可以在服务器上
-    使用不同配置运行多个相同应用，但是如果使用应用工厂，那么你可以只使用一个
-    应用进程而得到多个应用实例，这样更容易操控。
+1.  Testing.  You can have instances of the application with different
+    settings to test every case.
+2.  Multiple instances.  Imagine you want to run different versions of the
+    same application.  Of course you could have multiple instances with
+    different configs set up in your webserver, but if you use factories,
+    you can have multiple instances of the same application running in the
+    same application process which can be handy.
 
-那么如何做呢？
+So how would you then actually implement that?
 
-基础工厂
+Basic Factories
 ---------------
 
-方法是在一个函数中设置应用，具体如下::
+The idea is to set up the application in a function.  Like this::
 
     def create_app(config_filename):
         app = Flask(__name__)
@@ -35,8 +40,10 @@
 
         return app
 
-这个方法的缺点是在导入时无法在蓝图中使用应用对象。但是你可以在一个请求中使用它。
-如何通过配置来访问应用？使用 :data:`~flask.current_app`::
+The downside is that you cannot use the application object in the blueprints
+at import time.  You can however use it from within a request.  How do you
+get access to the application with the config?  Use
+:data:`~flask.current_app`::
 
     from flask import current_app, Blueprint, render_template
     admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -45,36 +52,66 @@
     def index():
         return render_template(current_app.config['INDEX_TEMPLATE'])
 
-这里我们在配置中查找模板的名称。
+Here we look up the name of a template in the config.
 
-扩展对象初始化时不会绑定到一个应用，应用可以使用 ``db.init_app`` 来设置扩展。
-扩展对象中不会储存特定应用的状态，因此一个扩展可以被多个应用使用。关于扩展设计
-的更多信息请参阅 :doc:`/extensiondev` 。
+Factories & Extensions
+----------------------
 
-当使用 `Flask-SQLAlchemy <http://pythonhosted.org/Flask-SQLAlchemy/>`_ 时，你的
-`model.py` 可能是这样的::
+It's preferable to create your extensions and app factories so that the
+extension object does not initially get bound to the application.
 
-    from flask.ext.sqlalchemy import SQLAlchemy
-    # no app object passed! Instead we use use db.init_app in the factory.
+Using `Flask-SQLAlchemy <http://flask-sqlalchemy.pocoo.org/>`_,
+as an example, you should not do something along those lines::
+
+    def create_app(config_filename):
+        app = Flask(__name__)
+        app.config.from_pyfile(config_filename)
+
+        db = SQLAlchemy(app)
+
+But, rather, in model.py (or equivalent)::
+
     db = SQLAlchemy()
 
-    # create some models
+and in your application.py (or equivalent)::
 
-使用应用
+    def create_app(config_filename):
+        app = Flask(__name__)
+        app.config.from_pyfile(config_filename)
+
+        from yourapplication.model import db
+        db.init_app(app)
+
+Using this design pattern, no application-specific state is stored on the
+extension object, so one extension object can be used for multiple apps.
+For more information about the design of extensions refer to :doc:`/extensiondev`.
+
+Using Applications
 ------------------
 
-因此，要使用这样的应用就必须先创建它。下面是一个运行应用的示例 `run.py` 文件::
+To run such an application, you can use the :command:`flask` command::
 
-    from yourapplication import create_app
-    app = create_app('/path/to/config.cfg')
-    app.run()
+    export FLASK_APP=myapp
+    flask run
+    
+Flask will automatically detect the factory (``create_app`` or ``make_app``) 
+in ``myapp``. You can also pass arguments to the factory like this::
 
-改进工厂
+    export FLASK_APP="myapp:create_app('dev')"
+    flask run
+    
+Then the ``create_app`` factory in ``myapp`` is called with the string
+``'dev'`` as the argument. See :doc:`/cli` for more detail.
+
+Factory Improvements
 --------------------
 
-上面的工厂函数还不是足够好，可以改进的地方主要有以下几点：
+The factory function above is not very clever, but you can improve it.
+The following changes are straightforward to implement:
 
-1.  为了单元测试，要想办法传入配置，这样就不必在文件系统中创建配置文件。
-2.  当设置应用时从蓝图调用一个函数，这样就可以有机会修改属性（如挂接请求前/后
-    处理器等）。
-3.  如果有必要的话，当创建一个应用时增加一个 WSGI 中间件。
+1.  Make it possible to pass in configuration values for unit tests so that
+    you don't have to create config files on the filesystem.
+2.  Call a function from a blueprint when the application is setting up so
+    that you have a place to modify attributes of the application (like
+    hooking in before/after request handlers etc.)
+3.  Add in WSGI middlewares when the application is being created if necessary.

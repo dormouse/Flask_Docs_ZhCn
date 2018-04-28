@@ -1,23 +1,28 @@
 .. _message-flashing-pattern:
 
-消息闪现
+Message Flashing
 ================
 
-一个好的应用和用户界面都需要良好的反馈。如果用户得不到足够的反馈，那么应用最终
-会被用户唾弃。 Flask 的闪现系统提供了一个良好的反馈方式。闪现系统的基本工作方式
-是：在且只在下一个请求中访问上一个请求结束时记录的消息。一般我们结合布局模板来
-使用闪现系统。
+Good applications and user interfaces are all about feedback.  If the user
+does not get enough feedback they will probably end up hating the
+application.  Flask provides a really simple way to give feedback to a
+user with the flashing system.  The flashing system basically makes it
+possible to record a message at the end of a request and access it next
+request and only next request.  This is usually combined with a layout
+template that does this. Note that browsers and sometimes web servers enforce
+a limit on cookie sizes. This means that flashing messages that are too
+large for session cookies causes message flashing to fail silently.
 
-简单的例子
+Simple Flashing
 ---------------
 
-以下是一个完整的示例::
+So here is a full example::
 
     from flask import Flask, flash, redirect, render_template, \
          request, url_for
 
     app = Flask(__name__)
-    app.secret_key = 'some_secret'
+    app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
     @app.route('/')
     def index():
@@ -28,17 +33,14 @@
         error = None
         if request.method == 'POST':
             if request.form['username'] != 'admin' or \
-               request.form['password'] != 'secret':
+                    request.form['password'] != 'secret':
                 error = 'Invalid credentials'
             else:
                 flash('You were successfully logged in')
                 return redirect(url_for('index'))
         return render_template('login.html', error=error)
 
-    if __name__ == "__main__":
-        app.run()
-
-以下是实现闪现的 ``layout.html`` 模板：
+And here is the :file:`layout.html` template which does the magic:
 
 .. sourcecode:: html+jinja
 
@@ -55,7 +57,7 @@
    {% endwith %}
    {% block body %}{% endblock %}
 
-以下是 index.html 模板：
+Here is the :file:`index.html` template which inherits from :file:`layout.html`:
 
 .. sourcecode:: html+jinja
 
@@ -65,7 +67,8 @@
      <p>Do you want to <a href="{{ url_for('login') }}">log in?</a>
    {% endblock %}
 
-login 模板：
+And here is the :file:`login.html` template which also inherits from
+:file:`layout.html`:
 
 .. sourcecode:: html+jinja
 
@@ -75,7 +78,7 @@ login 模板：
      {% if error %}
        <p class=error><strong>Error:</strong> {{ error }}
      {% endif %}
-     <form action="" method=post>
+     <form method=post>
        <dl>
          <dt>Username:
          <dd><input type=text name=username value="{{
@@ -87,20 +90,24 @@ login 模板：
      </form>
    {% endblock %}
 
-闪现消息的类别
+Flashing With Categories
 ------------------------
 
 .. versionadded:: 0.3
 
-闪现消息还可以指定类别，如果没有指定，那么缺省的类别为 ``'message'`` 。不同的
-类别可以给用户提供更好的反馈。例如错误消息可以使用红色背景。
+It is also possible to provide categories when flashing a message.  The
+default category if nothing is provided is ``'message'``.  Alternative
+categories can be used to give the user better feedback.  For example
+error messages could be displayed with a red background.
 
-使用 :func:`~flask.flash` 函数可以指定消息的类别::
+To flash a message with a different category, just use the second argument
+to the :func:`~flask.flash` function::
 
     flash(u'Invalid password provided', 'error')
 
-模板中的 :func:`~flask.get_flashed_messages` 函数也应当返回类别，显示消息的循环
-也要略作改变：
+Inside the template you then have to tell the
+:func:`~flask.get_flashed_messages` function to also return the
+categories.  The loop looks slightly different in that situation then:
 
 .. sourcecode:: html+jinja
 
@@ -114,16 +121,18 @@ login 模板：
      {% endif %}
    {% endwith %}
 
-上例展示如何根据类别渲染消息，还可以给消息加上前缀，如
-``<strong>Error:</strong>`` 。
+This is just one example of how to render these flashed messages.  One
+might also use the category to add a prefix such as
+``<strong>Error:</strong>`` to the message.
 
-过滤闪现消息
+Filtering Flash Messages
 ------------------------
 
 .. versionadded:: 0.9
 
-你可以视情况通过传递一个类别列表来过滤 :func:`~flask.get_flashed_messages` 的
-结果。这个功能有助于在不同位置显示不同类别的消息。
+Optionally you can pass a list of categories which filters the results of
+:func:`~flask.get_flashed_messages`.  This is useful if you wish to
+render each category in a separate block.
 
 .. sourcecode:: html+jinja
 
@@ -139,4 +148,3 @@ login 模板：
     </div>
     {% endif %}
     {% endwith %}
-

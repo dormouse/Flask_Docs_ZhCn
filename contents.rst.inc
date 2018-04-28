@@ -1,8 +1,9 @@
-用户指南
+User's Guide
 ------------
 
-这部分文档是比较松散的，首先介绍了 Flask 的一些背景材料，接着专注于一步一步地
-说明如何使用 Flask 进行 Web 开发。
+This part of the documentation, which is mostly prose, begins with some
+background information about Flask, then focuses on step-by-step
+instructions for web development with Flask.
 
 .. toctree::
    :maxdepth: 2
@@ -15,6 +16,7 @@
    templating
    testing
    errorhandling
+   logging
    config
    signals
    views
@@ -22,25 +24,28 @@
    reqcontext
    blueprints
    extensions
+   cli
+   server
    shell
    patterns/index
    deploying/index
    becomingbig
 
-API 参考
+API Reference
 -------------
 
-这部分文档详细说明某个函数、类或方法。
+If you are looking for information on a specific function, class or
+method, this part of the documentation is for you.
 
 .. toctree::
    :maxdepth: 2
 
    api
 
-其他材料
+Additional Notes
 ----------------
 
-这部分文档包括：设计要点、法律信息和变动记录。
+Design notes, legal information and changelog are here for the interested.
 
 .. toctree::
    :maxdepth: 2
@@ -51,7 +56,7 @@ API 参考
    unicode
    extensiondev
    styleguide
-   python3
    upgrading
    changelog
    license
+   contributing

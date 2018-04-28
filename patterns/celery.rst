@@ -1,81 +1,101 @@
-基于 Celery 的后台任务
-=============================
+Celery Background Tasks
+=======================
 
-Celery 是一个 Python 编写的是一个异步任务队列/基于分布式消息传递的作业队列。
-以前它有一个 Flask 的集成，但是从版本 3 开始，它进行了一些内部的重构，已经
-不需要这个集成了。本文主要说明如何在 Flask 中正确使用 Celery 。本文假设你
-已经阅读过了其官方文档中的 `Celery 入门
-<http://docs.celeryproject.org/en/master/getting-started/first-steps-with-celery.html>`_
+If your application has a long running task, such as processing some uploaded
+data or sending email, you don't want to wait for it to finish during a
+request. Instead, use a task queue to send the necessary data to another
+process that will run the task in the background while the request returns
+immediately.
 
-安装 Celery
------------------
+Celery is a powerful task queue that can be used for simple background tasks
+as well as complex multi-stage programs and schedules. This guide will show you
+how to configure Celery using Flask, but assumes you've already read the
+`First Steps with Celery <http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html>`_
+guide in the Celery documentation.
 
-Celery 在 Python 包索引（ PyPI ）上榜上有名，因此可以使用 ``pip`` 或
-``easy_install`` 之类标准的 Python 工具来安装::
+Install
+-------
+
+Celery is a separate Python package. Install it from PyPI using pip::
 
     $ pip install celery
 
-配置 Celery
-------------------
+Configure
+---------
 
-你首先需要有一个 Celery 实例，这个实例称为 celery 应用。其地位就相当于 Flask 中
-:class:`~flask.Flask` 一样。这个实例被用作所有 Celery 相关事务的入口，例如创建
-任务、管理工人等等。因此它必须可以被其他模块导入。
+The first thing you need is a Celery instance, this is called the celery
+application.  It serves the same purpose as the :class:`~flask.Flask`
+object in Flask, just for Celery.  Since this instance is used as the
+entry-point for everything you want to do in Celery, like creating tasks
+and managing workers, it must be possible for other modules to import it.
 
-例如，你可以把它放在一个 ``tasks`` 模块中。这样不需要重新配置，你就可以使用
-tasks 的子类，增加 Flask 应用环境的支持，并钩接 Flask 的配置。
+For instance you can place this in a ``tasks`` module.  While you can use
+Celery without any reconfiguration with Flask, it becomes a bit nicer by
+subclassing tasks and adding support for Flask's application contexts and
+hooking it up with the Flask configuration.
 
-只要如下这样就可以在 Falsk 中使用 Celery 了::
+This is all that is necessary to properly integrate Celery with Flask::
 
     from celery import Celery
 
     def make_celery(app):
-        celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+        celery = Celery(
+            app.import_name,
+            backend=app.config['CELERY_RESULT_BACKEND'],
+            broker=app.config['CELERY_BROKER_URL']
+        )
         celery.conf.update(app.config)
-        TaskBase = celery.Task
-        class ContextTask(TaskBase):
-            abstract = True
+
+        class ContextTask(celery.Task):
             def __call__(self, *args, **kwargs):
                 with app.app_context():
-                    return TaskBase.__call__(self, *args, **kwargs)
+                    return self.run(*args, **kwargs)
+
         celery.Task = ContextTask
         return celery
 
-这个函数创建了一个新的 Celery 对象，使用了应用配置中的 broker ，并从 Flask 配置
-中升级了 Celery 的其余配置。然后创建了一个任务子类，在一个应用环境中包装了任务
-执行。
+The function creates a new Celery object, configures it with the broker
+from the application config, updates the rest of the Celery config from
+the Flask config and then creates a subclass of the task that wraps the
+task execution in an application context.
 
-最小的例子
+An example task
 ---------------
 
-基于上文，以下是一个在 Flask 中使用 Celery 的最小例子::
+Let's write a task that adds two numbers together and returns the result. We
+configure Celery's broker and backend to use Redis, create a ``celery``
+application using the factor from above, and then use it to define the task. ::
 
     from flask import Flask
 
-    app = Flask(__name__)
-    app.config.update(
+    flask_app = Flask(__name__)
+    flask_app.config.update(
         CELERY_BROKER_URL='redis://localhost:6379',
         CELERY_RESULT_BACKEND='redis://localhost:6379'
     )
-    celery = make_celery(app)
-
+    celery = make_celery(flask_app)
 
     @celery.task()
     def add_together(a, b):
         return a + b
 
-这个任务现在可以在后台调用了：
+This task can now be called in the background::
 
->>> result = add_together.delay(23, 42)
->>> result.wait()
-65
+    result = add_together.delay(23, 42)
+    result.wait()  # 65
 
-运行 Celery 工人
--------------------------
+Run a worker
+------------
 
-至此，如果你已经按上文一步一步执行，你会失望地发现你的 ``.wait()`` 不会真正
-返回。这是因为你还没有运行 celery 。你可以这样以工人方式运行 celery::
+If you jumped in and already executed the above code you will be
+disappointed to learn that ``.wait()`` will never actually return.
+That's because you also need to run a Celery worker to receive and execute the
+task. ::
 
-    $ celery -A your_application worker
+    $ celery -A your_application.celery worker
 
-把 ``your_application`` 字符串替换为你创建 `celery` 对像的应用包或模块。
+The ``your_application`` string has to point to your application's package
+or module that creates the ``celery`` object.
+
+Now that the worker is running, ``wait`` will return the result once the task
+is finished.

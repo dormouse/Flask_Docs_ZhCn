@@ -1,45 +1,57 @@
-前言
-====
+Foreword
+========
 
-在使用 Flask 前请阅读本文。希望本文可以回答您有关 Flask 的用途和目的，以及是
-否应当使用 Flask 等问题。
+Read this before you get started with Flask.  This hopefully answers some
+questions about the purpose and goals of the project, and when you
+should or should not be using it.
 
-“微”是什么意思？
-------------------
+What does "micro" mean?
+-----------------------
 
-“微”并不代表整个应用只能塞在一个 Python 文件内，当然塞在单一文件内也是可以的。
-“微”也不代表 Flask 功能不强。微框架中的“微”字表示 Flask 的目标是保持核心既简
-单而又可扩展。 Flask 不会替你做出许多决定，比如选用何种数据库。类似的决定，如
-使用何种模板引擎，是非常容易改变的。 Flask 可以变成你任何想要的东西，一切恰到
-好处，由你做主。
+“Micro” does not mean that your whole web application has to fit into a single
+Python file (although it certainly can), nor does it mean that Flask is lacking
+in functionality. The "micro" in microframework means Flask aims to keep the
+core simple but extensible. Flask won't make many decisions for you, such as
+what database to use. Those decisions that it does make, such as what
+templating engine to use, are easy to change.  Everything else is up to you, so
+that Flask can be everything you need and nothing you don't.
 
-缺省情况下， Flask 不包含数据库抽象层、表单验证或者其他已有的库可以处理的东西。
-然而， Flask 通过扩展为你的应用添加这些功能，就如同这些功能是 Flask 原生的一样。
-大量的扩展用以支持数据库整合、表单验证、上传处理和各种开放验证等等。Flask 可能是
-“微小”的，但它已经为满足您的各种生产需要做出了充足的准备。
+By default, Flask does not include a database abstraction layer, form
+validation or anything else where different libraries already exist that can
+handle that. Instead, Flask supports extensions to add such functionality to
+your application as if it was implemented in Flask itself. Numerous extensions
+provide database integration, form validation, upload handling, various open
+authentication technologies, and more. Flask may be "micro", but it's ready for
+production use on a variety of needs.
 
-配置和惯例
+Configuration and Conventions
 -----------------------------
 
-刚起步的时候 Flask 有许多带有合理缺省值的配置值和惯例。按照惯例，模板和静态文件
-存放在应用的 Python 源代码树的子目录中，名称分别为 `templates` 和 `static` 。惯
-例是可以改变的，但是你大可不必改变，尤其是刚起步的时候。
+Flask has many configuration values, with sensible defaults, and a few
+conventions when getting started.  By convention, templates and static files are
+stored in subdirectories within the application's Python source tree, with the
+names :file:`templates` and :file:`static` respectively. While this can be changed, you
+usually don't have to, especially when getting started.
 
-Flask 可持续发展
+Growing with Flask
 ------------------
 
-一旦你开始使用 Flask ，你会发现有各种各样的扩展可供使用。 Flask 核心开发组会
-审查扩展，并保证通过检验的扩展可以在最新版本的 Flask 中可用。 
+Once you have Flask up and running, you'll find a variety of extensions
+available in the community to integrate your project for production. The Flask
+core team reviews extensions and ensures approved extensions do not break with
+future releases.
 
-随着你的代码库日益壮大，你可以自由地决定设计目标。 Flask 会一直提供一个非常
-简约而优秀的胶合层，就像 Python 语言一样。你可以自由地使用 SQLAlchemy 执行高级
-模式，或者使用其他数据库工具，亦可引入非关系数据模型，甚至还可以利用用于
-Python 网络接口 WSGI 的非框架工具。
+As your codebase grows, you are free to make the design decisions appropriate
+for your project.  Flask will continue to provide a very simple glue layer to
+the best that Python has to offer.  You can implement advanced patterns in
+SQLAlchemy or another database tool, introduce non-relational data persistence
+as appropriate, and take advantage of framework-agnostic tools built for WSGI,
+the Python web interface.
 
-Flask 包含许多可以自定义其行为的钩子。考虑到你的定制需求， Flask 的类专为继承
-而打造。
-如果对这一点感兴趣，请阅读 :ref:`becomingbig` 一节。如果对 Flask 的设计原则感
-兴趣，请移步 :ref:`design` 。
+Flask includes many hooks to customize its behavior. Should you need more
+customization, the Flask class is built for subclassing. If you are interested
+in that, check out the :ref:`becomingbig` chapter.  If you are curious about
+the Flask design principles, head over to the section about :ref:`design`.
 
-接下来请阅读 :ref:`installation` 、 :ref:`quickstart` 或者
-:ref:`advanced_foreword` 。
+Continue to :ref:`installation`, the :ref:`quickstart`, or the
+:ref:`advanced_foreword`.
