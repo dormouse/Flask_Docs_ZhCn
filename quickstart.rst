@@ -1,17 +1,15 @@
 .. _quickstart:
 
-Quickstart
+快速上手
 ==========
 
-Eager to get started?  This page gives a good introduction to Flask.  It
-assumes you already have Flask installed.  If you do not, head over to the
-:ref:`installation` section.
+等久了吧？本文会给你好好介绍如何上手 Flask 。
+这里假定你已经安装好了 Flask ，否则请先阅读《 :ref:`installation` 》。
 
-
-A Minimal Application
+一个最小的应用
 ---------------------
 
-A minimal Flask application looks something like this::
+一个最小的 Flask 应用如下::
 
     from flask import Flask
     app = Flask(__name__)
@@ -20,166 +18,144 @@ A minimal Flask application looks something like this::
     def hello_world():
         return 'Hello, World!'
 
-So what did that code do?
+那么，这些代码是什么意思呢？
 
-1. First we imported the :class:`~flask.Flask` class.  An instance of this
-   class will be our WSGI application.
-2. Next we create an instance of this class. The first argument is the name of
-   the application's module or package.  If you are using a single module (as
-   in this example), you should use ``__name__`` because depending on if it's
-   started as application or imported as module the name will be different
-   (``'__main__'`` versus the actual import name). This is needed so that
-   Flask knows where to look for templates, static files, and so on. For more
-   information have a look at the :class:`~flask.Flask` documentation.
-3. We then use the :meth:`~flask.Flask.route` decorator to tell Flask what URL
-   should trigger our function.
-4. The function is given a name which is also used to generate URLs for that
-   particular function, and returns the message we want to display in the
-   user's browser.
+1. 首先我们导入了 :class:`~flask.Flask` 类。
+   该类的实例将会成为我们的 WSGI 应用。
+2. 接着我们创建一个该类的实例。第一个参数是应用模块或者包的名称。如果你使用
+   一个单一模块（就像本例），那么应当使用 ``__name__`` ，因为名称会根据这个
+   模块是按应用方式使用还是作为一个模块导入而发生变化（可能是 '__main__' ，
+   也可能是实际导入的名称）。这个参数是必需的，这样 Flask 才能知道在哪里可以
+   找到模板和静态文件等东西。更多内容详见 :class:`~flask.Flask` 文档。
+3. 然后我们使用 :meth:`~flask.Flask.route` 装饰器来告诉 Flask 触发函数的 URL 。
+4. 函数名称被用于生成相关联的 URL 。函数最后返回需要在用户浏览器中显示的信息。
 
-Just save it as :file:`hello.py` or something similar. Make sure to not call
-your application :file:`flask.py` because this would conflict with Flask
-itself.
+把它保存为 :file:`hello.py` 或其他类似名称。请不要使用 :file:`flask.py`
+作为应用名称，这会与 Flask 本身发生冲突。
 
-To run the application you can either use the :command:`flask` command or
-python's ``-m`` switch with Flask.  Before you can do that you need
-to tell your terminal the application to work with by exporting the
-``FLASK_APP`` environment variable::
+可以使用 :command:`flask` 命令或者 python 的 ``-m`` 开关来运行这个应用。在
+运行应用之前，需要在终端里导出 ``FLASK_APP`` 环境变量::
 
     $ export FLASK_APP=hello.py
     $ flask run
      * Running on http://127.0.0.1:5000/
 
-If you are on Windows, the environment variable syntax depends on command line
-interpreter. On Command Prompt::
+如果是在 Windows 下，那么导出环境变量的语法取决于使用的是哪种命令行解释器。
+在 Command Prompt 下::
 
     C:\path\to\app>set FLASK_APP=hello.py
 
-And on PowerShell::
+在 PowerShell 下::
 
     PS C:\path\to\app> $env:FLASK_APP = "hello.py"
 
-Alternatively you can use :command:`python -m flask`::
+还可以使用 :command:`python -m flask`::
 
     $ export FLASK_APP=hello.py
     $ python -m flask run
      * Running on http://127.0.0.1:5000/
 
-This launches a very simple builtin server, which is good enough for testing
-but probably not what you want to use in production. For deployment options see
-:ref:`deployment`.
+这样就启动了一个非常简单的内建的服务器。这个服务器用于测试应该是足够了。但是
+用于生产可以是不够的。关于部署的有关内容参见《 :ref:`deployment` 》。
 
-Now head over to `http://127.0.0.1:5000/ <http://127.0.0.1:5000/>`_, and you
-should see your hello world greeting.
+现在在浏览器中打开 `http://127.0.0.1:5000/ <http://127.0.0.1:5000/>`_ ，应该
+可以看到 Hello World! 字样。
 
 .. _public-server:
 
-.. admonition:: Externally Visible Server
+.. admonition:: 外部可见的服务器
 
-   If you run the server you will notice that the server is only accessible
-   from your own computer, not from any other in the network.  This is the
-   default because in debugging mode a user of the application can execute
-   arbitrary Python code on your computer.
+   运行服务器后，会发现只有你自己的电脑可以使用服务，而网络中的其他电脑却
+   不行。缺省设置就是这样的，因为在调试模式下该应用的用户可以执行你电脑中
+   的任意 Python 代码。
 
-   If you have the debugger disabled or trust the users on your network,
-   you can make the server publicly available simply by adding
-   ``--host=0.0.0.0`` to the command line::
+   如果你关闭了调试器或信任你网络中的用户，那么可以让服务器被公开访问。
+   只要在命令行上简单的加上 ``--host=0.0.0.0`` 即可::
 
        flask run --host=0.0.0.0
 
-   This tells your operating system to listen on all public IPs.
+   这行代码告诉你的操作系统监听所有公开的 IP 。
 
 
-What to do if the Server does not Start
+如果服务器不能启动怎么办
 ---------------------------------------
 
-In case the :command:`python -m flask` fails or :command:`flask` does not exist,
-there are multiple reasons this might be the case.  First of all you need
-to look at the error message.
+假如运行 :command:`python -m flask` 命令失败或者 :command:`flask` 命令不存在，
+那么可能会有多种原因导致失败。首先应该检查错误信息。
 
-Old Version of Flask
+老版本的 Flask
 ````````````````````
+版本低于 0.11 的 Flask ，启动应用的方式是不同的。简单的说就是
+:command:`flask` 和 :command:`python -m flask` 命令都无法使用。在这种情况有
+两个选择：一是升级 Flask 到更新的版本，二是参阅《 :ref:`server` 》，学习其他
+启动服务器的方法。
 
-Versions of Flask older than 0.11 use to have different ways to start the
-application.  In short, the :command:`flask` command did not exist, and
-neither did :command:`python -m flask`.  In that case you have two options:
-either upgrade to newer Flask versions or have a look at the :ref:`server`
-docs to see the alternative method for running a server.
-
-Invalid Import Name
+非法导入名称
 ```````````````````
+``FLASK_APP`` 环境变量中储存的是模块的名称，运行 :command:`flask run` 命令就
+会导入这个模块。如果模块的名称不对，那么就会出现导入错误。出现错误的时机是在
+应用开始的时候。如果调试模式打开的情况下，会在运行到应用开始的时候出现导入
+错误。出错信息会告诉你尝试导入哪个模块时出错，为什么会出错。
 
-The ``FLASK_APP`` environment variable is the name of the module to import at
-:command:`flask run`. In case that module is incorrectly named you will get an
-import error upon start (or if debug is enabled when you navigate to the
-application). It will tell you what it tried to import and why it failed.
-
-The most common reason is a typo or because you did not actually create an
-``app`` object.
+最常见的错误是因为拼写错误而没有真正创建一个 ``app`` 对象。
 
 .. _debug-mode:
 
-Debug Mode
+调试模式
 ----------
 
-(Want to just log errors and stack traces? See :ref:`application-errors`)
+（只需要记录出错信息和追踪堆栈？参见 :ref:`application-errors` ）
 
-The :command:`flask` script is nice to start a local development server, but
-you would have to restart it manually after each change to your code.
-That is not very nice and Flask can do better.  If you enable debug
-support the server will reload itself on code changes, and it will also
-provide you with a helpful debugger if things go wrong.
+虽然 :command:`flask` 命令可以方便地启动一个本地开发服务器，但是每次应用代码
+修改之后都需要手动重启服务器。这样不是很方便， Flask 可以做得更好。如果你打开
+调试模式，那么服务器会在修改应用代码之后自动重启，并且当应用出错时还会提供一个
+有用的调试器。
 
-To enable all development features (including debug mode) you can export
-the ``FLASK_ENV`` environment variable and set it to ``development``
-before running the server::
+如果需要打开所有开发功能（包括调试模式），那么要在运行服务器之前导出
+``FLASK_ENV`` 环境变量并把其设置为 ``development``::
 
     $ export FLASK_ENV=development
     $ flask run
 
-(On Windows you need to use ``set`` instead of ``export``.)
+（在 Windows 下需要使用 ``set`` 来代替 ``export`` 。）
 
-This does the following things:
+这样可以实现以下功能：
 
-1.  it activates the debugger
-2.  it activates the automatic reloader
-3.  it enables the debug mode on the Flask application.
+1.  激活调试器。
+2.  激活自动重载。
+3.  打开 Flask 应用的调试模式。
 
-You can also control debug mode separately from the environment by
-exporting ``FLASK_DEBUG=1``.
+还可以通过导出 ``FLASK_DEBUG=1`` 来单独控制调试模式的开关。
 
-There are more parameters that are explained in the :ref:`server` docs.
+:ref:`server` 文档中还有更多的参数说明。
 
 .. admonition:: Attention
 
-   Even though the interactive debugger does not work in forking environments
-   (which makes it nearly impossible to use on production servers), it still
-   allows the execution of arbitrary code. This makes it a major security risk
-   and therefore it **must never be used on production machines**.
+   虽然交互调试器不能在分布环境下工作（这使得它基本不可能用于生产环境），但是
+   它允许执行任意代码，这样会成为一个重大安全隐患。因此， **绝对不能在生产环境
+   中使用调试器** 。
 
-Screenshot of the debugger in action:
+运行中的调试器截图：
 
 .. image:: _static/debugger.png
    :align: center
    :class: screenshot
    :alt: screenshot of debugger in action
 
-More information on using the debugger can be found in the `Werkzeug
-documentation`_.
+更多关于调试器的信息参见 `Werkzeug documentation`_ 。
 
 .. _Werkzeug documentation: http://werkzeug.pocoo.org/docs/debug/#using-the-debugger
 
-Have another debugger in mind? See :ref:`working-with-debuggers`.
+想使用其他调试器？请参阅 :ref:`working-with-debuggers` 。
 
 
-Routing
+路由
 -------
 
-Modern web applications use meaningful URLs to help users. Users are more
-likely to like a page and come back if the page uses a meaningful URL they can
-remember and use to directly visit a page.
+现代 web 应用都使用有意义的 URL ，这样有助于用户记忆，网页会更得到用户的青睐，
+提高回头率。
 
-Use the :meth:`~flask.Flask.route` decorator to bind a function to a URL. ::
+使用 :meth:`~flask.Flask.route` 装饰器来把函数绑定到 URL::
 
     @app.route('/')
     def index():
@@ -189,16 +165,15 @@ Use the :meth:`~flask.Flask.route` decorator to bind a function to a URL. ::
     def hello():
         return 'Hello, World'
 
-You can do more! You can make parts of the URL dynamic and attach multiple
-rules to a function.
+但是能做的不仅仅是这些！你可以动态变化 URL 的某些部分，
+还可以为一个函数指定多个规则。
 
-Variable Rules
+变量规则
 ``````````````
 
-You can add variable sections to a URL by marking sections with
-``<variable_name>``. Your function then receives the ``<variable_name>``
-as a keyword argument. Optionally, you can use a converter to specify the type
-of the argument like ``<converter:variable_name>``. ::
+通过把 URL 的一部分标记为 ``<variable_name>`` 就可以在 URL 中添加变量。标记的
+部分会作为关键字参数传递给函数。通过使用 ``<converter:variable_name>`` ，可以
+选择性的加上一个转换器，为变量指定规则。请看下面的例子::
 
     @app.route('/user/<username>')
     def show_user_profile(username):
@@ -215,17 +190,17 @@ of the argument like ``<converter:variable_name>``. ::
         # show the subpath after /path/
         return 'Subpath %s' % subpath
 
-Converter types:
+转换器类型：
 
 ========== ==========================================
-``string`` (default) accepts any text without a slash
-``int``    accepts positive integers
-``float``  accepts positive floating point values
-``path``   like ``string`` but also accepts slashes
-``uuid``   accepts UUID strings
+``string`` （缺省值） 接受任何不包含斜杠的文本
+``int``    接受正整数
+``float``  接受正浮点数
+``path``   类似 ``string`` ，但可以包含斜杠
+``uuid``   接受 UUID 字符串
 ========== ==========================================
 
-Unique URLs / Redirection Behavior
+唯一的 URL / 重定向行为
 ``````````````````````````````````
 
 The following two rules differ in their use of a trailing slash. ::
