@@ -3,5 +3,5 @@ _build
 _theme/*.pyc
 flask/*.pyc
 werkzeug/*.pyc
-.gitignore.swp
+*.swp
 
