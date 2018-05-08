@@ -53,8 +53,7 @@ Flask 之后就可以跳出这个结构，充分享受 Flask 的灵活性。
     :class: screenshot
     :alt: screenshot of login page
 
-:gh:`The tutorial project is available as an example in the Flask
-repository <examples/tutorial>`, if you want to compare your project
-with the final product as you follow the tutorial.
+如果在学习教程过程中需要比较项目代码与最终结果的差异，那么可以在
+:gh:`Flask 官方资源库的示例 <examples/tutorial>` 中找到完成的教程项目代码。
 
-下面请阅读 :doc:`layout`.
+下面请阅读 :doc:`layout` 。
