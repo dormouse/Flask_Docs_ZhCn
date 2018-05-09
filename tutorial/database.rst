@@ -1,37 +1,30 @@
 .. currentmodule:: flask
 
-Define and Access the Database
+定义和操作数据库
 ==============================
 
-The application will use a `SQLite`_ database to store users and posts.
-Python comes with built-in support for SQLite in the :mod:`sqlite3`
-module.
+应用使用一个 `SQLite`_ 数据库来储存用户和博客内容。
+Python 内置了 SQLite 数据库支持，相应的模块为 :mod:`sqlite3` 。
 
-SQLite is convenient because it doesn't require setting up a separate
-database server and is built-in to Python. However, if concurrent
-requests try to write to the database at the same time, they will slow
-down as each write happens sequentially. Small applications won't notice
-this. Once you become big, you may want to switch to a different
-database.
+使用 SQLite 的便利性在于不需要单独配置一个数据库服务器，并且 Python 提供了
+内置支持。但是当并发请求同时要写入时，会比较慢一点，因为每个写操作是按顺序
+进行的。小应用没有问题，但是大应用可能就需要考虑换成别的数据库了。
 
-The tutorial doesn't go into detail about SQL. If you are not familiar
-with it, the SQLite docs describe the `language`_.
+本教程不会详细讨论 SQL 。如果你不是很熟悉 SQL ，请先阅读 SQLite 文档中的
+`相关内容`_ 。
 
 .. _SQLite: https://sqlite.org/about.html
-.. _language: https://sqlite.org/lang.html
+.. _相关内容: https://sqlite.org/lang.html
 
 
-Connect to the Database
+连接数据库
 -----------------------
 
-The first thing to do when working with a SQLite database (and most
-other Python database libraries) is to create a connection to it. Any
-queries and operations are performed using the connection, which is
-closed after the work is finished.
+当使用 SQLite 数据库（包括其他多数数据库的 Python 库）时，第一件事就是创建
+一个数据库的连接。所有查询和操作都要通过该连接来执行，完事后该连接关闭。
 
-In web applications this connection is typically tied to the request. It
-is created at some point when handling a request, and closed before the
-response is sent.
+在网络应用中连接往往与请求绑定。在处理请求的某个时刻，连接被创建。在发送响应
+之前连接被关闭。
 
 .. code-block:: python
     :caption: ``flaskr/db.py``
@@ -60,38 +53,31 @@ response is sent.
         if db is not None:
             db.close()
 
-:data:`g` is a special object that is unique for each request. It is
-used to store data that might be accessed by multiple functions during
-the request. The connection is stored and reused instead of creating a
-new connection if ``get_db`` is called a second time in the same
-request.
+:data:`g` 是一个特殊对象，独立于每一个请求。在处理请求过程中，它可以用于储存
+可能多个函数都会用到的数据。把连接储存于其中，可以多次使用，而不用在同一个
+请求中每次调用 ``get_db`` 时都创建一个新的连接。
 
-:data:`current_app` is another special object that points to the Flask
-application handling the request. Since you used an application factory,
-there is no application object when writing the rest of your code.
-``get_db`` will be called when the application has been created and is
-handling a request, so :data:`current_app` can be used.
+:data:`current_app` 是另一个特殊对象，该对象指向处理请求的 Flask 应用。这里
+使用了应用工厂，那么在其余的代码中就不会出现应用对象。当应用创建后，在处理
+一个请求时， ``get_db`` 会被调用。这样就需要使用 :data:`current_app` 。
 
-:func:`sqlite3.connect` establishes a connection to the file pointed at
-by the ``DATABASE`` configuration key. This file doesn't have to exist
-yet, and won't until you initialize the database later.
+:func:`sqlite3.connect` 建立一个数据库连接，该连接指向配置中的 ``DATABASE``
+指定的文件。这个文件现在还没有建立，后面会在初始化数据库的时候建立该文件。
 
-:class:`sqlite3.Row` tells the connection to return rows that behave
-like dicts. This allows accessing the columns by name.
+:class:`sqlite3.Row` 告诉连接返回类似于字典的行，这样可以通过列名称来操作
+数据。
 
-``close_db`` checks if a connection was created by checking if ``g.db``
-was set. If the connection exists, it is closed. Further down you will
-tell your application about the ``close_db`` function in the application
-factory so that it is called after each request.
+``close_db`` 通过检查 ``g.db`` 来确定连接是否已经建立。如果连接已建立，那么
+就关闭连接。以后会在应用工厂中告诉应用 ``close_db`` 函数，这样每次请求后就会
+调用它。
 
 
-Create the Tables
+创建表
 -----------------
 
-In SQLite, data is stored in *tables* and *columns*. These need to be
-created before you can store and retrieve data. Flaskr will store users
-in the ``user`` table, and posts in the ``post`` table. Create a file
-with the SQL commands needed to create empty tables:
+在 SQLite 中，数据储存在 *表* 和 *列* 中。在储存和调取数据之前需要先创建它们。
+Flaskr 会把用户数据储存在 ``user`` 表中，把博客内容储存在 ``post`` 表中。下面
+创建一个文件储存用于创建空表的 SQL 命令：
 
 .. code-block:: sql
     :caption: ``flaskr/schema.sql``
@@ -114,8 +100,7 @@ with the SQL commands needed to create empty tables:
       FOREIGN KEY (author_id) REFERENCES user (id)
     );
 
-Add the Python functions that will run these SQL commands to the
-``db.py`` file:
+在 ``db.py`` 文件中添加 Python 函数，用于运行这个 SQL 命令：
 
 .. code-block:: python
     :caption: ``flaskr/db.py``
@@ -134,25 +119,21 @@ Add the Python functions that will run these SQL commands to the
         init_db()
         click.echo('Initialized the database.')
 
-:meth:`open_resource() <Flask.open_resource>` opens a file relative to
-the ``flaskr`` package, which is useful since you won't necessarily know
-where that location is when deploying the application later. ``get_db``
-returns a database connection, which is used to execute the commands
-read from the file.
+:meth:`open_resource() <Flask.open_resource>` 打开一个文件，该文件名是相对于
+``flaskr`` 包的。这样就不需要考虑以后应用具体部署在哪个位置。 ``get_db``
+返回一个数据库连接，用于执行文件中的命令。
 
-:func:`click.command` defines a command line command called ``init-db``
-that calls the ``init_db`` function and shows a success message to the
-user. You can read :ref:`cli` to learn more about writing commands.
+:func:`click.command` 定义一个名为 ``init-db`` 命令行，它调用
+``init_db`` 函数，并为用户显示一个成功的消息。
+更多关于如何写命令行的内容请参阅 ref:`cli` 。
 
 
-Register with the Application
+在应用中注册
 -----------------------------
 
-The ``close_db`` and ``init_db_command`` functions need to be registered
-with the application instance, otherwise they won't be used by the
-application. However, since you're using a factory function, that
-instance isn't available when writing the functions. Instead, write a
-function that takes an application and does the registration.
+``close_db`` 和 ``init_db_command`` 函数需要在应用实例中注册，否则无法使用。
+然而，既然我们使用了工厂函数，那么在写函数的时候应用实例还无法使用。代替地，
+我们写一个函数，把应用作为参数，在函数中进行注册。
 
 .. code-block:: python
     :caption: ``flaskr/db.py``
@@ -161,15 +142,14 @@ function that takes an application and does the registration.
         app.teardown_appcontext(close_db)
         app.cli.add_command(init_db_command)
 
-:meth:`app.teardown_appcontext() <Flask.teardown_appcontext>` tells
-Flask to call that function when cleaning up after returning the
-response.
+:meth:`app.teardown_appcontext() <Flask.teardown_appcontext>` 告诉
+Flask 在返回响应后进行清理的时候调用此函数。
 
-:meth:`app.cli.add_command() <click.Group.add_command>` adds a new
-command that can be called with the ``flask`` command.
+:meth:`app.cli.add_command() <click.Group.add_command>` 添加一个新的
+可以与 ``flask`` 一起工作的命令。
 
-Import and call this function from the factory. Place the new code at
-the end of the factory function before returning the app.
+在工厂中导入并调用这个函数。在工厂函数中把新的代码放到
+函数的后部，返回应用代码的前面。
 
 .. code-block:: python
     :caption: ``flaskr/__init__.py``
@@ -184,30 +164,27 @@ the end of the factory function before returning the app.
         return app
 
 
-Initialize the Database File
+初始化数据库文件
 ----------------------------
 
-Now that ``init-db`` has been registered with the app, it can be called
-using the ``flask`` command, similar to the ``run`` command from the
-previous page.
+现在 ``init-db`` 已经在应用中注册好了，可以与 ``flask`` 命令一起使用了。
+使用的方式与前一页的 ``run`` 命令类似。
 
 .. note::
 
-    If you're still running the server from the previous page, you can
-    either stop the server, or run this command in a new terminal. If
-    you use a new terminal, remember to change to your project directory
-    and activate the env as described in :ref:`install-activate-env`.
-    You'll also need to set ``FLASK_APP`` and ``FLASK_ENV`` as shown on
-    the previous page.
+    如果你还在运行着前一页的服务器，那么现在要么停止该服务器，要么在新的
+    终端中运行这个命令。如果是新的终端请记住在进行项目文件夹并激活环境，
+    参见 :ref:`install-activate-env` 。同时还要像前一页所述设置
+    ``FLASK_APP`` 和 ``FLASK_ENV`` 。
 
-Run the ``init-db`` command:
+运行 ``init-db`` 命令：
 
 .. code-block:: none
 
     flask init-db
     Initialized the database.
 
-There will now be a ``flaskr.sqlite`` file in the ``instance`` folder in
-your project.
+现在会有一个 ``flaskr.sqlite`` 文件出现在项目所在文件夹的 ``instance`` 文件夹
+中。
 
-Continue to :doc:`views`.
+下面请阅读 :doc:`views` 。
