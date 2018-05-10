@@ -1,35 +1,28 @@
 .. currentmodule:: flask
 
-Templates
+模板
 =========
 
-You've written the authentication views for your application, but if
-you're running the server and try to go to any of the URLs, you'll see a
-``TemplateNotFound`` error. That's because the views are calling
-:func:`render_template`, but you haven't written the templates yet.
-The template files will be stored in the ``templates`` directory inside
-the ``flaskr`` package.
+应用已经写好验证视图，但是如果现在运行服务器的话，无论访问哪个 URL ，都会
+看到一个 ``TemplateNotFound`` 错误。这是因为视图调用了
+:func:`render_template` ，但是模板还没有写。模板文件会储存在 ``flaskr``
+包内的 ``templates`` 文件夹内。
 
-Templates are files that contain static data as well as placeholders
-for dynamic data. A template is rendered with specific data to produce a
-final document. Flask uses the `Jinja`_ template library to render
-templates.
 
-In your application, you will use templates to render `HTML`_ which
-will display in the user's browser. In Flask, Jinja is configured to
-*autoescape* any data that is rendered in HTML templates. This means
-that it's safe to render user input; any characters they've entered that
-could mess with the HTML, such as ``<`` and ``>`` will be *escaped* with
-*safe* values that look the same in the browser but don't cause unwanted
-effects.
+模板是包含静态数据和动态数据占位符的文件。模板使用指定的数据生成最终的文档。
+Flask 使用 `Jinja`_ 模板库来渲染模板。
 
-Jinja looks and behaves mostly like Python. Special delimiters are used
-to distinguish Jinja syntax from the static data in the template.
-Anything between ``{{`` and ``}}`` is an expression that will be output
-to the final document. ``{%`` and ``%}`` denotes a control flow
-statement like ``if`` and ``for``. Unlike Python, blocks are denoted
-by start and end tags rather than indentation since static text within
-a block could change indentation.
+在教程的应用中会使用模板来渲染显示在用户浏览器中的 `HTML`_ 。在 Flask 中，
+Jinja 被配置为 *自动转义* HTML 模板中的任何数据。即渲染用户的输入是安全的。
+任何用户输入的可能出现歧意的字符，如 ``<`` 和 ``>`` ，会被 *转义* ，替换为
+*安全* 的值。这些值在浏览器中看起来一样，但是没有副作用。
+
+Jinja 看上去并且运行地很像 Python 。 Jinja 语句与模板中的静态数据通过特定的
+分界符分隔。
+任何位于 ``{{`` 和 ``}}`` 这间的东西是一个会输出到最终文档的静态式。
+``{%`` 和 ``%}`` 之间的东西表示流程控制语句，如 ``if`` 和 ``for`` 。与
+Python 不同，代码块使用分界符分隔，而不是使用缩进分隔。因为代码块内的
+静态文本可以会改变缩进。
 
 .. _Jinja: http://jinja.pocoo.org/docs/templates/
 .. _HTML: https://developer.mozilla.org/docs/Web/HTML
