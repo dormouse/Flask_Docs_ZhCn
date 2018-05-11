@@ -1,26 +1,22 @@
-Static Files
+静态文件
 ============
 
-The authentication views and templates work, but they look very plain
-right now. Some `CSS`_ can be added to add style to the HTML layout you
-constructed. The style won't change, so it's a *static* file rather than
-a template.
+验证视图和模板已经可用了，但是看上去很朴素。可以使用一些 `CSS`_ 给 HTML
+添加点样式。样式不会改变，所以应当使用 *静态文件* ，而不是模板。
 
-Flask automatically adds a ``static`` view that takes a path relative
-to the ``flaskr/static`` directory and serves it. The ``base.html``
-template already has a link to the ``style.css`` file:
+Flask 自动添加一个 ``static`` 视图，视图使用相对于 ``flaskr/static``
+的相对路径。 ``base.html`` 模板已经使用了一个 ``style.css`` 文件连接：
 
 .. code-block:: html+jinja
 
     {{ url_for('static', filename='style.css') }}
 
-Besides CSS, other types of static files might be files with JavaScript
-functions, or a logo image. They are all placed under the
-``flaskr/static`` directory and referenced with
-``url_for('static', filename='...')``.
+除了 CSS ，其他类型的静态文件可以是 JavaScript 函数文件或者 logo 图片。它们
+都放置于 ``flaskr/static`` 文件夹中，并使用
+``url_for('static', filename='...')`` 引用。
 
-This tutorial isn't focused on how to write CSS, so you can just copy
-the following into the ``flaskr/static/style.css`` file:
+本教程不专注于如何写 CSS ，所以你只要复制以下内容到
+``flaskr/static/style.css`` 文件：
 
 .. code-block:: css
     :caption: ``flaskr/static/style.css``
@@ -52,21 +48,20 @@ the following into the ``flaskr/static/style.css`` file:
     input.danger { color: #cc2f2e; }
     input[type=submit] { align-self: start; min-width: 10em; }
 
-You can find a less compact version of ``style.css`` in the
-:gh:`example code <examples/tutorial/flaskr/static/style.css>`.
+你可以在
+:gh:`示例代码 <examples/tutorial/flaskr/static/style.css>` 找到一个排版不
+紧凑的 ``style.css`` 。
 
-Go to http://127.0.0.1/auth/login and the page should look like the
-screenshot below.
+访问 http://127.0.0.1/auth/login ，页面如下所示。
 
 .. image:: flaskr_login.png
     :align: center
     :class: screenshot
     :alt: screenshot of login page
 
-You can read more about CSS from `Mozilla's documentation <CSS_>`_. If
-you change a static file, refresh the browser page. If the change
-doesn't show up, try clearing your browser's cache.
+关于 CSS 的更多内容参见 `Mozilla 的文档 <CSS_>`_ 。改动静态文件后需要刷新
+页面。如果刷新没有作用，请清除浏览器的缓存。
 
 .. _CSS: https://developer.mozilla.org/docs/Web/CSS
 
-Continue to :doc:`blog`.
+下面请阅读 :doc:`blog` 。

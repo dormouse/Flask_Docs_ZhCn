@@ -28,13 +28,11 @@ Python 不同，代码块使用分界符分隔，而不是使用缩进分隔。�
 .. _HTML: https://developer.mozilla.org/docs/Web/HTML
 
 
-The Base Layout
+基础布局
 ---------------
 
-Each page in the application will have the same basic layout around a
-different body. Instead of writing the entire HTML structure in each
-template, each template will *extend* a base template and override
-specific sections.
+应用中的每一个页面主体不同，但是基本布局是相同的。每个模板会 *扩展* 同一个
+基础模板并重载相应的小节，而不是重写整个 HTML 结构。
 
 .. code-block:: html+jinja
     :caption: ``flaskr/templates/base.html``
@@ -64,35 +62,28 @@ specific sections.
       {% block content %}{% endblock %}
     </section>
 
-:data:`g` is automatically available in templates. Based on if
-``g.user`` is set (from ``load_logged_in_user``), either the username
-and a log out link are displayed, otherwise links to register and log in
-are displayed. :func:`url_for` is also automatically available, and is
-used to generate URLs to views instead of writing them out manually.
+:data:`g` 在模板中自动可用。
+根据 ``g.user`` 是否被设置（在 ``load_logged_in_user`` 中进行），要么显示
+用户名和注销连接，要么显示注册和登录连接。
+:func:`url_for` 也是自动可用的，可用于生成视图的 URL ，而不用手动来指定。
 
-After the page title, and before the content, the template loops over
-each message returned by :func:`get_flashed_messages`. You used
-:func:`flash` in the views to show error messages, and this is the code
-that will display them.
+在标题下面，正文内容前面，模板会循环显示 :func:`get_flashed_messages` 返回
+的每个消息。在视图中使用 :func:`flash` 来处理出错信息，在模板中就可以这样
+显示出出来。
 
-There are three blocks defined here that will be overridden in the other
-templates:
+模板中定义三个块，这些块会被其他模板重载。
 
-#.  ``{% block title %}`` will change the title displayed in the
-    browser's tab and window title.
+#.  ``{% block title %}`` 会改变显示在浏览器标签和窗口中的标题。
 
-#.  ``{% block header %}`` is similar to ``title`` but will change the
-    title displayed on the page.
+#.  ``{% block header %}`` 类似于 ``title`` ，但是会改变页面的标题。
 
-#.  ``{% block content %}`` is where the content of each page goes, such
-    as the login form or a blog post.
+#.  ``{% block content %}`` 是每个页面的具体内容，如登录表单或者博客帖子。
 
-The base template is directly in the ``templates`` directory. To keep
-the others organized, the templates for a blueprint will be placed in a
-directory with the same name as the blueprint.
+其他模板直接放在 ``templates`` 文件夹内。为了更好地管理文件，属于某个蓝图
+的模板会被放在与蓝图同名的文件夹内。
 
 
-Register
+注册
 --------
 
 .. code-block:: html+jinja
@@ -114,30 +105,23 @@ Register
       </form>
     {% endblock %}
 
-``{% extends 'base.html' %}`` tells Jinja that this template should
-replace the blocks from the base template. All the rendered content must
-appear inside ``{% block %}`` tags that override blocks from the base
-template.
+``{% extends 'base.html' %}`` 告诉 Jinja 这个模板基于基础模板，并且需要替换
+相应的块。所有替换的内容必须位于 ``{% block %}`` 标签之内。
 
-A useful pattern used here is to place ``{% block title %}`` inside
-``{% block header %}``. This will set the title block and then output
-the value of it into the header block, so that both the window and page
-share the same title without writing it twice.
+一个实用的模式是把 ``{% block title %}`` 放在 ``{% block header %}`` 内部。
+这里不但可以设置 ``title`` 块，还可以把其值作为 ``header`` 块的内容，
+一举两得。
 
-The ``input`` tags are using the ``required`` attribute here. This tells
-the browser not to submit the form until those fields are filled in. If
-the user is using an older browser that doesn't support that attribute,
-or if they are using something besides a browser to make requests, you
-still want to validate the data in the Flask view. It's important to
-always fully validate the data on the server, even if the client does
-some validation as well.
+``input`` 标记使用了 ``required`` 属性。这是告诉浏览器这些字段是必填的。
+如果用户使用不支持这个属性的旧版浏览器或者不是浏览器的东西创建的请求，
+那么你还是要在视图中验证输入数据。总是在服务端中完全验证数据，即使客户端
+已经做了一些验证，这一点非常重要。
 
 
-Log In
+登录
 ------
 
-This is identical to the register template except for the title and
-submit button.
+本模板除了标题和提交按钮外与注册模板相同。
 
 .. code-block:: html+jinja
     :caption: ``flaskr/templates/auth/login.html``
@@ -159,22 +143,20 @@ submit button.
     {% endblock %}
 
 
-Register A User
+注册一个用户
 ---------------
 
-Now that the authentication templates are written, you can register a
-user. Make sure the server is still running (``flask run`` if it's not),
-then go to http://127.0.0.1:5000/auth/register.
+现在验证模板已写好，你可以注册一个用户了。
+请确定服务器还在运行（如果没有请使用 ``flask run`` ），然后
+访问 http://127.0.0.1:5000/auth/register 。
 
-Try clicking the "Register" button without filling out the form and see
-that the browser shows an error message. Try removing the ``required``
-attributes from the ``register.html`` template and click "Register"
-again. Instead of the browser showing an error, the page will reload and
-the error from :func:`flash` in the view will be shown.
+在不填写表单的情况，尝试点击 "Register" 按钮，浏览器会显示出错信息。尝试在
+``register.html`` 中删除 ``required`` 属性后再次点击 "Register" 按钮。
+页面会重载并显示来自于视图中的 :func:`flash` 的出错信息，而不是浏览器显示
+出错信息。
 
-Fill out a username and password and you'll be redirected to the login
-page. Try entering an incorrect username, or the correct username and
-incorrect password. If you log in you'll get an error because there's
-no ``index`` view to redirect to yet.
+填写用户名和密码后会重定向到登录页面。尝试输入错误的用户名，或者输入正常的
+用户名和错误的密码。如果登录成功，那么会看到一个出错信息，因为还没有写登录
+后要转向的 ``index`` 视图。
 
-Continue to :doc:`static`.
+下面请阅读 :doc:`static` 。

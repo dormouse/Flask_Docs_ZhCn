@@ -1,21 +1,18 @@
 .. currentmodule:: flask
 
-Blog Blueprint
+博客蓝图
 ==============
 
-You'll use the same techniques you learned about when writing the
-authentication blueprint to write the blog blueprint. The blog should
-list all posts, allow logged in users to create posts, and allow the
-author of a post to edit or delete it.
+博客蓝图与验证蓝图所使用的技术一样。博客页面应当列出所有的帖子，允许已登录
+用户创建帖子，并允许帖子作者修改和删除帖子。
 
-As you implement each view, keep the development server running. As you
-save your changes, try going to the URL in your browser and testing them
-out.
+当你完成每个视图时，请保持开发服务器运行。当你保存修改后，请尝试在浏览器中
+访问 URL ，并进行测试。
 
-The Blueprint
+蓝图
 -------------
 
-Define the blueprint and register it in the application factory.
+定义蓝图并注册到应用工厂。
 
 .. code-block:: python
     :caption: ``flaskr/blog.py``
@@ -30,9 +27,8 @@ Define the blueprint and register it in the application factory.
 
     bp = Blueprint('blog', __name__)
 
-Import and register the blueprint from the factory using
-:meth:`app.register_blueprint() <Flask.register_blueprint>`. Place the
-new code at the end of the factory function before returning the app.
+使用 :meth:`app.register_blueprint() <Flask.register_blueprint>` 在工厂中
+导入和注册蓝图。将新代码放在工厂函数的尾部，返回应用之前。
 
 .. code-block:: python
     :caption: ``flaskr/__init__.py``
@@ -48,30 +44,28 @@ new code at the end of the factory function before returning the app.
         return app
 
 
-Unlike the auth blueprint, the blog blueprint does not have a
-``url_prefix``. So the ``index`` view will be at ``/``, the ``create``
-view at ``/create``, and so on. The blog is the main feature of Flaskr,
-so it makes sense that the blog index will be the main index.
+与验证蓝图不同，博客蓝图没有
+``url_prefix`` 。因此 ``index`` 视图会用于 ``/`` ， ``create`` 会用于
+``/create`` ，以此类推。博客是 Flaskr 的主要功能，因此把博客索引作为主
+索引是合理的。
 
-However, the endpoint for the ``index`` view defined below will be
-``blog.index``. Some of the authentication views referred to a plain
-``index`` endpoint. :meth:`app.add_url_rule() <Flask.add_url_rule>`
-associates the endpoint name ``'index'`` with the ``/`` url so that
-``url_for('index')`` or ``url_for('blog.index')`` will both work,
-generating the same ``/`` URL either way.
+但是，下文的 ``index`` 视图的端点会被定义为 ``blog.index`` 。一些验证视图
+会指定向普通的 ``index`` 端点。
+我们使用 :meth:`app.add_url_rule() <Flask.add_url_rule>`
+关联端点名称 ``'index'`` 和 ``/`` URL ，这样
+``url_for('index')`` 或 ``url_for('blog.index')`` 都会有效，都会生成同样的
+``/`` URL 。
 
-In another application you might give the blog blueprint a
-``url_prefix`` and define a separate ``index`` view in the application
-factory, similar to the ``hello`` view. Then the ``index`` and
-``blog.index`` endpoints and URLs would be different.
+在其他应用中，可能会在工厂中给博客蓝图一个 ``url_prefix`` 并定义一个独立的
+``index`` 视图，类似前文中的 ``hello`` 视图。在这种情况下
+``index`` 和 ``blog.index`` 的端点和 URL 会有所不同。
 
 
-Index
+索引
 -----
 
-The index will show all of the posts, most recent first. A ``JOIN`` is
-used so that the author information from the ``user`` table is
-available in the result.
+索引会显示所有帖子，最新的会排在最前面。为了在结果中包含 ``user`` 表中的
+作者信息，使用了一个 ``JOIN`` 。
 
 .. code-block:: python
     :caption: ``flaskr/blog.py``
@@ -118,24 +112,22 @@ available in the result.
       {% endfor %}
     {% endblock %}
 
-When a user is logged in, the ``header`` block adds a link to the
-``create`` view. When the user is the author of a post, they'll see an
-"Edit" link to the ``update`` view for that post. ``loop.last`` is a
-special variable available inside `Jinja for loops`_. It's used to
-display a line after each post except the last one, to visually separate
-them.
+当用户登录后， ``header`` 块添加了一个指向 ``create`` 视图的连接。当用户是
+博客作者时，可以看到一个“ Edit ”连接，指向 ``update`` 视图。
+``loop.last`` 是一个 `Jinja for 循环`_ 内部可用的特殊变量，它用于在每个
+博客帖子后面显示一条线来分隔帖子，最后一个帖子除外。
 
-.. _Jinja for loops: http://jinja.pocoo.org/docs/templates/#for
+.. _Jinja for 循环: http://jinja.pocoo.org/docs/templates/#for
 
 
-Create
+创建
 ------
 
-The ``create`` view works the same as the auth ``register`` view. Either
-the form is displayed, or the posted data is validated and the post is
-added to the database or an error is shown.
+``create`` 视图与 ``register`` 视图原理相同。要么显示表单，要么发送内容
+已通过验证且内容已加入数据库，或者显示一个出错信息。
 
-The ``login_required`` decorator you wrote earlier is used on the blog
+先前写的 ``login_required`` 装饰器用于
+decorator you wrote earlier is used on the blog
 views. A user must be logged in to visit these views, otherwise they
 will be redirected to the login page.
 
