@@ -1,35 +1,29 @@
-Make the Project Installable
+项目可安装化
 ============================
 
-Making your project installable means that you can build a
-*distribution* file and install that in another environment, just like
-you installed Flask in your project's environment. This makes deploying
-your project the same as installing any other library, so you're using
-all the standard Python tools to manage everything.
+项目可安装化是指创建一个项目 *发行* 文件，以使用项目可以安装到其他环境，
+就像在你的项目中安装 Flask 一样。这样可以使你的项目如同其他库一样进行部署，
+可以使用标准的 Python 工具来管理项目。
 
-Installing also comes with other benefits that might not be obvious from
-the tutorial or as a new Python user, including:
+可安装化还可以带来如下好处，这些好处在教程中可以不太明显或者初学者可能没
+注意到：
 
-*   Currently, Python and Flask understand how to use the ``flaskr``
-    package only because you're running from your project's directory.
-    Installing means you can import it no matter where you run from.
+*   现在， Python 和 Flask 能够理解如何 ``flaskr`` 包，是因为你是在项目
+    文件夹中运行的。可安装化后，可以从任何地方导入项目并运行。
 
-*   You can manage your project's dependencies just like other packages
-    do, so ``pip install yourproject.whl`` installs them.
+*   可以和其他包一样管理项目的依赖，即使用
+    ``pip install yourproject.whl`` 来安装项目并安装相关依赖。
 
-*   Test tools can isolate your test environment from your development
-    environment.
+*   测试工具可以分离测试环境和开发环境。
 
 .. note::
-    This is being introduced late in the tutorial, but in your future
-    projects you should always start with this.
+    这些内容会在随后的教程中说明，但是在以后的项目中应当以此为项目的起点。
 
 
-Describe the Project
+描述项目
 --------------------
 
-The ``setup.py`` file describes your project and the files that belong
-to it.
+``setup.py`` 文件描述项目及其从属的文件。
 
 .. code-block:: python
     :caption: ``setup.py``
@@ -48,12 +42,11 @@ to it.
     )
 
 
-``packages`` tells Python what package directories (and the Python files
-they contain) to include. ``find_packages()`` finds these directories
-automatically so you don't have to type them out. To include other
-files, such as the static and templates directories,
-``include_package_data`` is set. Python needs another file named
-``MANIFEST.in`` to tell what this other data is.
+``packages`` 告诉 Python 包所包括的文件夹（及其所包含的 Python 文件）。
+``find_packages()`` 自动找到这些文件夹，这样就不用手动写出来。
+为了包含其他文件夹，如静态文件和模板文件所在的文件夹，需要设置
+``include_package_data`` 。 Python 还需要一个名为
+``MANIFEST.in`` 文件来说明这些文件有哪些。
 
 .. code-block:: none
     :caption: ``MANIFEST.in``
@@ -63,31 +56,28 @@ files, such as the static and templates directories,
     graft flaskr/templates
     global-exclude *.pyc
 
-This tells Python to copy everything in the ``static`` and ``templates``
-directories, and the ``schema.sql`` file, but to exclude all bytecode
-files.
+这告诉 Python 复制所有 ``static`` 和 ``templates`` 文件夹中的文件，
+``schema.sql`` 文件，但是排除所有字节文件。
 
-See the `official packaging guide`_ for another explanation of the files
-and options used.
+更多内容和参数参见 `官方打包指南`_ 。
 
-.. _official packaging guide: https://packaging.python.org/tutorials/distributing-packages/
+.. _官方打包指南: https://packaging.python.org/tutorials/distributing-packages/
 
 
-Install the Project
+安装项目
 -------------------
 
-Use ``pip`` to install your project in the virtual environment.
+使用 ``pip`` 在虚拟环境中安装项目。
 
 .. code-block:: none
 
     pip install -e .
 
-This tells pip to find ``setup.py`` in the current directory and install
-it in *editable* or *development* mode. Editable mode means that as you
-make changes to your local code, you'll only need to re-install if you
-change the metadata about the project, such as its dependencies.
+这个命令告诉 pip 在当前文件夹中寻找 ``setup.py`` 并在 *编辑* 或 *开发*
+模式下安装。编辑模式是指当改变本地代码后，只需要重新项目。比如改变了项目
+依赖之类的元数据的情况下。
 
-You can observe that the project is now installed with ``pip list``.
+可以通过 ``pip list`` 来查看项目的安装情况。
 
 .. code-block:: none
 
@@ -106,8 +96,9 @@ You can observe that the project is now installed with ``pip list``.
     Werkzeug       0.14.1
     wheel          0.30.0
 
-Nothing changes from how you've been running your project so far.
-``FLASK_APP`` is still set to ``flaskr`` and ``flask run`` still runs
-the application.
 
-Continue to :doc:`tests`.
+至此，如何运行项目没有改变。
+``FLASK_APP`` 还是被设置为 ``flaskr`` ，并且还是使用 ``flask run`` 运行
+应用。
+
+下面请阅读 :doc:`tests` 。
