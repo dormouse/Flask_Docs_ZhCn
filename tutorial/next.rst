@@ -1,36 +1,29 @@
-Keep Developing!
+继续开发！
 ================
 
-You've learned about quite a few Flask and Python concepts throughout
-the tutorial. Go back and review the tutorial and compare your code with
-the steps you took to get there. Compare your project to the
-:gh:`example project <examples/tutorial>`, which might look a bit
-different due to the step-by-step nature of the tutorial.
+通过教程你已经学到了许多 Flask 和 Python 的概念。复习一下教程，并比较每一
+步的代码有何变化。比较你的项目与 :gh:`示例项目 <examples/tutorial>` ，
+可能会发现有较大的区别，蹒跚学步，很自然。
 
-There's a lot more to Flask than what you've seen so far. Even so,
-you're now equipped to start developing your own web applications. Check
-out the :ref:`quickstart` for an overview of what Flask can do, then
-dive into the docs to keep learning. Flask uses `Jinja`_, `Click`_,
-`Werkzeug`_, and `ItsDangerous`_ behind the scenes, and they all have
-their own documentation too. You'll also be interested in
-:ref:`extensions` which make tasks like working with the database or
-validating form data easier and more powerful.
+Flask 远不止教程所涉及的这些内容，然而你已经可以开始网络应用开发的。请阅读
+:ref:`quickstart` ，对 Flask 的功能有个大致了解，然后深入文档进行学习。
+Flask 在幕后使用了 `Jinja`_ 、 `Click`_ 、 `Werkzeug`_ 和 `ItsDangerous`_ ，
+它们也有各自在文档。 Flask 还有许多功能强大的 :ref:`extensions` ，比如
+数据库扩展或者表单验证扩展等等，你一定会感兴趣的。
 
-If you want to keep developing your Flaskr project, here are some ideas
-for what to try next:
+如果要继续开发 Flaskr 项目，建议尝试以下内容：
 
-*   A detail view to show a single post. Click a post's title to go to
-    its page.
-*   Like / unlike a post.
-*   Comments.
-*   Tags. Clicking a tag shows all the posts with that tag.
-*   A search box that filters the index page by name.
-*   Paged display. Only show 5 posts per page.
-*   Upload an image to go along with a post.
-*   Format posts using Markdown.
-*   An RSS feed of new posts.
+*   点击帖子标题，显示一个帖子详细页面。
+*   喜欢或者不喜欢一个帖子。
+*   评论。
+*   标记。点击标记显示所有带有该标记的帖子。
+*   一个可以过滤标题的搜索框。
+*   分布显示索引。每页显示只显示五个帖子。
+*   帖子可以上传图片。
+*   帖子支持用 Markdown 撰写。
+*   一个新帖子的 RSS 源。
 
-Have fun and make awesome applications!
+祝你开心并写出令人惊叹的应用！
 
 .. _Jinja: https://palletsprojects.com/p/jinja/
 .. _Click: https://palletsprojects.com/p/click/
