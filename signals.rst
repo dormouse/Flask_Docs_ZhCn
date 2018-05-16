@@ -1,53 +1,39 @@
 .. _signals:
 
-Signals
+信号
 =======
 
 .. versionadded:: 0.6
 
-Starting with Flask 0.6, there is integrated support for signalling in
-Flask.  This support is provided by the excellent `blinker`_ library and
-will gracefully fall back if it is not available.
+Flask 自 0.6 版本开始在内部支持信号。信号功能由优秀的 `blinker`_ 库提供支持，
+如果没有安装该库就无法使用信号功能，但不影响其他功能。
 
-What are signals?  Signals help you decouple applications by sending
-notifications when actions occur elsewhere in the core framework or
-another Flask extensions.  In short, signals allow certain senders to
-notify subscribers that something happened.
+什么是信号？当核心框架的其他地方或另一个 Flask 扩展中发生动作时，信号通过
+发送通知来帮助你解耦应用。简言之，信号允许某个发送者通知接收者有事情发生了。
 
-Flask comes with a couple of signals and other extensions might provide
-more.  Also keep in mind that signals are intended to notify subscribers
-and should not encourage subscribers to modify data.  You will notice that
-there are signals that appear to do the same thing like some of the
-builtin decorators do (eg: :data:`~flask.request_started` is very similar
-to :meth:`~flask.Flask.before_request`).  However, there are differences in
-how they work.  The core :meth:`~flask.Flask.before_request` handler, for
-example, is executed in a specific order and is able to abort the request
-early by returning a response.  In contrast all signal handlers are
-executed in undefined order and do not modify any data.
+Flask 自身有许多信号，其他扩展可能还会带来更多信号。请记住，信号使用目的是
+通知接收者，不应该鼓励接收者修改数据。你会注意到信号的功能与一些内建的装饰
+器类似（如 :data:`~flask.request_started` 与
+:meth:`~flask.Flask.before_request` 非常相似），但是它们的工作原理不同。例如
+核心的 :meth:`~flask.Flask.before_request` 处理器以一定的顺序执行，并且可以
+提前退出请求，返回一个响应。相反，所有的信号处理器是乱序执行的，并且不修改任
+何数据。
 
-The big advantage of signals over handlers is that you can safely
-subscribe to them for just a split second.  These temporary
-subscriptions are helpful for unit testing for example.  Say you want to
-know what templates were rendered as part of a request: signals allow you
-to do exactly that.
+信号的最大优势是可以安全快速的订阅。比如，在单元测试中这些临时订阅十分有用。
+假设你想知道请求需要渲染哪个模块，信号可以给你答案。
 
-Subscribing to Signals
+订阅信号
 ----------------------
 
-To subscribe to a signal, you can use the
-:meth:`~blinker.base.Signal.connect` method of a signal.  The first
-argument is the function that should be called when the signal is emitted,
-the optional second argument specifies a sender.  To unsubscribe from a
-signal, you can use the :meth:`~blinker.base.Signal.disconnect` method.
+使用信号的 :meth:`~blinker.base.Signal.connect` 方法可以订阅该信号。该方法
+的第一个参数是当信号发出时所调用的函数。第二个参数是可选参数，定义一个发送
+者。使用 :meth:`~blinker.base.Signal.disconnect` 方法可以退订信号。
 
-For all core Flask signals, the sender is the application that issued the
-signal.  When you subscribe to a signal, be sure to also provide a sender
-unless you really want to listen for signals from all applications.  This is
-especially true if you are developing an extension.
+所有核心 Flask 信号的发送者是应用本身。因此当订阅信号时请指定发送者，除非
+你真的想要收听应用的所有信号。当你正在开发一个扩展时，尤其要注意这点。
 
-For example, here is a helper context manager that can be used in a unit test
-to determine which templates were rendered and what variables were passed
-to the template::
+下面是一个情境管理器的辅助工具，可用于在单元测试中辨别哪个模板被渲染了，哪
+些变量被传递给了模板::
 
     from flask import template_rendered
     from contextlib import contextmanager
@@ -63,7 +49,7 @@ to the template::
         finally:
             template_rendered.disconnect(record, app)
 
-This can now easily be paired with a test client::
+上例可以在测试客户端中轻松使用::
 
     with captured_templates(app) as templates:
         rv = app.test_client().get('/')
@@ -73,19 +59,15 @@ This can now easily be paired with a test client::
         assert template.name == 'index.html'
         assert len(context['items']) == 10
 
-Make sure to subscribe with an extra ``**extra`` argument so that your
-calls don't fail if Flask introduces new arguments to the signals.
+为了使 Flask 在向信号中添加新的参数时不发生错误，请确保使用一个额外的
+``**extra`` 参数。
 
-All the template rendering in the code issued by the application `app`
-in the body of the ``with`` block will now be recorded in the `templates`
-variable.  Whenever a template is rendered, the template object as well as
-context are appended to it.
+在 with 代码块中，所有由 `app` 渲染的模板会被记录在 `templates` 变量中。每
+当有模板被渲染，模板对象及环境就会追加到变量中。
 
-Additionally there is a convenient helper method
-(:meth:`~blinker.base.Signal.connected_to`)  that allows you to
-temporarily subscribe a function to a signal with a context manager on
-its own.  Because the return value of the context manager cannot be
-specified that way, you have to pass the list in as an argument::
+另外还有一个方便的辅助方法（ :meth:`~blinker.base.Signal.connected_to` ）。
+它允许临时把一个使用环境对象的函数订阅到一个信号。因为环境对象的返回值不能
+被指定，所以必须把列表作为参数::
 
     from flask import template_rendered
 
@@ -94,52 +76,47 @@ specified that way, you have to pass the list in as an argument::
             recorded.append((template, context))
         return template_rendered.connected_to(record, app)
 
-The example above would then look like this::
+上例可以这样使用::
 
     templates = []
     with captured_templates(app, templates, **extra):
         ...
         template, context = templates[0]
 
-.. admonition:: Blinker API Changes
+.. admonition:: Blinker API 变化
 
-   The :meth:`~blinker.base.Signal.connected_to` method arrived in Blinker
-   with version 1.1.
+   Blinker version 1.1 版本中增加了
+   :meth:`~blinker.base.Signal.connected_to` 方法。
 
-Creating Signals
+
+创建信号
 ----------------
 
-If you want to use signals in your own application, you can use the
-blinker library directly.  The most common use case are named signals in a
-custom :class:`~blinker.base.Namespace`..  This is what is recommended
-most of the time::
+如果相要在你自己的应用中使用信号，那么可以直接使用 blinker 库。最常见的,也
+是最推荐的方法是在自定义的 :class:`~blinker.base.Namespace` 中命名信号::
 
     from blinker import Namespace
     my_signals = Namespace()
 
-Now you can create new signals like this::
+现在可以像这样创建新的信号::
 
     model_saved = my_signals.signal('model-saved')
 
-The name for the signal here makes it unique and also simplifies
-debugging.  You can access the name of the signal with the
-:attr:`~blinker.base.NamedSignal.name` attribute.
+信号的名称应当是唯一的，并且应当简明以便于调试。可以通过
+:attr:`~blinker.base.NamedSignal.name` 属性获得信号的名称。
 
-.. admonition:: For Extension Developers
+.. admonition:: 扩展开发者注意
 
-   If you are writing a Flask extension and you want to gracefully degrade for
-   missing blinker installations, you can do so by using the
-   :class:`flask.signals.Namespace` class.
+   如果你正在编写一个 Flask 扩展，并且想要妥善处理 blinker 安装缺失的情况，
+   那么可以使用 :class:`flask.signals.Namespace` 类。
 
 .. _signals-sending:
 
-Sending Signals
+发送信号
 ---------------
 
-If you want to emit a signal, you can do so by calling the
-:meth:`~blinker.base.Signal.send` method.  It accepts a sender as first
-argument and optionally some keyword arguments that are forwarded to the
-signal subscribers::
+如果想要发送信号，可以使用 :meth:`~blinker.base.Signal.send` 方法。它的第
+一个参数是一个发送者，其他参数是要发送给订阅者的东西，其他参数是可选的::
 
     class Model(object):
         ...
@@ -147,33 +124,31 @@ signal subscribers::
         def save(self):
             model_saved.send(self)
 
-Try to always pick a good sender.  If you have a class that is emitting a
-signal, pass ``self`` as sender.  If you are emitting a signal from a random
-function, you can pass ``current_app._get_current_object()`` as sender.
+请谨慎选择发送者。如果是一个发送信号的类，请把 `self` 作为发送者。如果发送
+信号的是一个随机的函数，那么可以把 ``current_app._get_current_object()``
+作为发送者。
 
-.. admonition:: Passing Proxies as Senders
+.. admonition:: 传递代理作为发送者
 
-   Never pass :data:`~flask.current_app` as sender to a signal.  Use
-   ``current_app._get_current_object()`` instead.  The reason for this is
-   that :data:`~flask.current_app` is a proxy and not the real application
-   object.
+   不要把 :data:`~flask.current_app` 作为发送者传递给信号。请使用
+   ``current_app._get_current_object()`` 。因为 :data:`~flask.current_app`
+   是一个代理，不是实际的应用对象。
 
-
-Signals and Flask's Request Context
+信号与 Flask 的请求环境
 -----------------------------------
 
-Signals fully support :ref:`request-context` when receiving signals.
-Context-local variables are consistently available between
-:data:`~flask.request_started` and :data:`~flask.request_finished`, so you can
-rely on :class:`flask.g` and others as needed.  Note the limitations described
-in :ref:`signals-sending` and the :data:`~flask.request_tearing_down` signal.
+信号在接收时，完全支持 :ref:`request-context` 。在
+:data:`~flask.request_started` 和 :data:`~flask.request_finished` 本地环境变量
+始终可用。因此你可以依赖 :class:`flask.g` 及其他本地环境变量。
+请注意在 :ref:`signals-sending` 中所述的限制和
+:data:`~flask.request_tearing_down` 信号。
 
 
-Decorator Based Signal Subscriptions
+信号订阅装饰器
 ------------------------------------
 
-With Blinker 1.1 you can also easily subscribe to signals by using the new
-:meth:`~blinker.base.NamedSignal.connect_via` decorator::
+Blinker 1.1 版本中你还可以通过使用新的
+:meth:`~blinker.base.NamedSignal.connect_via` 装饰器轻松订阅信号::
 
     from flask import template_rendered
 
@@ -181,10 +156,11 @@ With Blinker 1.1 you can also easily subscribe to signals by using the new
     def when_template_rendered(sender, template, context, **extra):
         print 'Template %s is rendered with %s' % (template.name, context)
 
-Core Signals
+
+核心信号
 ------------
 
-Take a look at :ref:`core-signals-list` for a list of all builtin signals.
+所有内置信号请参阅 :ref:`core-signals-list` 。
 
 
 .. _blinker: https://pypi.org/project/blinker/
