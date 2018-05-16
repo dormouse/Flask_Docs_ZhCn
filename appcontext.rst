@@ -2,75 +2,61 @@
 
 .. _app-context:
 
-The Application Context
+应用情境
 =======================
 
-The application context keeps track of the application-level data during
-a request, CLI command, or other activity. Rather than passing the
-application around to each function, the :data:`current_app` and
-:data:`g` proxies are accessed instead.
+应用情境在请求， CLI 命令或其他活动期间跟踪应用级数据。不是将应用程序传递
+给每个函数，而是代之以访问 :data:`current_app` 和 :data:`g` 代理。
 
-This is similar to the :doc:`/reqcontext`, which keeps track of
-request-level data during a request. A corresponding application context
-is pushed when a request context is pushed.
+这与 :doc:`/reqcontext` 类似，它在请求期间跟踪请求级数据。推送请求情境时会
+推送相应的应用情境。
 
-Purpose of the Context
+情境的目的
 ----------------------
 
-The :class:`Flask` application object has attributes, such as
-:attr:`~Flask.config`, that are useful to access within views and
-:doc:`CLI commands </cli>`. However, importing the ``app`` instance
-within the modules in your project is prone to circular import issues.
-When using the :doc:`app factory pattern </patterns/appfactories>` or
-writing reusable :doc:`blueprints </blueprints>` or
-:doc:`extensions </extensions>` there won't be an ``app`` instance to
-import at all.
+:class:`Flask` 应用对象具有诸如 :attr:`~Flask.config` 之类的属性，这些属
+性对于在视图和 :doc:`CLI commands </cli>` 中访问很有用。但是，在项目中的模
+块内导入 ``app`` 实例容易导致循环导入问题。当使用
+:doc:`应用程序工厂方案 </patterns/appfactories>` 或编写可重用的
+:doc:`blueprints </blueprints>` 或 :doc:`extensions </extensions>` 时，根
+本不会有应用程序实例导入。
 
-Flask solves this issue with the *application context*. Rather than
-referring to an ``app`` directly, you use the the :data:`current_app`
-proxy, which points to the application handling the current activity.
+Flask 通过 *应用情境* 解决了这个问题。不是直接引用一个 ``app`` ，而是使用
+ :data:`current_app` 代理，该代理指向处理当前活动的应用。
 
-Flask automatically *pushes* an application context when handling a
-request. View functions, error handlers, and other functions that run
-during a request will have access to :data:`current_app`.
+处理请求时， Flask 自动 *推送* 应用情境。在请求期间运行的视图函数、错误处
+理器和其他函数将有权访问 :data:`current_app` 。
 
-Flask will also automatically push an app context when running CLI
-commands registered with :attr:`Flask.cli` using ``@app.cli.command()``.
+运行使用 ``@app.cli.command()`` 注册到 :attr:`Flask.cli` 的 CLI 命令时，
+Flask 还会自动推送应用情境。
 
 
-Lifetime of the Context
+情境的生命周期
 -----------------------
 
-The application context is created and destroyed as necessary. When a
-Flask application begins handling a request, it pushes an application
-context and a :doc:`request context </reqcontext>`. When the request
-ends it pops the request context then the application context.
-Typically, an application context will have the same lifetime as a
-request.
+应用情境根据需要创建和销毁。当 Flask 应用开始处理请求时，它会推送应用情境
+和 :doc:`请求情境 </reqcontext>` 。当请求结束时，它会在请求情境中弹出，然
+后在应用情境中弹出。通常，应用情境将具有与请求相同的生命周期。
 
-See :doc:`/reqcontext` for more information about how the contexts work
-and the full lifecycle of a request.
+请参阅 :doc:`/reqcontext` 以获取有关情境如何工作以及请求的完整生命周期的更
+多信息。
 
-
-Manually Push a Context
+手动推送情境
 -----------------------
 
-If you try to access :data:`current_app`, or anything that uses it,
-outside an application context, you'll get this error message:
+如果您尝试在应用情境之外访问 :data:`current_app` ，或其他任何使用它的东西，
+则会看到以下错误消息：
 
 .. code-block:: pytb
 
     RuntimeError: Working outside of application context.
 
-    This typically means that you attempted to use functionality that
-    needed to interface with the current application object in some way.
-    To solve this, set up an application context with app.app_context().
+    这通常意味着您试图使用功能需要以某种方式与当前的应用程序对象进行交互。
+    要解决这个问题，请使用 app.app_context（）设置应用情境。
 
-If you see that error while configuring your application, such as when
-initializing an extension, you can push a context manually since you
-have direct access to the ``app``. Use :meth:`~Flask.app_context` in a
-``with`` block, and everything that runs in the block will have access
-to :data:`current_app`. ::
+如果在配置应用时发现错误（例如初始化扩展时），那么可以手动推送上下文。因为
+你可以直接访问 ``app`` 。在 ``with`` 块中使用 :meth:`~Flask.app_context` ，
+块中运行的所有内容都可以访问 :data:`current_app` 。::
 
     def create_app():
         app = Flask(__name__)
@@ -80,35 +66,28 @@ to :data:`current_app`. ::
 
         return app
 
-If you see that error somewhere else in your code not related to
-configuring the application, it most likely indicates that you should
-move that code into a view function or CLI command.
+如果您在代码中的其他地方看到与配置应用无关的错误，则很可能表明应该将该代码
+移到视图函数或 CLI 命令中。
 
-
-Storing Data
+存储数据
 ------------
 
-The application context is a good place to store common data during a
-request or CLI command. Flask provides the :data:`g object <g>` for this
-purpose. It is a simple namespace object that has the same lifetime as
-an application context.
+应用情境是在请求或 CLI 命令期间存储公共数据的好地方。Flask 为此提供了
+:data:`g 对象 <g>` 。它是一个简单的命名空间对象，与应用情境具有相同的生命
+周期。
 
 .. note::
-    The ``g`` name stands for "global", but that is referring to the
-    data being global *within a context*. The data on ``g`` is lost
-    after the context ends, and it is not an appropriate place to store
-    data between requests. Use the :data:`session` or a database to
-    store data across requests.
+    ``g`` 表示“全局”的意思，但是指的是数据在 *情境* 之中是全局的。 ``g``
+    中的数据在情境结束后丢失，因此它不是在请求之间存储数据的恰当位置。使用
+    :data:`session` 或数据库跨请求存储数据。
 
-A common use for :data:`g` is to manage resources during a request.
+:data:`g` 的常见用法是在请求期间管理资源。
 
-1.  ``get_X()`` creates resource ``X`` if it does not exist, caching it
-    as ``g.X``.
-2.  ``teardown_X()`` closes or otherwise deallocates the resource if it
-    exists. It is registered as a :meth:`~Flask.teardown_appcontext`
-    handler.
+1.   ``get_X()`` 创建资源 ``X`` （如果它不存在），将其缓存为 ``g.X`` 。
+2.   ``teardown_X()`` 关闭或以其他方式解除分配资源（如果存在）。它被注册为
+     :meth:`~Flask.teardown_appcontext` 处理器。
 
-For example, you can manage a database connection using this pattern::
+例如，您可以使用以下方案管理数据库连接::
 
     from flask import g
 
@@ -125,35 +104,30 @@ For example, you can manage a database connection using this pattern::
         if db is not None:
             db.close()
 
-During a request, every call to ``get_db()`` will return the same
-connection, and it will be closed automatically at the end of the
-request.
+在一个请求中，每次调用 ``get_db()`` 会返回同一个连接，并且会在请求结束时
+自动关闭连接。
 
-You can use :class:`~werkzeug.local.LocalProxy` to make a new context
-local from ``get_db()``::
+你可以使用 :class:`~werkzeug.local.LocalProxy` 基于 ``get_db()``
+生成一个新的本地情境::
 
     from werkzeug.local import LocalProxy
     db = LocalProxy(get_db)
 
-Accessing ``db`` will call ``get_db`` internally, in the same way that
-:data:`current_app` works.
+访问 ``db`` 就会内部调用 ``get_db`` ，与 :data:`current_app` 的工作方式相同。
 
 ----
 
-If you're writing an extension, :data:`g` should be reserved for user
-code. You may store internal data on the context itself, but be sure to
-use a sufficiently unique name. The current context is accessed with
-:data:`_app_ctx_stack.top <_app_ctx_stack>`. For more information see
-:doc:`extensiondev`.
+如果你正在编写扩展， :data:`g` 应该保留给用户。你可以将内部数据存储在情境
+本身中，但一定要使用足够唯一的名称。当前上下文使用
+:data:`_app_ctx_stack.top <_app_ctx_stack>` 访问。 欲了解更多信息，请参阅
+:doc:`extensiondev` 。
 
-
-Events and Signals
+事件和信号
 ------------------
 
-The application will call functions registered with
-:meth:`~Flask.teardown_appcontext` when the application context is
-popped.
+当应用情境被弹出时，应用将调用使用 :meth:`~Flask.teardown_appcontext`
+注册的函数。
 
-If :data:`~signals.signals_available` is true, the following signals are
-sent: :data:`appcontext_pushed`, :data:`appcontext_tearing_down`, and
-:data:`appcontext_popped`.
+如果 :data:`~signals.signals_available` 为真，则发送以下信号：
+:data:`appcontext_pushed` 、 :data:`appcontext_tearing_down` 和
+:data:`appcontext_popped` 。
