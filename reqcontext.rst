@@ -2,71 +2,58 @@
 
 .. _request-context:
 
-The Request Context
+请求情境
 ===================
 
-The request context keeps track of the request-level data during a
-request. Rather than passing the request object to each function that
-runs during a request, the :data:`request` and :data:`session` proxies
-are accessed instead.
+请求情境在请求期间跟踪请求级数据。不是将请求对象传递给请求期间运行的每个函
+数，而是访问 :data:`request` 和 :data:`session` 代理。
 
-This is similar to the :doc:`/appcontext`, which keeps track of the
-application-level data independent of a request. A corresponding
-application context is pushed when a request context is pushed.
+这类似于 :doc:`/appcontext` ，它跟踪独立于请求的应用级数据。推送请求情境时
+会推送相应的应用情境。
 
-
-Purpose of the Context
+情境的用途
 ----------------------
 
-When the :class:`Flask` application handles a request, it creates a
-:class:`Request` object based on the environment it received from the
-WSGI server. Because a *worker* (thread, process, or coroutine depending
-on the server) handles only one request at a time, the request data can
-be considered global to that worker during that request. Flask uses the
-term *context local* for this.
+当 :class:`Flask` 应用处理请求时，它会根据从 WSGI 服务器收到的环境创建一个
+:class:`Request` 对象。因为 *工作者* （取决于服务器的线程，进程或协程）一
+次只能处理一个请求，所以在该请求期间请求数据可被认为是该工作者的全局数据。
+Flask 对此使用术语 *本地情境* 。
 
-Flask automatically *pushes* a request context when handling a request.
-View functions, error handlers, and other functions that run during a
-request will have access to the :data:`request` proxy, which points to
-the request object for the current request.
+处理请求时， Flask 自动 *推送* 请求情境。在请求期间运行的视图函数，错误处
+理器和其他函数将有权访问 :data:`request` 代理，该请求代理指向当前请求的请
+求对象。
 
 
-Lifetime of the Context
+情境的生命周期
 -----------------------
 
-When a Flask application begins handling a request, it pushes a request
-context, which also pushes an :doc:`/appcontext`. When the request ends
-it pops the request context then the application context.
+当 Flask 应用开始处理请求时，它会推送请求情境，这也会推送
+:doc:`/appcontext` 。当请求结束时，它会弹出请求情境，然后弹出应用程序情境。
 
-The context is unique to each thread (or other worker type).
-:data:`request` cannot be passed to another thread, the other thread
-will have a different context stack and will not know about the request
-the parent thread was pointing to.
+情境对于每个线程（或其他工作者类型）是唯一的。 :data:`request` 不能传递给
+另一个线程，另一个线程将拥有不同的情境堆栈，并且不会知道父线程指向的请求。
 
-Context locals are implemented in Werkzeug. See :doc:`werkzeug:local`
-for more information on how this works internally.
+本地情境在 Werkzeug 中实现。有关内部如何工作的更多信息，请参阅
+:doc:`werkzeug:local` 。
 
 
-Manually Push a Context
+手动推送情境
 -----------------------
 
-If you try to access :data:`request`, or anything that uses it, outside
-a request context, you'll get this error message:
+如果尝试在请求情境之外访问 :data:`request` 或任何使用它的东西，那么会收到
+这个错误消息：
 
 .. code-block:: pytb
 
     RuntimeError: Working outside of request context.
 
-    This typically means that you attempted to use functionality that
-    needed an active HTTP request. Consult the documentation on testing
-    for information about how to avoid this problem.
+    这通常表示您试图使用功能需要一个活动的 HTTP 请求。
+    有关如何避免此问题的信息，请参阅测试文档
 
-This should typically only happen when testing code that expects an
-active request. One option is to use the
-:meth:`test client <Flask.test_client>` to simulate a full request. Or
-you can use :meth:`~Flask.test_request_context` in a ``with`` block, and
-everything that runs in the block will have access to :data:`request`,
-populated with your test data. ::
+通常只有在测试代码期望活动请求时才会发生这种情况。一种选择是使用
+:meth:`测试客户端 <Flask.test_client>` 来模拟完整的请求。或者，可以在
+``with`` 块中使用 :meth:`~Flask.test_request_context` ，块中运行的所有内容
+都可以访问请求，并填充测试数据。::
 
     def generate_report(year):
         format = request.args.get('format')
@@ -76,102 +63,80 @@ populated with your test data. ::
             '/make_report/2017', data={'format': 'short'}):
         generate_report()
 
-If you see that error somewhere else in your code not related to
-testing, it most likely indicates that you should move that code into a
-view function.
+如果在你的代码中的其他地方看到与测试无关的错误，则说明可能应该将该代码移到
+视图函数中。
 
-For information on how to use the request context from the interactive
-Python shell, see :doc:`/shell`.
+有关如何从交互式 Python shell 使用请求情境的信息，请参阅 :doc:`/shell` 。
 
 
-How the Context Works
+情境如何工作
 ---------------------
 
-The :meth:`Flask.wsgi_app` method is called to handle each request. It
-manages the contexts during the request. Internally, the request and
-application contexts work as stacks, :data:`_request_ctx_stack` and
-:data:`_app_ctx_stack`. When contexts are pushed onto the stack, the
-proxies that depend on them are available and point at information from
-the top context on the stack.
+处理每个请求时都会调用 :meth:`Flask.wsgi_app` 方法。它在请求期间管理情境。
+在内部，请求和应用程序情境实质是 :data:`_request_ctx_stack` 和
+:data:`_app_ctx_stack` 堆栈。当情境被压入堆栈时，依赖它们的代理可用并指向
+堆栈顶部情境中的信息。
 
-When the request starts, a :class:`~ctx.RequestContext` is created and
-pushed, which creates and pushes an :class:`~ctx.AppContext` first if
-a context for that application is not already the top context. While
-these contexts are pushed, the :data:`current_app`, :data:`g`,
-:data:`request`, and :data:`session` proxies are available to the
-original thread handling the request.
+当请求开始时，将创建并推送 :class:`~ctx.RequestContext` ，如果该应用程序的
+情境尚不是顶级情境，则该请求会首先创建并推送 :class:`~ctx.AppContext` 。在
+推送这些情境时， :data:`current_app` 、 :data:`g` 、 :data:`request` 和
+:data:`session` 代理可用于处理请求的原始线程。
 
-Because the contexts are stacks, other contexts may be pushed to change
-the proxies during a request. While this is not a common pattern, it
-can be used in advanced applications to, for example, do internal
-redirects or chain different applications together.
+由于情境是堆栈，因此在请求期间可能会压入其他情境导致代理变更。虽然这不是一
+种常见模式，但它可以在高级应用使用。比如，执行内部重定向或将不同应用程序链
+接在一起。
 
-After the request is dispatched and a response is generated and sent,
-the request context is popped, which then pops the application context.
-Immediately before they are popped, the :meth:`~Flask.teardown_request`
-and :meth:`~Flask.teardown_appcontext` functions are are executed. These
-execute even if an unhandled exception occurred during dispatch.
+在分派请求并生成和发送响应之后，会弹出请求情境，然后弹出应用情境。在紧临弹
+出之前，会执行 :meth:`~Flask.teardown_request` 和
+:meth:`~Flask.teardown_appcontext` 函数。即使在调度期间发生未处理的异常，
+也会执行这些函数。
 
 
 .. _callbacks-and-errors:
 
-Callbacks and Errors
+回调和错误
 --------------------
 
-Flask dispatches a request in multiple stages which can affect the
-request, response, and how errors are handled. The contexts are active
-during all of these stages.
+Flask 会在多个阶段调度请求，这会影响请求，响应以及如何处理错误。情境在所有
+这些阶段都处于活动状态。
 
-A :class:`Blueprint` can add handlers for these events that are specific
-to the blueprint. The handlers for a blueprint will run if the blueprint
-owns the route that matches the request.
+:class:`Blueprint` 可以为该蓝图的事件添加处理器，处理器会在蓝图与请求路由
+匹配的情况下运行。
 
-#.  Before each request, :meth:`~Flask.before_request` functions are
-    called. If one of these functions return a value, the other
-    functions are skipped. The return value is treated as the response
-    and the view function is not called.
+#.  在每次请求之前， :meth:`~Flask.before_request` 函数都会被调用。如果其
+    中一个函数返回了一个值，则其他函数将被跳过。返回值被视为响应，并且视图
+    函数不会被调用。
 
-#.  If the :meth:`~Flask.before_request` functions did not return a
-    response, the view function for the matched route is called and
-    returns a response.
+#.  如果 :meth:`~Flask.before_request` 函数没有返回响应，则调用匹配路由的
+    视图函数并返回响应。
 
-#.  The return value of the view is converted into an actual response
-    object and passed to the :meth:`~Flask.after_request`
-    functions. Each function returns a modified or new response object.
+#.  视图的返回值被转换为实际的响应对象并传递给 :meth:`~Flask.after_request`
+    函数。每个函数都返回一个修改过的或新的响应对象。
 
-#.  After the response is returned, the contexts are popped, which calls
-    the :meth:`~Flask.teardown_request` and
-    :meth:`~Flask.teardown_appcontext` functions. These functions are
-    called even if an unhandled exception was raised at any point above.
+#.  返回响应后，将弹出情境，该情境调用 :meth:`~Flask.teardown_request` 和
+    :meth:`~Flask.teardown_appcontext` 函数。即使在上面任何一处引发了未处
+    理的异常，也会调用这些函数。
 
-If an exception is raised before the teardown functions, Flask tries to
-match it with an :meth:`~Flask.errorhandler` function to handle the
-exception and return a response. If no error handler is found, or the
-handler itself raises an exception, Flask returns a generic
-``500 Internal Server Error`` response. The teardown functions are still
-called, and are passed the exception object.
+如果在拆卸函数之前引发了异常， Flask 会尝试将它与
+:meth:`~Flask.errorhandler` 函数进行匹配，以处理异常并返回响应。如果找不到
+错误处理器，或者处理器本身引发异常， Flask 将返回一个通用的
+``500 Internal Server Error`` 响应。拆卸函数仍然被调用，并传递异常对象。
 
-If debug mode is enabled, unhandled exceptions are not converted to a
-``500`` response and instead are propagated to the WSGI server. This
-allows the development server to present the interactive debugger with
-the traceback.
+如果开启了调试模式，则未处理的异常不会转换为 ``500`` 响应，而是会传播到
+WSGI 服务器。这允许开发服务器向交互式调试器提供回溯。
 
 
-Teardown Callbacks
+拆解回调
 ~~~~~~~~~~~~~~~~~~
 
-The teardown callbacks are independent of the request dispatch, and are
-instead called by the contexts when they are popped. The functions are
-called even if there is an unhandled exception during dispatch, and for
-manually pushed contexts. This means there is no guarantee that any
-other parts of the request dispatch have run first. Be sure to write
-these functions in a way that does not depend on other callbacks and
-will not fail.
+拆除回调与请求派发无关，而在情境弹出时由情境调用。即使在调度过程中出现未处
+理的异常，以及手动推送的情境，也会调用这些函数。这意味着不能保证请求调度的
+任何其他部分都先运行。 一定要以不依赖其他回调的方式编写这些函数，并且不会
+失败。
 
-During testing, it can be useful to defer popping the contexts after the
-request ends, so that their data can be accessed in the test function.
-Using the :meth:`~Flask.test_client` as a ``with`` block to preserve the
-contexts until the with block exits.
+在测试期间，推迟请求结束后弹出情境会很有用，这样可以在测试函数中访问它们的
+数据。在 ``with`` 块中使用 :meth:`~Flask.test_client` 来保存情境，直到
+with 块结束。
 
 .. code-block:: python
 
@@ -202,66 +167,57 @@ contexts until the with block exits.
     # the client with block exists
 
 
-Signals
+信号
 ~~~~~~~
 
-If :data:`~signals.signals_available` is true, the following signals are
-sent:
+如果 :data:`~signals.signals_available` 为真，那么会发送以下信号：
 
-#.  :data:`request_started` is sent before the
-    :meth:`~Flask.before_request` functions are called.
+#.  :data:`request_started` 发送于
+    :meth:`~Flask.before_request` 函数被调用之前。
 
-#.  :data:`request_finished` is sent after the
-    :meth:`~Flask.after_request` functions are called.
+#.  :data:`request_finished` 发送于
+    :meth:`~Flask.after_request` 函数被调用之后。
 
-#.  :data:`got_request_exception` is sent when an exception begins to
-    be handled, but before an :meth:`~Flask.errorhandler` is looked up or
-    called.
+#.  :data:`got_request_exception` 发送于异常开始处理的时候
+    但早于 an :meth:`~Flask.errorhandler` 被找到或者调用的时候。
 
-#.  :data:`request_tearing_down` is sent after the
-    :meth:`~Flask.teardown_request` functions are called.
+#.  :data:`request_tearing_down` 发送于
+    :meth:`~Flask.teardown_request` 函数被调用之后。
 
 
-Context Preservation on Error
+出错情境保存
 -----------------------------
 
-At the end of a request, the request context is popped and all data
-associated with it is destroyed. If an error occurs during development,
-it is useful to delay destroying the data for debugging purposes.
+在请求结束时，会弹出请求情境，并且与其关联的所有数据都将被销毁。如果在开发
+过程中发生错误，延迟销毁数据以进行调试是有用的。
 
-When the development server is running in development mode (the
-``FLASK_ENV`` environment variable is set to ``'development'``), the
-error and data will be preserved and shown in the interactive debugger.
+当开发服务器以开发模式运行时（ ``FLASK_ENV`` 环境变量设置为
+``'development'`` ），错误和数据将被保留并显示在交互式调试器中。
 
-This behavior can be controlled with the
-:data:`PRESERVE_CONTEXT_ON_EXCEPTION` config. As described above, it
-defaults to ``True`` in the development environment.
+该行为可以通过 :data:`PRESERVE_CONTEXT_ON_EXCEPTION` 配置进行控制。如前文
+所述，它在开发环境中默认为 ``True`` 。
 
-Do not enable :data:`PRESERVE_CONTEXT_ON_EXCEPTION` in production, as it
-will cause your application to leak memory on exceptions.
+不要在生产环境中启用 :data:`PRESERVE_CONTEXT_ON_EXCEPTION` ，因为它会导致
+应用在发生异常时泄漏内存。
 
 
 .. _notes-on-proxies:
 
-Notes On Proxies
+关于代理的说明
 ----------------
 
-Some of the objects provided by Flask are proxies to other objects. The
-proxies are accessed in the same way for each worker thread, but
-point to the unique object bound to each worker behind the scenes as
-described on this page.
+Flask 提供的一些对象是其他对象的代理。每个工作线程都能以相同的方式
+访问代理，但是在后台每个工作线程绑定了唯一对象。
 
-Most of the time you don't have to care about that, but there are some
-exceptions where it is good to know that this object is an actual proxy:
+多数情况下，你不必关心这个问题。但是也有例外，在下列情况有下，知道对象是一
+个代理 对象是有好处的：
 
--   The proxy objects cannot fake their type as the actual object types.
-    If you want to perform instance checks, you have to do that on the
-    object being proxied.
--   If the specific object reference is important, for example for
-    sending :ref:`signals` or passing data to a background thread.
+-   代理对象不能将它们的类型伪装为实际的对象类型。如果要执行实例检查，则必
+    须检查被代理的原始对象。
+-   对象引用非常重要的情况，例如发送 :ref:`signals` 或将数据传递给后台线程。
 
-If you need to access the underlying object that is proxied, use the
-:meth:`~werkzeug.local.LocalProxy._get_current_object` method::
+如果您需要访问被代理的源对象，请使用
+:meth:`~werkzeug.local.LocalProxy._get_current_object` 方法::
 
     app = current_app._get_current_object()
     my_signal.send(app)
