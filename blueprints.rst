@@ -1,64 +1,49 @@
 .. _blueprints:
 
-Modular Applications with Blueprints
+使用蓝图的模块化应用
 ====================================
 
 .. currentmodule:: flask
 
 .. versionadded:: 0.7
 
-Flask uses a concept of *blueprints* for making application components and
-supporting common patterns within an application or across applications.
-Blueprints can greatly simplify how large applications work and provide a
-central means for Flask extensions to register operations on applications.
-A :class:`Blueprint` object works similarly to a :class:`Flask`
-application object, but it is not actually an application.  Rather it is a
-*blueprint* of how to construct or extend an application.
+为了在一个或多个应用中，使应用模块化并且支持常用方案， Flask 引入了 *蓝图*
+概念。蓝图可以极大地简化大型应用并为扩展提供集中的注册入口。
+:class:`Blueprint` 对象与 :class:`Flask` 应用对象的工作方式类似，但不是一个真正
+的应用。它更像一个用于构建和扩展应用的 *蓝图* 。
 
-Why Blueprints?
----------------
+为什么使用蓝图？
+----------------
 
-Blueprints in Flask are intended for these cases:
+Flask 中蓝图有以下用途：
 
-* Factor an application into a set of blueprints.  This is ideal for
-  larger applications; a project could instantiate an application object,
-  initialize several extensions, and register a collection of blueprints.
-* Register a blueprint on an application at a URL prefix and/or subdomain.
-  Parameters in the URL prefix/subdomain become common view arguments
-  (with defaults) across all view functions in the blueprint.
-* Register a blueprint multiple times on an application with different URL
-  rules.
-* Provide template filters, static files, templates, and other utilities
-  through blueprints.  A blueprint does not have to implement applications
-  or view functions.
-* Register a blueprint on an application for any of these cases when
-  initializing a Flask extension.
+* 把一个应用分解为一套蓝图。这是针对大型应用的理想方案：一个项目可以实例化一个
+  应用，初始化多个扩展，并注册许多蓝图。
+* 在一个应用的 URL 前缀和（或）子域上注册一个蓝图。 URL 前缀和（或）子域的参数
+  成为蓝图中所有视图的通用视图参数（缺省情况下）。
+* 使用不同的 URL 规则在应用中多次注册蓝图。
+* 通过蓝图提供模板过滤器、静态文件、模板和其他工具。蓝图不必执行应用或视图
+  函数。
+* 当初始化一个 Flask 扩展时，为以上任意一种用途注册一个蓝图。
 
-A blueprint in Flask is not a pluggable app because it is not actually an
-application -- it's a set of operations which can be registered on an
-application, even multiple times.  Why not have multiple application
-objects?  You can do that (see :ref:`app-dispatch`), but your applications
-will have separate configs and will be managed at the WSGI layer.
+Flask 中的蓝图不是一个可插拨的应用，因为它不是一个真正的应用，而是一套可以注册
+在应用中的操作，并且可以注册多次。那么为什么不使用多个应用对象呢？可以使用多个
+应用对象（参见 :ref:`app-dispatch` ），但是这样会导致每个应用都使用自己独立的
+配置，且只能在 WSGI 层中管理应用。
 
-Blueprints instead provide separation at the Flask level, share
-application config, and can change an application object as necessary with
-being registered. The downside is that you cannot unregister a blueprint
-once an application was created without having to destroy the whole
-application object.
+而如果使用蓝图，那么应用会在 Flask 层中进行管理，共享配置，通过注册按需改变应用
+对象。蓝图的缺点是一旦应用被创建后，只有销毁整个应用对象才能注销蓝图。
 
-The Concept of Blueprints
+蓝图的概念
 -------------------------
 
-The basic concept of blueprints is that they record operations to execute
-when registered on an application.  Flask associates view functions with
-blueprints when dispatching requests and generating URLs from one endpoint
-to another.
+蓝图的基本概念是：在蓝图被注册到应用之后，所要执行的操作的集合。当分配请求时，
+Flask 会把蓝图和视图函数关联起来，并生成两个端点之前的 URL 。
 
-My First Blueprint
+第一个蓝图
 ------------------
 
-This is what a very basic blueprint looks like.  In this case we want to
-implement a blueprint that does simple rendering of static templates::
+以下是一个最基本的蓝图示例。在这里，我们将使用蓝图来简单地渲染静态模板::
 
     from flask import Blueprint, render_template, abort
     from jinja2 import TemplateNotFound
@@ -74,17 +59,15 @@ implement a blueprint that does simple rendering of static templates::
         except TemplateNotFound:
             abort(404)
 
-When you bind a function with the help of the ``@simple_page.route``
-decorator the blueprint will record the intention of registering the
-function `show` on the application when it's later registered.
-Additionally it will prefix the endpoint of the function with the
-name of the blueprint which was given to the :class:`Blueprint`
-constructor (in this case also ``simple_page``).
+当你使用 ``@simple_page.route`` 装饰器绑定一个函数时，蓝图会记录下所登记的
+`show` 函数。当以后在应用中注册蓝图时，这个函数会被注册到应用中。另外，它会把
+构建 :class:`Blueprint` 时所使用的名称（在本例为 ``simple_page`` ）作为函数端点
+的前缀。
 
-Registering Blueprints
+注册蓝图
 ----------------------
 
-So how do you register that blueprint?  Like this::
+可以这样注册蓝图::
 
     from flask import Flask
     from yourapplication.simple_page import simple_page
@@ -92,121 +75,101 @@ So how do you register that blueprint?  Like this::
     app = Flask(__name__)
     app.register_blueprint(simple_page)
 
-If you check the rules registered on the application, you will find
-these::
+以下是注册蓝图后形成的规则::
 
     [<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
      <Rule '/<page>' (HEAD, OPTIONS, GET) -> simple_page.show>,
      <Rule '/' (HEAD, OPTIONS, GET) -> simple_page.show>]
 
-The first one is obviously from the application itself for the static
-files.  The other two are for the `show` function of the ``simple_page``
-blueprint.  As you can see, they are also prefixed with the name of the
-blueprint and separated by a dot (``.``).
+第一条很明显，是来自于应用本身的用于静态文件的。后面两条是用于蓝图
+``simple_page`` 的 `show` 函数的。你可以看到，它们的前缀都是蓝图的名称，并且
+使用一个点（ ``.`` ）来分隔。
 
-Blueprints however can also be mounted at different locations::
+蓝图还可以挂接到不同的位置::
 
     app.register_blueprint(simple_page, url_prefix='/pages')
 
-And sure enough, these are the generated rules::
+这样就会形成如下规则::
 
     [<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
      <Rule '/pages/<page>' (HEAD, OPTIONS, GET) -> simple_page.show>,
      <Rule '/pages/' (HEAD, OPTIONS, GET) -> simple_page.show>]
 
-On top of that you can register blueprints multiple times though not every
-blueprint might respond properly to that.  In fact it depends on how the
-blueprint is implemented if it can be mounted more than once.
+总之，你可以多次注册蓝图，但是不一定每个蓝图都能正确响应。是否能够多次注册实际
+上取决于你的蓝图是如何编写的，是否能根据不同的位置做出正确的响应。
 
-Blueprint Resources
+蓝图资源
 -------------------
 
-Blueprints can provide resources as well.  Sometimes you might want to
-introduce a blueprint only for the resources it provides.
+蓝图还可以用于提供资源。有时候，我们仅仅是为了使用一些资源而使用蓝图。
 
-Blueprint Resource Folder
+蓝图资源文件夹
 `````````````````````````
 
-Like for regular applications, blueprints are considered to be contained
-in a folder.  While multiple blueprints can originate from the same folder,
-it does not have to be the case and it's usually not recommended.
+和普通应用一样，蓝图一般都放在一个文件夹中。虽然多个蓝图可以共存于同一个文件夹
+中，但是最好不要这样做。
 
-The folder is inferred from the second argument to :class:`Blueprint` which
-is usually `__name__`.  This argument specifies what logical Python
-module or package corresponds to the blueprint.  If it points to an actual
-Python package that package (which is a folder on the filesystem) is the
-resource folder.  If it's a module, the package the module is contained in
-will be the resource folder.  You can access the
-:attr:`Blueprint.root_path` property to see what the resource folder is::
+文件夹由 :class:`Blueprint` 的第二个参数指定，通常为 `__name__` 。这个参数指定
+与蓝图相关的逻辑 Python 模块或包。如果这个参数指向的是实际的 Python 包（文件
+系统中的一个文件夹），那么它就是资源文件夹。如果是一个模块，那么这个模块包含的
+包就是资源文件夹。可以通过  :attr:`Blueprint.root_path` 属性来查看蓝图的资源
+文件夹::
 
     >>> simple_page.root_path
     '/Users/username/TestProject/yourapplication'
 
-To quickly open sources from this folder you can use the
-:meth:`~Blueprint.open_resource` function::
+可以使用 :meth:`~Blueprint.open_resource` 函数快速打开这个文件夹中的资源::
 
     with simple_page.open_resource('static/style.css') as f:
         code = f.read()
 
-Static Files
+静态文件
 ````````````
 
-A blueprint can expose a folder with static files by providing the path
-to the folder on the filesystem with the ``static_folder`` argument.
-It is either an absolute path or relative to the blueprint's location::
+蓝图的第三个参数是 ``static_folder`` 。这个参数用以指定蓝图的静态文件所在的
+文件夹，它可以是一个绝对路径也可以是相对路径。::
 
     admin = Blueprint('admin', __name__, static_folder='static')
 
-By default the rightmost part of the path is where it is exposed on the
-web. This can be changed with the ``static_url_path`` argument. Because the
-folder is called ``static`` here it will be available at the
-``url_prefix`` of the blueprint + ``/static``. If the blueprint
-has the prefix ``/admin``, the static URL will be ``/admin/static``.
+缺省情况下，路径最右端的部分是在 URL 中暴露的部分。这可以通过
+``static_url_path`` 来改变。因为上例中的文件夹为名称是 ``static`` ，那么
+URL 应该是蓝图的 ``url_prefix`` 加上 ``/static`` 。
+如果蓝图注册前缀为 ``/admin`` ，那么静态文件 URL 就是 ``/admin/static`` 。
 
-The endpoint is named ``blueprint_name.static``. You can generate URLs
-to it with :func:`url_for` like you would with the static folder of the
-application::
+端点的名称是 ``blueprint_name.static`` 。你可以像对待应用中的文件夹一样
+使用 :func:`url_for` 来生成其 URL::
 
     url_for('admin.static', filename='style.css')
 
-However, if the blueprint does not have a ``url_prefix``, it is not
-possible to access the blueprint's static folder. This is because the
-URL would be ``/static`` in this case, and the application's ``/static``
-route takes precedence. Unlike template folders, blueprint static
-folders are not searched if the file does not exist in the application
-static folder.
+但是，如果蓝图没有 ``url_prefix`` ，那么不可能访问蓝图的静态文件夹。
+这是因为在这种情况下，URL应该是 ``/ static`` ，而应用程序的 ``/ static``
+路线优先。与模板文件夹不同，如果文件不存在于应用静态文件夹中，那么不会
+搜索蓝图静态文件夹。
 
-Templates
+
+模板
 `````````
 
-If you want the blueprint to expose templates you can do that by providing
-the `template_folder` parameter to the :class:`Blueprint` constructor::
+如果你想使用蓝图来暴露模板，那么可以使用 :class:`Blueprint` 的
+`template_folder` 参数::
 
     admin = Blueprint('admin', __name__, template_folder='templates')
 
-For static files, the path can be absolute or relative to the blueprint
-resource folder.
+对于静态文件，路径可以是绝对的或相对于蓝图的资源文件夹。
 
-The template folder is added to the search path of templates but with a lower
-priority than the actual application's template folder. That way you can
-easily override templates that a blueprint provides in the actual application.
-This also means that if you don't want a blueprint template to be accidentally
-overridden, make sure that no other blueprint or actual application template
-has the same relative path. When multiple blueprints provide the same relative
-template path the first blueprint registered takes precedence over the others.
+模板文件夹被添加到模板的搜索路径，但优先级低于实际应用的模板文件夹。这样就
+可以轻松地重载在实际应用中蓝图提供的模板。这也意味着如果你不希望蓝图模板出
+现意外重写，那么就要确保没有其他蓝图或实际的应用模板具有相同的相对路径。
+多个蓝图提供相同的相对路径时，第一个注册的优先。
 
+假设你的蓝图便于 ``yourapplication/admin`` 中，要渲染的模板是
+``'admin/index.html'`` ， `template_folder` 参数值为 ``templates`` ，那么真正的
+模板文件为： :file:`yourapplication/admin/templates/admin/index.html` 。
+多出一个 ``admin`` 文件夹是为了避免模板被实际应用模板文件夹中的 ``index.html``
+重载。
 
-So if you have a blueprint in the folder ``yourapplication/admin`` and you
-want to render the template ``'admin/index.html'`` and you have provided
-``templates`` as a `template_folder` you will have to create a file like
-this: :file:`yourapplication/admin/templates/admin/index.html`. The reason
-for the extra ``admin`` folder is to avoid getting our template overridden
-by a template named ``index.html`` in the actual application template
-folder.
-
-To further reiterate this: if you have a blueprint named ``admin`` and you
-want to render a template called :file:`index.html` which is specific to this
-blueprint, the best idea is to lay out your templates like this::
+更详细一点说：如果你有一个名为 ``admin`` 的蓝图，该蓝图指定的模版文件是
+:file:`index.html` ，那么最好按照如下结构存放模版文件::
 
     yourpackage/
         blueprints/
@@ -216,52 +179,46 @@ blueprint, the best idea is to lay out your templates like this::
                         index.html
                 __init__.py
 
-And then when you want to render the template, use :file:`admin/index.html` as
-the name to look up the template by.  If you encounter problems loading
-the correct templates enable the ``EXPLAIN_TEMPLATE_LOADING`` config
-variable which will instruct Flask to print out the steps it goes through
-to locate templates on every ``render_template`` call.
+这样，当你需要渲染模板的时候就可以使用 :file:`admin/index.html` 来找到模板。
+如果没有载入正确的模板，那么应该启用 ``EXPLAIN_TEMPLATE_LOADING`` 配置变量。
+启用这个变量以后，每次调用 ``render_template`` 时， Flask 会打印出定位模板的
+步骤，方便调试。
 
-Building URLs
+创建 URL
 -------------
 
-If you want to link from one page to another you can use the
-:func:`url_for` function just like you normally would do just that you
-prefix the URL endpoint with the name of the blueprint and a dot (``.``)::
+如果要创建页面链接，可以和通常一样使用
+:func:`url_for` 函数，只是要把蓝图名称作为端点的前缀，并且用一个点（ ``.`` ）来
+分隔::
 
     url_for('admin.index')
 
-Additionally if you are in a view function of a blueprint or a rendered
-template and you want to link to another endpoint of the same blueprint,
-you can use relative redirects by prefixing the endpoint with a dot only::
+另外，如果在一个蓝图的视图函数或者被渲染的模板中需要链接同一个蓝图中的其他
+端点，那么使用相对重定向，只使用一个点使用为前缀::
 
     url_for('.index')
 
-This will link to ``admin.index`` for instance in case the current request
-was dispatched to any other admin blueprint endpoint.
+如果当前请求被分配到 admin 蓝图端点时，上例会链接到 ``admin.index`` 。
 
-Error Handlers
+
+错误处理器
 --------------
 
-Blueprints support the errorhandler decorator just like the :class:`Flask`
-application object, so it is easy to make Blueprint-specific custom error
-pages.
+蓝图像 :class:`Flask` 应用对象一样支持错误处理装饰器，所以很容易使用蓝图特
+定的自定义错误页面。
 
-Here is an example for a "404 Page Not Found" exception::
+下面是 "404 Page Not Found" 异常的例子::
 
     @simple_page.errorhandler(404)
     def page_not_found(e):
         return render_template('pages/404.html')
 
-Most errorhandlers will simply work as expected; however, there is a caveat
-concerning handlers for 404 and 405 exceptions.  These errorhandlers are only
-invoked from an appropriate ``raise`` statement or a call to ``abort`` in another
-of the blueprint's view functions; they are not invoked by, e.g., an invalid URL
-access.  This is because the blueprint does not "own" a certain URL space, so
-the application instance has no way of knowing which blueprint errorhandler it
-should run if given an invalid URL.  If you would like to execute different
-handling strategies for these errors based on URL prefixes, they may be defined
-at the application level using the ``request`` proxy object::
+大多数错误处理器会按预期工作。然而，有一个涉及 404 和 405 例外处理器的警示。
+这些错误处理器只会由一个适当的 ``raise`` 语句引发或者调用在另一个蓝图视图
+中调用 ``abort`` 引发。它们不会引发于无效的 URL 访问。这是因为蓝图不“拥有”
+特定的 URL 空间，在发生无效 URL 访问时，应用实例无法知道应该运行哪个蓝图错
+误处理器。 如果你想基于 URL 前缀执行不同的错误处理策略，那么可以
+在应用层使用 ``request`` 代理对象定义它们::
 
     @app.errorhandler(404)
     @app.errorhandler(405)
@@ -271,4 +228,5 @@ at the application level using the ``request`` proxy object::
         else:
             return ex
 
-More information on error handling see :ref:`errorpages`.
+更多关于错误处理信息参见 :ref:`errorpages` 。
+
