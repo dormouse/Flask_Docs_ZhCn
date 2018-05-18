@@ -1,22 +1,19 @@
 .. _template-inheritance:
 
-Template Inheritance
-====================
+模板继承
+========
 
-The most powerful part of Jinja is template inheritance. Template inheritance
-allows you to build a base "skeleton" template that contains all the common
-elements of your site and defines **blocks** that child templates can override.
+Jinja 最有力的部分就是模板继承。模板继承允许你创建一个基础“骨架”模板。这
+个模板中包含站点的常用元素，定义可以被子模板继承的 **块** 。
 
-Sounds complicated but is very basic. It's easiest to understand it by starting
-with an example.
+听起来很复杂其实做起来简单，看看下面的例子就容易理解了。
 
 
-Base Template
+基础模板
 -------------
 
-This template, which we'll call :file:`layout.html`, defines a simple HTML skeleton
-document that you might use for a simple two-column page. It's the job of
-"child" templates to fill the empty blocks with content:
+这个模板的名称是 :file:``layout.html`` ，它定义了一个简单的 HTML 骨架，用
+于显示一个简单的两栏页面。“子”模板的任务是用内容填充空的块：
 
 .. sourcecode:: html+jinja
 
@@ -38,14 +35,13 @@ document that you might use for a simple two-column page. It's the job of
       </body>
     </html>
 
-In this example, the ``{% block %}`` tags define four blocks that child templates
-can fill in. All the `block` tag does is tell the template engine that a
-child template may override those portions of the template.
+在这个例子中， ``{% block %}`` 标记定义了四个可以被子模板填充的块。 `block`
+标记告诉模板引擎这是一个可以被子模板重载的部分。
 
-Child Template
+子模板
 --------------
 
-A child template might look like this:
+子模板示例：
 
 .. sourcecode:: html+jinja
 
@@ -63,8 +59,7 @@ A child template might look like this:
         Welcome on my awesome homepage.
     {% endblock %}
 
-The ``{% extends %}`` tag is the key here. It tells the template engine that
-this template "extends" another template.  When the template system evaluates
-this template, first it locates the parent.  The extends tag must be the
-first tag in the template.  To render the contents of a block defined in
-the parent template, use ``{{ super() }}``.
+这里 ``{% extends %}`` 标记是关键，它告诉模板引擎这个模板“扩展”了另一个模板，
+当模板系统评估这个模板时会先找到父模板。这个扩展标记必须是模板中的第一个标记。
+如果要使用父模板中的块内容，请使用 ``{{ super() }}`` 。
+
