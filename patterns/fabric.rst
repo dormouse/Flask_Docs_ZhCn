@@ -1,45 +1,37 @@
 .. _fabric-deployment:
 
-Deploying with Fabric
+使用 Fabric 部署
 =====================
 
-`Fabric`_ is a tool for Python similar to Makefiles but with the ability
-to execute commands on a remote server.  In combination with a properly
-set up Python package (:ref:`larger-applications`) and a good concept for
-configurations (:ref:`config`) it is very easy to deploy Flask
-applications to external servers.
+`Fabric`_ 是一个 Python 工具，与 Makefiles 类似，但是能够在远程服务器上执
+行命令。如果与适当的 Python 包（ :ref:`larger-applications` ）与优良的配置
+（ :ref:`config` ）相结合那么 `Fabric` 将是在外部服务器上部署 Flask 的利器。
 
-Before we get started, here a quick checklist of things we have to ensure
-upfront:
+在下文开始之前，有几点需要明确：
 
--   Fabric 1.0 has to be installed locally.  This tutorial assumes the
-    latest version of Fabric.
--   The application already has to be a package and requires a working
-    :file:`setup.py` file (:ref:`distribute-deployment`).
--   In the following example we are using `mod_wsgi` for the remote
-    servers.  You can of course use your own favourite server there, but
-    for this example we chose Apache + `mod_wsgi` because it's very easy
-    to setup and has a simple way to reload applications without root
-    access.
+-   Fabric 1.0 需要要被安装到本地。本教程假设使用的是最新版本的 Fabric 。
+-   应用已经是一个包，且有一个可用的 :file:`setup.py` 文件（
+    :ref:`distribute-deployment` ）。
+-   在下面的例子中，我们假设远程服务器使用 `mod_wsgi` 。当然，你可以使用你
+    自己喜欢的服务器，但是在示例中我们选择 Apache + `mod_wsgi` ，因为它们
+    设置方便，且在没有 root 权限情况下可以方便的重载应用。
 
-Creating the first Fabfile
+创建第一个 Fabfile
 --------------------------
 
-A fabfile is what controls what Fabric executes.  It is named :file:`fabfile.py`
-and executed by the `fab` command.  All the functions defined in that file
-will show up as `fab` subcommands.  They are executed on one or more
-hosts.  These hosts can be defined either in the fabfile or on the command
-line.  In this case we will add them to the fabfile.
+fabfile 是控制 Fabric 的东西，其文件名为 :file:`fabfile.py` ，由 `fab` 命
+令执行。在这个文件中定义的所有函数都会被视作 `fab` 子命令。这些命令将会在
+一个或多个主机上运行。这些主机可以在 fabfile 中定义，也可以在命令行中定义。
+本例将在 fabfile 中定义主机。
 
-This is a basic first example that has the ability to upload the current
-source code to the server and install it into a pre-existing
-virtual environment::
+下面是第一个例子，比较基础。它可以把当前的源代码上传至服务器，并安装到一个
+预先存在的 virtual 环境中::
 
     from fabric.api import *
 
-    # the user to use for the remote commands
+    # 使用远程命令的用户名
     env.user = 'appuser'
-    # the servers where the commands are executed
+    # 执行命令的服务器
     env.hosts = ['server1.example.com', 'server2.example.com']
 
     def pack():
@@ -63,124 +55,109 @@ virtual environment::
         # touch the .wsgi file to trigger a reload in mod_wsgi
         run('touch /var/www/yourapplication.wsgi')
 
-Running Fabfiles
+上例中的注释详细，应当是容易理解的。以下是 fabric 提供的最常用命令的简要说
+明：
+
+-   `run` - 在远程服务器上执行一个命令
+-   `local` - 在本地机器上执行一个命令
+-   `put` - 上传文件到远程服务器上
+-   `cd` - 在服务器端改变目录。必须与 `with` 语句联合使用。
+
+运行 Fabfile
 ----------------
 
-Now how do you execute that fabfile?  You use the `fab` command.  To
-deploy the current version of the code on the remote server you would use
-this command::
+那么如何运行 fabfile 呢？答案是使用 `fab` 命令。要在远程服务器上部署当前版
+本的代码可以使用这个命令::
 
     $ fab pack deploy
 
-However this requires that our server already has the
-:file:`/var/www/yourapplication` folder created and
-:file:`/var/www/yourapplication/env` to be a virtual environment.  Furthermore
-are we not creating the configuration or ``.wsgi`` file on the server.  So
-how do we bootstrap a new server into our infrastructure?
+但是这个命令需要远程服务器上已经创建了 :file:``/var/www/yourapplication``
+文件夹，且 :file:``/var/www/yourapplication/env`` 是一个 virtual 环境。更
+进一步，服务器上还没有创建配置文件和 ``.wsgi`` 文件。那么，我们如何在一个
+新的服务器上创建一个基础环境呢？
 
-This now depends on the number of servers we want to set up.  If we just
-have one application server (which the majority of applications will
-have), creating a command in the fabfile for this is overkill.  But
-obviously you can do that.  In that case you would probably call it
-`setup` or `bootstrap` and then pass the servername explicitly on the
-command line::
+这个问题取决于你要设置多少台服务器。如果只有一台应用服务器（多数情况下），
+那么在 fabfile 中创建命令有一点多余。当然，你可以这么做。这个命令可以称之
+为 `setup` 或 `bootstrap` 。在使用命令时显式传递服务器名称::
 
     $ fab -H newserver.example.com bootstrap
 
-To setup a new server you would roughly do these steps:
+设置一个新服务器大致有以下几个步骤：
 
-1.  Create the directory structure in :file:`/var/www`::
+1.  在 :file:``/var/www`` 创建目录结构::
 
         $ mkdir /var/www/yourapplication
         $ cd /var/www/yourapplication
         $ virtualenv --distribute env
 
-2.  Upload a new :file:`application.wsgi` file to the server and the
-    configuration file for the application (eg: :file:`application.cfg`)
+2.  上传一个新的 :file:`application.wsgi` 文件和应用配置文件（如
+    :file:`application.cfg` ）到服务器上。
 
-3.  Create a new Apache config for ``yourapplication`` and activate it.
-    Make sure to activate watching for changes of the ``.wsgi`` file so
-    that we can automatically reload the application by touching it.
-    (See :ref:`mod_wsgi-deployment` for more information)
+3.  创建一个新的用于 ``yourapplication`` 的 Apache 配置并激活它。要确保激
+    活 ``.wsgi`` 文件变动监视，这样在 touch 的时候可以自动重载应用。（更多
+    信息参见 :ref:`mod_wsgi-deployment` ）
 
-So now the question is, where do the :file:`application.wsgi` and
-:file:`application.cfg` files come from?
+现在的问题是： :file:`application.wsgi` 和 :file:`application.cfg` 文件从
+哪里来？
 
-The WSGI File
+WSGI 文件
 -------------
 
-The WSGI file has to import the application and also to set an environment
-variable so that the application knows where to look for the config.  This
-is a short example that does exactly that::
+WSGI 文件必须导入应用，并且还必须设置一个环境变量用于告诉应用到哪里去搜索
+配置。示例::
 
     import os
     os.environ['YOURAPPLICATION_CONFIG'] = '/var/www/yourapplication/application.cfg'
     from yourapplication import app
 
-The application itself then has to initialize itself like this to look for
-the config at that environment variable::
+应用本身必须像下面这样初始化自己才会根据环境变量搜索配置::
 
     app = Flask(__name__)
     app.config.from_object('yourapplication.default_config')
     app.config.from_envvar('YOURAPPLICATION_CONFIG')
 
-This approach is explained in detail in the :ref:`config` section of the
-documentation.
+这个方法在 :ref:`config` 一节已作了详细的介绍。
 
-The Configuration File
+配置文件
 ----------------------
 
-Now as mentioned above, the application will find the correct
-configuration file by looking up the ``YOURAPPLICATION_CONFIG`` environment
-variable.  So we have to put the configuration in a place where the
-application will able to find it.  Configuration files have the unfriendly
-quality of being different on all computers, so you do not version them
-usually.
+上文已谈到，应用会根据 ``YOURAPPLICATION_CONFIG`` 环境变量找到正确的配置文
+件。因此我们应当把配置文件放在应用可以找到的地方。在不同的电脑上配置文件是
+不同的，所以一般我们不对配置文件作版本处理。
 
-A popular approach is to store configuration files for different servers
-in a separate version control repository and check them out on all
-servers.  Then symlink the file that is active for the server into the
-location where it's expected (eg: :file:`/var/www/yourapplication`).
+一个流行的方法是在一个独立的版本控制仓库为不同的服务器保存不同的配置文件，
+然后在所有服务器进行检出。然后在需要的地方使用配置文件的符号链接（例如：
+:file:``/var/www/yourapplication`` ）。
 
-Either way, in our case here we only expect one or two servers and we can
-upload them ahead of time by hand.
+不管如何，我们这里只有一到两台服务器，因此我们可以预先手动上传配置文件。
 
 
-First Deployment
+第一次部署
 ----------------
 
-Now we can do our first deployment.  We have set up the servers so that
-they have their virtual environments and activated apache configs.  Now we
-can pack up the application and deploy it::
+现在我们可以进行第一次部署了。我已经设置好了服务器，因此服务器上应当已经有
+了 virtual 环境和已激活的 apache 配置。现在我们可以打包应用并部署它了::
 
     $ fab pack deploy
 
-Fabric will now connect to all servers and run the commands as written
-down in the fabfile.  First it will execute pack so that we have our
-tarball ready and then it will execute deploy and upload the source code
-to all servers and install it there.  Thanks to the :file:`setup.py` file we
-will automatically pull in the required libraries into our virtual
-environment.
+Fabric 现在会连接所有服务器并运行 fabfile 中的所有命令。首先它会打包应用得
+到一个 tar 压缩包。然后会执行分发，把源代码上传到所有服务器并安装。感谢
+:file:`setup.py` 文件，所需要的依赖库会自动安装到 virtual 环境。
 
-Next Steps
+下一步
 ----------
 
-From that point onwards there is so much that can be done to make
-deployment actually fun:
+在前文的基础上，还有更多的方法可以全部署工作更加轻松：
 
--   Create a `bootstrap` command that initializes new servers.  It could
-    initialize a new virtual environment, setup apache appropriately etc.
--   Put configuration files into a separate version control repository
-    and symlink the active configs into place.
--   You could also put your application code into a repository and check
-    out the latest version on the server and then install.  That way you
-    can also easily go back to older versions.
--   hook in testing functionality so that you can deploy to an external
-    server and run the test suite.
+-   创建一个初始化新服务器的 `bootstrap` 命令。它可以初始化一个新的 virtual
+    环境、正确设置 apache 等等。
+-   把配置文件放入一个独立的版本库中，把活动配置的符号链接放在适当的地方。
+-   还可以把应用代码放在一个版本库中，在服务器上检出最新版本后安装。这样你可以
+    方便的回滚到老版本。
+-   挂接测试功能，方便部署到外部服务器进行测试。
 
-Working with Fabric is fun and you will notice that it's quite magical to
-type ``fab deploy`` and see your application being deployed automatically
-to one or more remote servers.
-
+使用 Fabric 是一件有趣的事情。你会发现在电脑上打出 ``fab deploy`` 是非常神奇的。
+你可以看到你的应用被部署到一个又一个服务器上。
 
 .. _Fabric: http://www.fabfile.org/
+
