@@ -1,40 +1,34 @@
-Celery Background Tasks
-=======================
+基于 Celery 的后台任务
+=============================
 
-If your application has a long running task, such as processing some uploaded
-data or sending email, you don't want to wait for it to finish during a
-request. Instead, use a task queue to send the necessary data to another
-process that will run the task in the background while the request returns
-immediately.
+如果应用有一个长时间运行的任务，如处理上传数据或者发送电子邮件，而你不想在
+请求中等待任务结束，那么可以使用任务队列发送必须的数据给另一个进程。这样就
+可以在后台运行任务，立即返回请求。
 
-Celery is a powerful task queue that can be used for simple background tasks
-as well as complex multi-stage programs and schedules. This guide will show you
-how to configure Celery using Flask, but assumes you've already read the
-`First Steps with Celery <http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html>`_
-guide in the Celery documentation.
+Celery 是强大的任务队列库，它可以用于简单的后台任务，也可用于复杂的多阶段
+应用的计划。本文主要说明如何在 Flask 中配置使用 Celery 。本文假设你
+已经阅读过了其官方文档中的 `Celery 入门
+<http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html>`_
 
-Install
--------
 
-Celery is a separate Python package. Install it from PyPI using pip::
+安装
+-----------------
+
+Celery 是一个独立的 Python 包。使用 pip 从 PyPI 安装::
 
     $ pip install celery
 
-Configure
----------
+配置
+------------------
 
-The first thing you need is a Celery instance, this is called the celery
-application.  It serves the same purpose as the :class:`~flask.Flask`
-object in Flask, just for Celery.  Since this instance is used as the
-entry-point for everything you want to do in Celery, like creating tasks
-and managing workers, it must be possible for other modules to import it.
+你首先需要有一个 Celery 实例，这个实例称为 celery 应用。其地位就相当于
+Flask 中 :class:`~flask.Flask` 一样。这个实例被用作所有 Celery 相关事务的
+入口，如创建任务和管理工人，因此它必须可以被其他模块导入。
 
-For instance you can place this in a ``tasks`` module.  While you can use
-Celery without any reconfiguration with Flask, it becomes a bit nicer by
-subclassing tasks and adding support for Flask's application contexts and
-hooking it up with the Flask configuration.
+例如，你可以把它放在一个 ``tasks`` 模块中。这样不需要重新配置，你就可以使用
+tasks 的子类，增加 Flask 应用情境的支持，并钩接 Flask 的配置。
 
-This is all that is necessary to properly integrate Celery with Flask::
+只要如下这样就可以在 Falsk 中使用 Celery 了::
 
     from celery import Celery
 
@@ -54,17 +48,16 @@ This is all that is necessary to properly integrate Celery with Flask::
         celery.Task = ContextTask
         return celery
 
-The function creates a new Celery object, configures it with the broker
-from the application config, updates the rest of the Celery config from
-the Flask config and then creates a subclass of the task that wraps the
-task execution in an application context.
+这个函数创建了一个新的 Celery 对象，使用了应用配置中的 broker ，并从 Flask
+配置中更新了 Celery 的其余配置。然后创建了一个任务子类，在一个应用情境中包
+装了任务执行。
 
-An example task
+一个示例任务
 ---------------
 
-Let's write a task that adds two numbers together and returns the result. We
-configure Celery's broker and backend to use Redis, create a ``celery``
-application using the factor from above, and then use it to define the task. ::
+让我们来写一个任务，该任务把两个数字相加并返回结果。我们配置 Celery 的
+broker ，后端使用 Redis 。使用上文的工厂创建一个 ``celery`` 应用，并用它定
+义任务。::
 
     from flask import Flask
 
@@ -79,23 +72,19 @@ application using the factor from above, and then use it to define the task. ::
     def add_together(a, b):
         return a + b
 
-This task can now be called in the background::
+这个任务现在可以在后台调用了::
 
     result = add_together.delay(23, 42)
     result.wait()  # 65
 
-Run a worker
-------------
+运行 Celery 工人
+-------------------------
 
-If you jumped in and already executed the above code you will be
-disappointed to learn that ``.wait()`` will never actually return.
-That's because you also need to run a Celery worker to receive and execute the
-task. ::
+至此，如果你已经按上文一步一步执行，你会失望地发现你的 ``.wait()`` 不会真正
+返回。这是因为还需要运行一个 Celery 工人来接收和执行任务。::
 
     $ celery -A your_application.celery worker
 
-The ``your_application`` string has to point to your application's package
-or module that creates the ``celery`` object.
+把 ``your_application`` 字符串替换为你创建 `celery` 对像的应用包或模块。
 
-Now that the worker is running, ``wait`` will return the result once the task
-is finished.
+现在工人已经在运行中，一旦任务结束， ``wait`` 就会返回结果。

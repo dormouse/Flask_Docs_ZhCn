@@ -1,9 +1,9 @@
-Subclassing Flask
+继承 Flask
 =================
 
-The :class:`~flask.Flask` class is designed for subclassing.
+:class:`~flask.Flask` 类可以被继承。
 
-For example, you may want to override how request parameters are handled to preserve their order::
+例如，这样可以通过继承重载请求参数如何保留其顺序::
 
     from flask import Flask, Request
     from werkzeug.datastructures import ImmutableOrderedMultiDict
@@ -14,4 +14,4 @@ For example, you may want to override how request parameters are handled to pres
         """Flask subclass using the custom request class"""
         request_class = MyRequest
 
-This is the recommended approach for overriding or augmenting Flask's internal functionality.
+推荐以这种方式重载或者增强 Flask 的内部功能。

@@ -1,26 +1,22 @@
 .. mongokit-pattern:
 
-MongoKit in Flask
-=================
+使用 MongoKit
+========================
 
-Using a document database rather than a full DBMS gets more common these days.
-This pattern shows how to use MongoKit, a document mapper library, to
-integrate with MongoDB.
+现在使用文档型数据库来取代关系型数据库已越来越常见。本方案展示如何使用
+MongoKit ,它是一个用于操作 MongoDB 的文档映射库。
 
-This pattern requires a running MongoDB server and the MongoKit library
-installed.
+本方案需要一个运行中的 MongoDB 服务器和已安装好的 MongoKit 库。
 
-There are two very common ways to use MongoKit.  I will outline each of them
-here:
+使用 MongoKit 有两种常用的方法，下面逐一说明：
 
 
-Declarative
+声明
 -----------
 
-The default behavior of MongoKit is the declarative one that is based on
-common ideas from Django or the SQLAlchemy declarative extension.
+声明是 MongoKit 的缺省行为。这个思路来自于 Django 或 SQLAlchemy 的声明。
 
-Here an example :file:`app.py` module for your application::
+下面是一个示例 :file:`app.py` 模块::
 
     from flask import Flask
     from mongokit import Connection, Document
@@ -38,16 +34,14 @@ Here an example :file:`app.py` module for your application::
                             app.config['MONGODB_PORT'])
 
 
-To define your models, just subclass the `Document` class that is imported
-from MongoKit.  If you've seen the SQLAlchemy pattern you may wonder why we do
-not have a session and even do not define a `init_db` function here.  On the
-one hand, MongoKit does not have something like a session.  This sometimes
-makes it more to type but also makes it blazingly fast.  On the other hand,
-MongoDB is schemaless.  This means you can modify the data structure from one
-insert query to the next without any problem.  MongoKit is just schemaless
-too, but implements some validation to ensure data integrity.
+如果要定义模型，那么只要继承 MongoKit 的 `Document` 类就行了。如果你已经读
+过 SQLAlchemy 方案，那么可能会奇怪这里为什么没有使用会话，甚至没有定义一个
+`init_db` 函数。一方面是因为 MongoKit 没有类似会话在东西。有时候这样会多写
+一点 代码，但会使它的速度更快。另一方面是因为 MongoDB 是无模式的。这就意味
+着可以在插入数据的时候修改数据结构。 MongoKit 也是无模式的，但会执行一些验
+证，以确保数据的完整性。
 
-Here is an example document (put this also into :file:`app.py`, e.g.)::
+以下是一个示例文档（把示例内容也放入 :file:`app.py` ）::
 
     from mongokit import ValidationError
 
@@ -72,18 +66,16 @@ Here is an example document (put this also into :file:`app.py`, e.g.)::
         def __repr__(self):
             return '<User %r>' % (self.name)
 
-    # register the User document with our current connection
+    # 在当前连接中注册用户文档
     connection.register([User])
 
 
-This example shows you how to define your schema (named structure), a
-validator for the maximum character length and uses a special MongoKit feature
-called `use_dot_notation`.  Per default MongoKit behaves like a python
-dictionary but with `use_dot_notation` set to ``True`` you can use your
-documents like you use models in nearly any other ORM by using dots to
-separate between attributes.
+上例展示如何定义模式（命名结构）和字符串最大长度验证器。上例中还使用了一个
+MongoKit 中特殊的 `use_dot_notation` 功能。缺省情况下， MongoKit 的运作方
+式和 Python 的字典类似。但是如果 `use_dot_notation` 设置为 ``True`` ，那么
+就可几乎像其他 ORM 一样使用点符号来分隔属性。
 
-You can insert entries into the database like this:
+可以像下面这样把条目插入数据库中：
 
 >>> from yourapplication.database import connection
 >>> from yourapplication.models import User
@@ -93,10 +85,10 @@ You can insert entries into the database like this:
 >>> user['email'] = u'admin@localhost'
 >>> user.save()
 
-Note that MongoKit is kinda strict with used column types, you must not use a
-common `str` type for either `name` or `email` but unicode.
+注意， MongoKit 对于列类型的使用是比较严格的。对于 `name` 和 `email` 列，
+都不能使用 `str` 类型，应当使用 unicode 。
 
-Querying is simple as well:
+查询非常简单：
 
 >>> list(collection.User.find())
 [<User u'admin'>]
@@ -106,39 +98,39 @@ Querying is simple as well:
 .. _MongoKit: http://bytebucket.org/namlook/mongokit/
 
 
-PyMongo Compatibility Layer
+PyMongo 兼容层
 ---------------------------
 
-If you just want to use PyMongo, you can do that with MongoKit as well.  You
-may use this process if you need the best performance to get.  Note that this
-example does not show how to couple it with Flask, see the above MongoKit code
-for examples::
+如果你只需要使用 PyMongo ，也可以使用 MongoKit 。在这种方式下可以获得最佳
+的性能。注意，以下示例中，没有 MongoKit 与 Flask 整合的内容，整合的方式参
+见上文::
 
     from MongoKit import Connection
 
     connection = Connection()
 
-To insert data you can use the `insert` method.  We have to get a
-collection first, this is somewhat the same as a table in the SQL world.
+使用 `insert` 方法可以插入数据。但首先必须先得到一个连接。这个连接类似于
+SQL 界的表。
 
 >>> collection = connection['test'].users
 >>> user = {'name': u'admin', 'email': u'admin@localhost'}
 >>> collection.insert(user)
 
-MongoKit will automatically commit for us.
+MongoKit 会自动提交。
 
-To query your database, you use the collection directly:
+直接使用集合查询数据库：
 
 >>> list(collection.find())
 [{u'_id': ObjectId('4c271729e13823182f000000'), u'name': u'admin', u'email': u'admin@localhost'}]
 >>> collection.find_one({'name': u'admin'})
 {u'_id': ObjectId('4c271729e13823182f000000'), u'name': u'admin', u'email': u'admin@localhost'}
 
-These results are also dict-like objects:
+查询结果为类字典对象：
 
 >>> r = collection.find_one({'name': u'admin'})
 >>> r['email']
 u'admin@localhost'
 
-For more information about MongoKit, head over to the
-`website <https://github.com/namlook/mongokit>`_.
+关于 MongoKit 的更多信息，请移步其
+`官方网站 <https://github.com/namlook/mongokit>`_ 。
+

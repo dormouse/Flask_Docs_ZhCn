@@ -1,34 +1,31 @@
-Adding a favicon
+添加一个页面图标
 ================
 
-A "favicon" is an icon used by browsers for tabs and bookmarks. This helps
-to distinguish your website and to give it a unique brand.
+一个“页面图标”是浏览器在标签或书签中使用的图标，它可以给你的网站加上一个
+唯一的标示，方便区别于其他网站。
 
-A common question is how to add a favicon to a Flask application. First, of
-course, you need an icon. It should be 16 × 16 pixels and in the ICO file
-format. This is not a requirement but a de-facto standard supported by all
-relevant browsers. Put the icon in your static directory as
-:file:`favicon.ico`.
+那么如何给一个 Flask 应用添加一个页面图标呢？首先，显而易见的，需要一个图
+标。图标应当是 16 X 16 像素的 ICO 格式文件。这不是规定的，但却是一个所有浏
+览器都支持的事实上的标准。把 ICO 文件命名为 :file:`favicon.ico` 并放入静态
+文件目录中。
 
-Now, to get browsers to find your icon, the correct way is to add a link
-tag in your HTML. So, for example:
+现在我们要让浏览器能够找到你的图标，正确的做法是在你的 HTML 中添加一个链接。
+示例：
 
 .. sourcecode:: html+jinja
 
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-That's all you need for most browsers, however some really old ones do not
-support this standard. The old de-facto standard is to serve this file,
-with this name, at the website root. If your application is not mounted at
-the root path of the domain you either need to configure the web server to
-serve the icon at the root or if you can't do that you're out of luck. If
-however your application is the root you can simply route a redirect::
+对于大多数浏览器来说，这样就完成任务了，但是一些老古董不支持这个标准。老的
+标准是把名为“ favicon.ico ”的图标放在服务器的根目录下。如果你的应用不是
+挂接在域的根目录下，那么你需要定义网页服务器在根目录下提供这个图标，否则就
+无计可施了。如果你的应用位于根目录下，那么你可以简单地进行重定向::
 
     app.add_url_rule('/favicon.ico',
                      redirect_to=url_for('static', filename='favicon.ico'))
 
-If you want to save the extra redirect request you can also write a view
-using :func:`~flask.send_from_directory`::
+如果想要保存额外的重定向请求，那么还可以使用
+:func:`~flask.send_from_directory` 函数来写一个视图::
 
     import os
     from flask import send_from_directory
@@ -38,16 +35,15 @@ using :func:`~flask.send_from_directory`::
         return send_from_directory(os.path.join(app.root_path, 'static'),
                                    'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-We can leave out the explicit mimetype and it will be guessed, but we may
-as well specify it to avoid the extra guessing, as it will always be the
-same.
+上例中的 MIME 类型可以省略，浏览器会自动猜测类型。但是我们在例子中明确定义
+了，省去了额外的猜测，反正这个类型是不变的。
 
-The above will serve the icon via your application and if possible it's
-better to configure your dedicated web server to serve it; refer to the
-web server's documentation.
+上例会通过你的应用来提供图标，如果可能的话，最好配置你的专用服务器来提供图
+标，配置方法参见网页服务器的文档。
 
-See also
+另见
 --------
 
-* The `Favicon <https://en.wikipedia.org/wiki/Favicon>`_ article on
-  Wikipedia
+* Wikipedia 上的 `页面图标 <https://en.wikipedia.org/wiki/Favicon>`_ 词条
+
+

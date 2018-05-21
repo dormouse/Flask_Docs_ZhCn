@@ -1,32 +1,26 @@
 .. _deferred-callbacks:
 
-Deferred Request Callbacks
+延迟的请求回调
 ==========================
 
-One of the design principles of Flask is that response objects are created and
-passed down a chain of potential callbacks that can modify them or replace
-them. When the request handling starts, there is no response object yet. It is
-created as necessary either by a view function or by some other component in
-the system.
+Flask 的设计思路之一是：响应对象创建后被传递给一串回调函数，这些回调函数可
+以修改或替换响应对象。当请求处理开始的时候，响应对象还没有被创建。响应对象
+是由一个视图函数或者系统中的其他组件按需创建的。
 
-What happens if you want to modify the response at a point where the response
-does not exist yet?  A common example for that would be a
-:meth:`~flask.Flask.before_request` callback that wants to set a cookie on the
-response object.
+但是当响应对象还没有创建时，我们如何修改响应对象呢？比如在一个
+:meth:`~flask.Flask.before_request` 回调函数中，我们需要根据响应对象设置一
+个 cookie 。
 
-One way is to avoid the situation. Very often that is possible. For instance
-you can try to move that logic into a :meth:`~flask.Flask.after_request`
-callback instead. However, sometimes moving code there makes it more
-more complicated or awkward to reason about.
+通常我们选择避开这种情形。例如可以尝试把应用逻辑移动到
+:meth:`~flask.Flask.after_request` 回调函数中。但是，有时候
+这个方法让人不爽，或者让代码变得很丑陋。
 
-As an alternative, you can use :func:`~flask.after_this_request` to register
-callbacks that will execute after only the current request. This way you can
-defer code execution from anywhere in the application, based on the current
-request.
+变通的方法使用 :func:`~flask.after_this_request` 回调函数，该函数只在当前
+请求后执行。这样你就可以在应用的任意地方延迟回调函数的执行。
 
-At any time during a request, we can register a function to be called at the
-end of the request. For example you can remember the current language of the
-user in a cookie in a :meth:`~flask.Flask.before_request` callback::
+在请求中的任何时候，可以注册在请求结束时将被调用的函数。例如，下例在
+:meth:`~flask.Flask.before_request` 回调函数中在 cookie 中记住了当前用户的
+语言::
 
     from flask import request, after_this_request
 
