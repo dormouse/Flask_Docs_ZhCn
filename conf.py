@@ -39,7 +39,8 @@ intersphinx_mapping = {
 html_theme = 'flask_theme'
 html_theme_path = ["."]
 
-# html_context = {
+html_context = {
+        }
 #    'project_links': [
 #        ProjectLink('Donate to Pallets', 'https://psfmember.org/civicrm/contribute/transact?reset=1&id=20'),
 #        ProjectLink('Flask Website', 'https://palletsprojects.com/p/flask/'),
