@@ -1,107 +1,90 @@
-Unicode in Flask
-================
+Flask 中的 Unicode
+===================
 
-Flask, like Jinja2 and Werkzeug, is totally Unicode based when it comes to
-text.  Not only these libraries, also the majority of web related Python
-libraries that deal with text.  If you don't know Unicode so far, you
-should probably read `The Absolute Minimum Every Software Developer
-Absolutely, Positively Must Know About Unicode and Character Sets
-<http://www.joelonsoftware.com/articles/Unicode.html>`_.  This part of the
-documentation just tries to cover the very basics so that you have a
-pleasant experience with Unicode related things.
+Flask 与 Jinja2 、 Werkzeug 一样，文本方面完全基于 Unicode ，大多数与 web
+相关的 Python 库都是这样处理文本的。如果你还不了解 Unicode ，最好先阅读 
+`软件开发人员 Unicode 和 字符集应知应会
+<http://www.joelonsoftware.com/articles/Unicode.html>`_ 。
+本文档尝试介绍一些基本的知识，以便于能够愉快地处理与 Unicode 相关的问题。
 
-Automatic Conversion
---------------------
+自动转换
+--------
 
-Flask has a few assumptions about your application (which you can change
-of course) that give you basic and painless Unicode support:
+为了提供基本的、无痛的 Unicode 支持， Flask 做了以下假设：
 
--   the encoding for text on your website is UTF-8
--   internally you will always use Unicode exclusively for text except
-    for literal strings with only ASCII character points.
--   encoding and decoding happens whenever you are talking over a protocol
-    that requires bytes to be transmitted.
+-   你网站上文本编码是 UTF-8 。
+-   你在内部对文本始终只使用 Unicode ，除非是只有 ASCII 字符的文字字符串。
+-   只要通过协议传送字节，都离不开编码和解码过程。
 
-So what does this mean to you?
+所以，这对你来说有什么意义？
 
-HTTP is based on bytes.  Not only the protocol, also the system used to
-address documents on servers (so called URIs or URLs).  However HTML which
-is usually transmitted on top of HTTP supports a large variety of
-character sets and which ones are used, are transmitted in an HTTP header.
-To not make this too complex Flask just assumes that if you are sending
-Unicode out you want it to be UTF-8 encoded.  Flask will do the encoding
-and setting of the appropriate headers for you.
+HTTP 是基于字节的，不仅是协议，用于定位服务器文档的系统也是这样（即 URI
+或 URL ）。然而，通常在 HTTP 上传送的 HTML 支持很多种字符集，并且需要在
+HTTP header 中注明。为了避免不必要的复杂性， Flask 假设你发送的都是 UTF-8
+编码的 Unicode，Flask 会为你完成编码工作，并设置适当的 header。
 
-The same is true if you are talking to databases with the help of
-SQLAlchemy or a similar ORM system.  Some databases have a protocol that
-already transmits Unicode and if they do not, SQLAlchemy or your other ORM
-should take care of that.
+如果你使用 SQLAlchemy 或类似的 ORM 系统操作数据库，道理也是同样的。一些
+数据库已经使用传输 Unicode 的协议，即使没有，SQLALchemy 或其它 ORM 也会
+自动处理好这个问题。
 
-The Golden Rule
+金科玉律
 ---------------
 
-So the rule of thumb: if you are not dealing with binary data, work with
-Unicode.  What does working with Unicode in Python 2.x mean?
+经验法则：如果不是处理二进制数据，一律使用 Unicode 。在 Python 2.x 中，
+如何使用 Unicode ？
 
--   as long as you are using ASCII charpoints only (basically numbers,
-    some special characters of latin letters without umlauts or anything
-    fancy) you can use regular string literals (``'Hello World'``).
--   if you need anything else than ASCII in a string you have to mark
-    this string as Unicode string by prefixing it with a lowercase `u`.
-    (like ``u'Hänsel und Gretel'``)
--   if you are using non-Unicode characters in your Python files you have
-    to tell Python which encoding your file uses.  Again, I recommend
-    UTF-8 for this purpose.  To tell the interpreter your encoding you can
-    put the ``# -*- coding: utf-8 -*-`` into the first or second line of
-    your Python source file.
--   Jinja is configured to decode the template files from UTF-8.  So make
-    sure to tell your editor to save the file as UTF-8 there as well.
+-   只使用 ASCII charpoints （基本是数字、非变音或非奇特的拉丁字母）时，
+    可以使用常规的字符串常量（ ``'Hello World'`` ）。
+-   如果你的字符串里有 ASCII 之外的东西，需要把这个字符串标记为 Unicode
+    字符串，方法是加上一个小写 `u` 作为前辍（比如
+    ``u'Hänsel und Gretel'`` ）
+-   如果在 Python 文件中使用了非 Unicode 字符，那么需要告诉 Python 使用了
+    何种编码。这里，我再次建议使用 UTF-8 。你可以在 Python 源文件的第一行
+    或第二行写入 ``# -*- coding: utf-8 -*-`` 来告知解释器你的编码类型。
+-   Jinja 被配置为以 UTF-8 解码模板文件，所以请同时确保你的编辑器使用
+    UTF-8 编码保存文件。
 
-Encoding and Decoding Yourself
-------------------------------
+自助编码和解码
+--------------
 
-If you are talking with a filesystem or something that is not really based
-on Unicode you will have to ensure that you decode properly when working
-with Unicode interface.  So for example if you want to load a file on the
-filesystem and embed it into a Jinja2 template you will have to decode it
-from the encoding of that file.  Here the old problem that text files do
-not specify their encoding comes into play.  So do yourself a favour and
-limit yourself to UTF-8 for text files as well.
+如果你打交道的文件系统或环境不是真正基于 Unicode 编码的话，那么使用 Unicode
+接口时需要妥善地解码。比如，当从文件系统中加载一个文件，并嵌入到 Jinja2
+模板时，需要按照文件的编码来解码。这里有一个老问题就是文本文件不指定其本身
+的编码。所以帮你自己一个忙，限定在文本文件中使用 UTF-8 。
 
-Anyways.  To load such a file with Unicode you can use the built-in
-:meth:`str.decode` method::
+无论如何，转入一个 Unicode 文件，可以使用内置的 :meth:`str.decode` 方法::
 
     def read_file(filename, charset='utf-8'):
         with open(filename, 'r') as f:
             return f.read().decode(charset)
 
-To go from Unicode into a specific charset such as UTF-8 you can use the
-:meth:`unicode.encode` method::
+把 Unicode 转换成指定的字符集（ UTF－8 ），可以使用 :meth:`unicode.encode`
+方法::
 
     def write_file(filename, contents, charset='utf-8'):
         with open(filename, 'w') as f:
             f.write(contents.encode(charset))
 
-Configuring Editors
+
+配置编辑器
 -------------------
 
-Most editors save as UTF-8 by default nowadays but in case your editor is
-not configured to do this you have to change it.  Here some common ways to
-set your editor to store as UTF-8:
+现在的大多数编辑器默认存储为 UTF-8 ，但是如果你的编辑器不是，你必须重新配
+置。下面是设置你编辑器存储为 UTF-8 的常用做法:
 
--   Vim: put ``set enc=utf-8`` to your ``.vimrc`` file.
+-   Vim: 在你的 ``.vimrc`` 文件中加入 ``set enc=utf-8`` 
 
--   Emacs: either use an encoding cookie or put this into your ``.emacs``
-    file::
+-   Emacs: 要么使用 encoding cookie，要么把这段文字加入到你的 ``.emacs``
+    文件::
 
         (prefer-coding-system 'utf-8)
         (setq default-buffer-file-coding-system 'utf-8)
 
 -   Notepad++:
 
-    1. Go to *Settings -> Preferences ...*
-    2. Select the "New Document/Default Directory" tab
-    3. Select "UTF-8 without BOM" as encoding
+    1. 打开 *设置 -> 首选项 ...*
+    2. 选择“新建/缺省路径”选项卡
+    3. 选择“ UTF-8 无 BOM ”作为编码
 
-    It is also recommended to use the Unix newline format, you can select
-    it in the same panel but this is not a requirement.
+    同样也建议使用 Unix 的换行格式，可以在相同的面板中选择，但不是必须的。
+

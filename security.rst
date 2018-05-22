@@ -1,136 +1,113 @@
-Security Considerations
+安全注意事项
 =======================
 
-Web applications usually face all kinds of security problems and it's very
-hard to get everything right.  Flask tries to solve a few of these things
-for you, but there are a couple more you have to take care of yourself.
+Web 应用常常会面对各种各样的安全问题，因此要把所有问题都解决是很难的。
+Flask 尝试为你解决许多安全问题，但是更多的还是只能靠你自己。
 
 .. _xss:
 
-Cross-Site Scripting (XSS)
---------------------------
+跨站脚本攻击（XSS）
+-------------------
 
-Cross site scripting is the concept of injecting arbitrary HTML (and with
-it JavaScript) into the context of a website.  To remedy this, developers
-have to properly escape text so that it cannot include arbitrary HTML
-tags.  For more information on that have a look at the Wikipedia article
-on `Cross-Site Scripting
-<https://en.wikipedia.org/wiki/Cross-site_scripting>`_.
+跨站脚本攻击是指在一个网站的环境中注入恶任意的 HTML （包括附带的
+JavaScript ）。要防防御这种攻击，开发者需要正确地转义文本，使其不能包含恶
+意的 HTML 标记。更多的相关信息请参维基百科上在文章： `跨站脚本
+<https://en.wikipedia.org/wiki/Cross-site_scripting>`_ 。
 
-Flask configures Jinja2 to automatically escape all values unless
-explicitly told otherwise.  This should rule out all XSS problems caused
-in templates, but there are still other places where you have to be
-careful:
+在 Flask 中，除非显式指明不转义， Jinja2 会自动转义所有值。这样可以排除所
+有模板导致的 XSS 问题，但是其它地方仍需小心：
 
--   generating HTML without the help of Jinja2
--   calling :class:`~flask.Markup` on data submitted by users
--   sending out HTML from uploaded files, never do that, use the
-    ``Content-Disposition: attachment`` header to prevent that problem.
--   sending out textfiles from uploaded files.  Some browsers are using
-    content-type guessing based on the first few bytes so users could
-    trick a browser to execute HTML.
+-   不使用 Jinja2 生成 HTML 。
+-   在用户提交的数据上调用了 :class:`~flask.Markup` 。
+-   发送上传的 HTML ，永远不要这么做，使用
+    ``Content-Disposition: attachment`` 头部来避免这个问题。
+-   发送上传的文本文件。一些浏览器基于文件开头几个字节来猜测文件的
+    content-type ，用户可以利用这个漏洞来欺骗浏览器，通过伪装文本文件来执
+    行 HTML 。
 
-Another thing that is very important are unquoted attributes.  While
-Jinja2 can protect you from XSS issues by escaping HTML, there is one
-thing it cannot protect you from: XSS by attribute injection.  To counter
-this possible attack vector, be sure to always quote your attributes with
-either double or single quotes when using Jinja expressions in them:
+另一件非常重要的漏洞是不用引号包裹的属性值。虽然 Jinja2 可以通过转义 HTML
+来保护你免受 XSS 问题，但是仍无法避免一种情况：属性注入的 XSS 。为了免受这
+种攻击，必须确保在属性中使用 Jinja 表达式时，始终用单引号或双引号包裹:
 
 .. sourcecode:: html+jinja
 
-    <input value="{{ value }}">
+   <input value="{{ value }}">
 
-Why is this necessary?  Because if you would not be doing that, an
-attacker could easily inject custom JavaScript handlers.  For example an
-attacker could inject this piece of HTML+JavaScript:
+为什么必须这么做？因为如果不这么做，攻击者可以轻易地注入自制的 JavaScript
+处理器。例如一个攻击者可以注入以下 HTML+JavaScript 代码：
 
 .. sourcecode:: html
 
-    onmouseover=alert(document.cookie)
+   onmouseover=alert(document.cookie)
 
-When the user would then move with the mouse over the input, the cookie
-would be presented to the user in an alert window.  But instead of showing
-the cookie to the user, a good attacker might also execute any other
-JavaScript code.  In combination with CSS injections the attacker might
-even make the element fill out the entire page so that the user would
-just have to have the mouse anywhere on the page to trigger the attack.
+当用户鼠标停放在这个输入框上时，会在警告窗口里显示 cookie 信息。一个精明的
+攻击者可能还会执行其它的 JavaScript 代码，而不是把 cookie 显示给用户。结合
+CSS 注入，攻击者甚至可以把元素填满整个页面，这样用户把鼠标停放在页面上的任
+何地方都会触发攻击。
 
-There is one class of XSS issues that Jinja's escaping does not protect
-against. The ``a`` tag's ``href`` attribute can contain a `javascript:` URI,
-which the browser will execute when clicked if not secured properly.
+有一类 XSS 问题 Jinja 的转义无法阻止。 ``a`` 标记的 ``href`` 属性可以包含
+一个 `javascript:` URI 。如果没有正确保护，那么当点击它时浏览器将执行其代
+码。
 
 .. sourcecode:: html
 
     <a href="{{ value }}">click here</a>
     <a href="javascript:alert('unsafe');">click here</a>
 
-To prevent this, you'll need to set the :ref:`security-csp` response header.
+为了防止发生这种问题，需要设置 :ref:`security-csp` 响应头部。
 
-Cross-Site Request Forgery (CSRF)
----------------------------------
+跨站请求伪造（ CSRF ）
+----------------------
 
-Another big problem is CSRF.  This is a very complex topic and I won't
-outline it here in detail just mention what it is and how to theoretically
-prevent it.
+另一个大问题是 CSRF 。这个问题非常复杂，因此我不会在此详细展开，只是介绍
+CSRF 是什么以及在理论上如何避免这个问题。
 
-If your authentication information is stored in cookies, you have implicit
-state management.  The state of "being logged in" is controlled by a
-cookie, and that cookie is sent with each request to a page.
-Unfortunately that includes requests triggered by 3rd party sites.  If you
-don't keep that in mind, some people might be able to trick your
-application's users with social engineering to do stupid things without
-them knowing.
+如果你的验证信息存储在 cookie 中，那么你就使用了隐式的状态管理。“已登入”
+这个状态由一个 cookie 控制，并且这个 cookie 在页面的每个请求中都会发送。不
+幸的是，在第三方站点发送的请求中也会发送这个 cookie 。如果你不注意这点，一
+些人可能会通过社交引擎来欺骗应用的用户在不知情的状态下做一些蠢事。
 
-Say you have a specific URL that, when you sent ``POST`` requests to will
-delete a user's profile (say ``http://example.com/user/delete``).  If an
-attacker now creates a page that sends a post request to that page with
-some JavaScript they just have to trick some users to load that page and
-their profiles will end up being deleted.
+假设你有一个特定的 URL ，当你发送 ``POST`` 请求时会删除一个用户的资料（例
+如 ``http://example.com/user/delete`` ） 。如果一个攻击者现在创造一个页面
+并通过页面中的 JavaScript 发送这个 post 请求，只要诱骗用户加载该页面，那么
+用户的资料就会被删除。
 
-Imagine you were to run Facebook with millions of concurrent users and
-someone would send out links to images of little kittens.  When users
-would go to that page, their profiles would get deleted while they are
-looking at images of fluffy cats.
+设象在有数百万的并发用户的 Facebook 上，某人放出一些小猫图片的链接。当用户
+访问那个页面欣赏毛茸茸的小猫图片时，他们的资料就被删除了。
 
-How can you prevent that?  Basically for each request that modifies
-content on the server you would have to either use a one-time token and
-store that in the cookie **and** also transmit it with the form data.
-After receiving the data on the server again, you would then have to
-compare the two tokens and ensure they are equal.
+那么如何预防这个问题呢？基本思路是：对于每个要求修改服务器内容的请求，应该
+使用一次性令牌，并存储在 cookie 里， **并且** 在发送表单数据的同时附上它。
+在服务器再次接收数据之后，需要比较两个令牌，并确保它们相等。
 
-Why does Flask not do that for you?  The ideal place for this to happen is
-the form validation framework, which does not exist in Flask.
+为什么 Flask 没有替你做这件事？因为这应该是表单验证框架做的事，而 Flask 不
+包括表单验证。
 
 .. _json-security:
 
-JSON Security
--------------
+JSON 安全
+---------
 
-In Flask 0.10 and lower, :func:`~flask.jsonify` did not serialize top-level
-arrays to JSON. This was because of a security vulnerability in ECMAScript 4.
+Flask 0.10 版和更低版本中， :func:`~flask.jsonify` 没序列化顶层数组为
+JSON 。这是因为 ECMAScript 4 存在安全漏洞。
 
-ECMAScript 5 closed this vulnerability, so only extremely old browsers are
-still vulnerable. All of these browsers have `other more serious
-vulnerabilities
-<https://github.com/pallets/flask/issues/248#issuecomment-59934857>`_, so
-this behavior was changed and :func:`~flask.jsonify` now supports serializing
-arrays.
+ECMAScript 5 关闭了这个漏洞，所以只有非常老的浏览器仍然脆弱，而且还有
+`其他更严重的漏洞
+<https://github.com/pallets/flask/issues/248#issuecomment-59934857>`_ 。
+因此，这个行为被改变了，并且 :func:`~flask.jsonify` 现在支持了序列化数据。
 
-Security Headers
+安全头部
 ----------------
 
-Browsers recognize various response headers in order to control security. We
-recommend reviewing each of the headers below for use in your application.
-The `Flask-Talisman`_ extension can be used to manage HTTPS and the security
-headers for you.
+为了控件安全性，浏览器识别多种头部。我们推荐检查应用所使用的以下每种头部。
+`Flask-Talisman`_ 扩展可用于管理 HTTPS 和安全头部。
 
 .. _Flask-Talisman: https://github.com/GoogleCloudPlatform/flask-talisman
 
 HTTP Strict Transport Security (HSTS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tells the browser to convert all HTTP requests to HTTPS, preventing
-man-in-the-middle (MITM) attacks. ::
+告诉浏览器把所有 HTTP 请求转化为 HTTPS ，以防止
+man-in-the-middle (MITM) 攻击。 ::
 
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
@@ -141,9 +118,8 @@ man-in-the-middle (MITM) attacks. ::
 Content Security Policy (CSP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tell the browser where it can load various types of resource from. This header
-should be used whenever possible, but requires some work to define the correct
-policy for your site. A very strict policy would be::
+告诉浏览器哪里可以加载各种资源。这个头部应当尽可能使用，但是需要为网站定义
+正确的政策。一个非常严格的政策是::
 
     response.headers['Content-Security-Policy'] = "default-src 'self'"
 
@@ -153,9 +129,8 @@ policy for your site. A very strict policy would be::
 X-Content-Type-Options
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Forces the browser to honor the response content type instead of trying to
-detect it, which can be abused to generate a cross-site scripting (XSS)
-attack. ::
+强制浏览器遵守内容类型而不是尝试检测它，这可以会被滥用，以生成一个跨站脚本
+（ XSS ）攻击。 ::
 
     response.headers['X-Content-Type-Options'] = 'nosniff'
 
@@ -164,10 +139,8 @@ attack. ::
 X-Frame-Options
 ~~~~~~~~~~~~~~~
 
-Prevents external sites from embedding your site in an ``iframe``. This
-prevents a class of attacks where clicks in the outer frame can be translated
-invisibly to clicks on your page's elements. This is also known as
-"clickjacking". ::
+防止外部网站把你的站点嵌入到 ``iframe`` 中。这样可以防止外部框架点击转化针
+对你的页面元素的隐藏点击，也称为“点击支持”。 ::
 
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
@@ -176,9 +149,8 @@ invisibly to clicks on your page's elements. This is also known as
 X-XSS-Protection
 ~~~~~~~~~~~~~~~~
 
-The browser will try to prevent reflected XSS attacks by not loading the page
-if the request contains something that looks like JavaScript and the response
-contains the same data. ::
+如果请求包含类似于 JavaScript 的东西且响应的内容包含相同的数据时，浏览器将
+尝试通过不加载页面来防止反射的 XSS 攻击。::
 
     response.headers['X-XSS-Protection'] = '1; mode=block'
 
@@ -187,21 +159,18 @@ contains the same data. ::
 
 .. _security-cookie:
 
-Set-Cookie options
+Set-Cookie 选项
 ~~~~~~~~~~~~~~~~~~
 
-These options can be added to a ``Set-Cookie`` header to improve their
-security. Flask has configuration options to set these on the session cookie.
-They can be set on other cookies too.
+这些选项可以被添加到一个 ``Set-Cookie`` 头部以增强其安全性。 Flask 具有将
+其配置于会话 cookie 上的配置选项。它们也可以配置在其他 cookie 上。
 
-- ``Secure`` limits cookies to HTTPS traffic only.
-- ``HttpOnly`` protects the contents of cookies from being read with
-  JavaScript.
-- ``SameSite`` restricts how cookies are sent with requests from
-  external sites. Can be set to ``'Lax'`` (recommended) or ``'Strict'``.
-  ``Lax`` prevents sending cookies with CSRF-prone requests from
-  external sites, such as submitting a form. ``Strict`` prevents sending
-  cookies with all external requests, including following regular links.
+- ``Secure`` 限制 cookies 仅用于 HTTPS 流量。
+- ``HttpOnly`` 保护 cookies 内容不被 JavaScript 读取。
+- ``SameSite`` 限制如何从外部网站通过请求发送 cookie 。可以设置为
+  ``'Lax'`` （推荐）或者 ``'Strict'`` 。 ``Lax`` 防止从外部网站通过有 CSRF
+  倾向请求（比如一个表单）发送 cookie 。 ``Strict`` 防止通过所有外部请求发
+  送 cookie ，包括常规连接。
 
 ::
 
@@ -213,18 +182,18 @@ They can be set on other cookies too.
 
     response.set_cookie('username', 'flask', secure=True, httponly=True, samesite='Lax')
 
-Specifying ``Expires`` or ``Max-Age`` options, will remove the cookie after
-the given time, or the current time plus the age, respectively. If neither
-option is set, the cookie will be removed when the browser is closed. ::
+指定 ``Expires`` 或者 ``Max-Age`` 选项后，将会分别在给定时间后或者当前时间
+加上所定义存活期后删除 cookie 。如果两个参数都没有指定，则会在关闭浏览器时
+删除。 ::
 
     # cookie expires after 10 minutes
     response.set_cookie('snakes', '3', max_age=600)
 
-For the session cookie, if :attr:`session.permanent <flask.session.permanent>`
-is set, then :data:`PERMANENT_SESSION_LIFETIME` is used to set the expiration.
-Flask's default cookie implementation validates that the cryptographic
-signature is not older than this value. Lowering this value may help mitigate
-replay attacks, where intercepted cookies can be sent at a later time. ::
+对于会话 cookie 来说，如果
+:attr:`session.permanent <flask.session.permanent>` 被设置了，那么
+:data:`PERMANENT_SESSION_LIFETIME` 会被用于设置有效期。
+Flask 的缺省 cookie 实现会验证加密签名不会超过这个值。降低这个值有助于缓解
+重播攻击，可以在稍后发送被拦截的 cookie 。 ::
 
     app.config.update(
         PERMANENT_SESSION_LIFETIME=600
@@ -250,11 +219,10 @@ values (or any values that need secure signatures).
 HTTP Public Key Pinning (HPKP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This tells the browser to authenticate with the server using only the specific
-certificate key to prevent MITM attacks.
+告诉浏览器只使用指定的证书密钥进行服务器验证，以防止 MITM 攻击。
 
 .. warning::
-   Be careful when enabling this, as it is very difficult to undo if you set up
-   or upgrade your key incorrectly.
+   启用后请小心，如果密钥设置或者升级不正确则难以撤消。
 
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning
+

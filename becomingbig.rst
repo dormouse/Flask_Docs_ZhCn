@@ -1,101 +1,79 @@
 .. _becomingbig:
 
-Becoming Big
+大型应用
 ============
 
-Here are your options when growing your codebase or scaling your application.
+以下是一些建议，当你的代码库日益壮大或者应用需要规划时可以参考。
 
-Read the Source.
+阅读源代码
 ----------------
 
-Flask started in part to demonstrate how to build your own framework on top of
-existing well-used tools Werkzeug (WSGI) and Jinja (templating), and as it
-developed, it became useful to a wide audience.  As you grow your codebase,
-don't just use Flask -- understand it.  Read the source.  Flask's code is
-written to be read; its documentation is published so you can use its internal
-APIs.  Flask sticks to documented APIs in upstream libraries, and documents its
-internal utilities so that you can find the hook points needed for your
-project.
+Werkzeug （ WSGI ）和 Jinja （模板）是两个被广泛使用的工具，而 Flask 起源
+就是用于展示如何基于这两个工具创建你自己的框架。随着不断地开发， Flask 被
+越来越多的人认可了。当你的代码库日益壮大时，不应当仅仅是使用 Flask ，而更
+应当理解它。所以，请阅读 Flask 的源代码吧。 Flask 的源代码阅读方便，文档公
+开，有利于你直接使用内部的 API 。 Flask 坚持把上游库的 API 文档化，并文档
+化自己内部的工具，因此通过阅读源代码，可以为你的项目找到更好的切入点。
 
-Hook. Extend.
+挂接，扩展
 -------------
 
-The :ref:`api` docs are full of available overrides, hook points, and
-:ref:`signals`. You can provide custom classes for things like the request and
-response objects.  Dig deeper on the APIs you use, and look for the
-customizations which are available out of the box in a Flask release.  Look for
-ways in which your project can be refactored into a collection of utilities and
-Flask extensions.  Explore the many `extensions
-<http://flask.pocoo.org/extensions/>`_ in the community, and look for patterns to
-build your own extensions if you do not find the tools you need.
+:ref:`api` 文档随处可见可用重载、挂接点和 :ref:`signals` 。你可以定制类似
+请求或响应对象的自定义类。请深入研究你所使用的 API ，并在 Flask 发行版中有
+哪些可以立即使用的可定制部分。请研究你的哪些项目可以重构为工具集或 Flask
+扩展。你可以在社区中发现很多 `扩展 <http://flask.pocoo.org/extensions/>`_ 。
+如果找不到满意的，那就写一个你自己的吧。
 
-Subclass.
+继承
 ---------
 
-The :class:`~flask.Flask` class has many methods designed for subclassing. You
-can quickly add or customize behavior by subclassing :class:`~flask.Flask` (see
-the linked method docs) and using that subclass wherever you instantiate an
-application class. This works well with :ref:`app-factories`. See :doc:`/patterns/subclassing` for an example.
+:class:`~flask.Flask` 类有许多方法专门为继承而设计。你可通过继承
+:class:`~flask.Flask` （参见链接的方法文档）快速的添加或者定制行为，并把子
+类实例化为一个应用类。这种方法同样适用于 :ref:`app-factories` 。示例参见
+:doc:`/patterns/subclassing` 。
 
-Wrap with middleware.
+用中间件包装
 ---------------------
 
-The :ref:`app-dispatch` chapter shows in detail how to apply middleware. You
-can introduce WSGI middleware to wrap your Flask instances and introduce fixes
-and changes at the layer between your Flask application and your HTTP
-server. Werkzeug includes several `middlewares
-<http://werkzeug.pocoo.org/docs/middlewares/>`_.
+:ref:`app-dispatch` 一文中详细阐述了如何使用中间件。你可以引入中间件来包装
+你的 Flask 实例，在你的应用和 HTTP 服务器之间的层有所作为。
+Werkzeug 包含许多 `中间件 <http://werkzeug.pocoo.org/docs/middlewares/>`_ 。
 
-Fork.
+派生
 -----
 
-If none of the above options work, fork Flask.  The majority of code of Flask
-is within Werkzeug and Jinja2.  These libraries do the majority of the work.
-Flask is just the paste that glues those together.  For every project there is
-the point where the underlying framework gets in the way (due to assumptions
-the original developers had).  This is natural because if this would not be the
-case, the framework would be a very complex system to begin with which causes a
-steep learning curve and a lot of user frustration.
+如果以下建议都没有用，那么直接派生 Flask 吧。 Flask 的主要代码都在
+Werkzeug 和 Jinja2 这两个库内。这两个库起了主要作用。 Flask 只是把它们粘合
+在一起而已。对于一个项目来讲，底层框架的切入点很重要。因为如果不重视这一
+点，那么框架会变得非常复杂，势必带来陡峭的学习曲线，从而吓退用户。
 
-This is not unique to Flask.  Many people use patched and modified
-versions of their framework to counter shortcomings.  This idea is also
-reflected in the license of Flask.  You don't have to contribute any
-changes back if you decide to modify the framework.
+Flask 并不推崇唯一版本。许多人为了避免缺陷，都使用打过补丁或修改过的版本。
+这个理念在 Flask 的许可中也有所体现：你不必返回你对框架所做的修改。
 
-The downside of forking is of course that Flask extensions will most
-likely break because the new framework has a different import name.
-Furthermore integrating upstream changes can be a complex process,
-depending on the number of changes.  Because of that, forking should be
-the very last resort.
+分支的缺点是大多数扩展都会失效，因为新的框架会使用不同的导入名称。更进一步：
+整合上游的变动将会变得十分复杂，上游变动越多，则整合越复杂。因此，创建分支
+一般是不得不为之的最后一招。
 
-Scale like a pro.
------------------
+专家级的伸缩性
+------------------
 
-For many web applications the complexity of the code is less an issue than
-the scaling for the number of users or data entries expected.  Flask by
-itself is only limited in terms of scaling by your application code, the
-data store you want to use and the Python implementation and webserver you
-are running on.
+对于大多数网络应用来说，最复杂的莫过于对于用户量和数据量提供良好的伸缩性。
+Flask 本身具有良好的伸缩性，其伸缩性受限于你的应用代码、所使用的数据储存方
+式、 Python 实现和应用所运行的服务器。
 
-Scaling well means for example that if you double the amount of servers
-you get about twice the performance.  Scaling bad means that if you add a
-new server the application won't perform any better or would not even
-support a second server.
+如果服务器数量增加一倍，你的应用性能就增加一倍，那么就代表伸缩性好。如果伸
+缩性不好，那么即使增加服务器的数量，也不会得到更好的性能。伸缩性更差的甚至
+不支持增加第二台服务器。
 
-There is only one limiting factor regarding scaling in Flask which are
-the context local proxies.  They depend on context which in Flask is
-defined as being either a thread, process or greenlet.  If your server
-uses some kind of concurrency that is not based on threads or greenlets,
-Flask will no longer be able to support these global proxies.  However the
-majority of servers are using either threads, greenlets or separate
-processes to achieve concurrency which are all methods well supported by
-the underlying Werkzeug library.
+Flask 中唯一影响伸缩性的因素是环境本地代理。Flask 中的环境本地代理可以被定
+义为线程、进程或 greenlet 。如果你的服务器不支持这些，那么 Flask 就不能支
+持全局代理。但是，当今主流的服务器都支持线程、进程或 greenlet ，以提高并发
+性。 Flask 的基础库 Werkzeug 对于线程、进程或 greenlet 都能够提供良好的支持。
 
-Discuss with the community.
+与社区沟通
 ---------------------------
 
-The Flask developers keep the framework accessible to users with codebases big
-and small. If you find an obstacle in your way, caused by Flask, don't hesitate
-to contact the developers on the mailinglist or IRC channel.  The best way for
-the Flask and Flask extension developers to improve the tools for larger
-applications is getting feedback from users.
+不管你的代码库是否强大， Flask 开发者总是保持框架的可操作性。如果发现
+Flask 有什么问题，请立即通过邮件列表或 IRC 与社区进行沟通。对于 Flask 及其
+扩展的开发都来说，提升其在大型应用中的功能的最佳途径是倾听用户的心声。
+
