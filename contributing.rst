@@ -1,180 +1,169 @@
-How to contribute to Flask
+如何为 Flask 做出贡献
 ==========================
 
-Thank you for considering contributing to Flask!
+感谢您考虑为 Flask 做出贡献！
 
-Support questions
+支持问题
 -----------------
 
-Please, don't use the issue tracker for this. Use one of the following
-resources for questions about your own code:
+请不要使用问题跟踪器来提问。有关你自己代码的问题请使用下列途径之一提问：
 
-* The IRC channel ``#pocoo`` on FreeNode.
-* The IRC channel ``#python`` on FreeNode for more general questions.
-* The mailing list flask@python.org for long term discussion or larger issues.
-* Ask on `Stack Overflow`_. Search with Google first using:
+* 在 FreeNode 上的 IRC ``#pocoo`` 频道。
+* 更普通的问题请使用 FreeNode 上的 IRC ``#python`` 频道。
+* 邮件列表 flask@python.org 用于长期或者大型问题讨论。
+* 在 `Stack Overflow`_ 上提问。首先使用以下方法在 Google 上搜索：
   ``site:stackoverflow.com flask {search term, exception message, etc.}``
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/flask?sort=linked
 
-Reporting issues
+报告问题
 ----------------
 
-- Describe what you expected to happen.
-- If possible, include a `minimal, complete, and verifiable example`_ to help
-  us identify the issue. This also helps check that the issue is not with your
-  own code.
-- Describe what actually happened. Include the full traceback if there was an
-  exception.
-- List your Python, Flask, and Werkzeug versions. If possible, check if this
-  issue is already fixed in the repository.
+- 描述你希望发生的事情。
+- 如果可能，提供一个 `最小的、完整的和可验证的示例`_ 以帮助我们找到问题。
+  这也有助于鉴别问题是否也你自己的代码有关。
+- 描述实际发生了什么。如果有异常，则应当包含完整的回溯。
+- 列出你的 Python 、 Flask 和 Werkzeug 版本。如果可能，检查是否这个问题已
+  在存储库中修复。
 
-.. _minimal, complete, and verifiable example: https://stackoverflow.com/help/mcve
+.. _最小的、完整的和可验证的示例: https://stackoverflow.com/help/mcve
 
-Submitting patches
+提交补丁
 ------------------
 
-- Include tests if your patch is supposed to solve a bug, and explain
-  clearly under which circumstances the bug happens. Make sure the test fails
-  without your patch.
-- Try to follow `PEP8`_, but you may ignore the line length limit if following
-  it would make the code uglier.
+- 如果补丁是用于解决错误的，那么应当包含一个测试，并明确说明错误发生于何种
+  情况之下。确保如果没有补丁，测试就会失败。
+- 尝试遵循 `PEP8`_ ，但是如果代码行长度限制使用代码更丑陋的话，则可以忽略
+  这条规则。
 
-First time setup
+首次设置
 ~~~~~~~~~~~~~~~~
 
-- Download and install the `latest version of git`_.
-- Configure git with your `username`_ and `email`_::
+- 下载并安装 `最新版的 git`_.
+- 配置使用 git 的 `username`_ 和 `email`_::
 
         git config --global user.name 'your name'
         git config --global user.email 'your email'
 
-- Make sure you have a `GitHub account`_.
-- Fork Flask to your GitHub account by clicking the `Fork`_ button.
-- `Clone`_ your GitHub fork locally::
+- 确保你有一个 `GitHub 账号`_.
+- 点击 `Fork`_ 按钮将 Flask fork 到你的 GitHub 账户。
+- 把你的 GitHub fork `Clone`_ 到本地::
 
         git clone https://github.com/{username}/flask
         cd flask
 
-- Add the main repository as a remote to update later::
+- 添加一个主存储库作为远程库，稍后更新::
 
         git remote add pallets https://github.com/pallets/flask
         git fetch pallets
 
-- Create a virtualenv::
+- 创建一个 virtualenv::
 
         python3 -m venv env
         . env/bin/activate
         # or "env\Scripts\activate" on Windows
 
-- Install Flask in editable mode with development dependencies::
+- 用开发依赖在编辑模式下安装 Flask::
 
         pip install -e ".[dev]"
 
-.. _GitHub account: https://github.com/join
-.. _latest version of git: https://git-scm.com/downloads
+.. _GitHub 账号: https://github.com/join
+.. _最新版的 git: https://git-scm.com/downloads
 .. _username: https://help.github.com/articles/setting-your-username-in-git/
 .. _email: https://help.github.com/articles/setting-your-email-in-git/
 .. _Fork: https://github.com/pallets/flask/fork
 .. _Clone: https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork
 
-Start coding
+开始写代码
 ~~~~~~~~~~~~
 
-- Create a branch to identify the issue you would like to work on (e.g.
-  ``2287-dry-test-suite``)
-- Using your favorite editor, make your changes, `committing as you go`_.
-- Try to follow `PEP8`_, but you may ignore the line length limit if following
-  it would make the code uglier.
-- Include tests that cover any code changes you make. Make sure the test fails
-  without your patch. `Run the tests. <contributing-testsuite_>`_.
-- Push your commits to GitHub and `create a pull request`_.
-- Celebrate 🎉
+- 创建一个分支来鉴别你想要处理的问题（例如 ``2287-dry-test-suite`` ）。
+- 使用你最喜欢的编辑器，修改代码， `随时提交`_ 。
+- 尝试遵循 `PEP8`_ ，但是如果代码行长度限制使用代码更丑陋的话，则可以忽略
+  这条规则。
+- 应当包含覆盖你所做的全部修改的测试。确保没有补丁则测试失败。
+  `运行测试 <contributing-testsuite_>`_ 。
+- 将你的提交推送到 GitHub 并 `创建一个 pull request`_ 。
+- 庆祝成功 🎉
 
-.. _committing as you go: http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
+.. _随时提交: http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
 .. _PEP8: https://pep8.org/
-.. _create a pull request: https://help.github.com/articles/creating-a-pull-request/
+.. _创建一个 pull request: https://help.github.com/articles/creating-a-pull-request/
 
 .. _contributing-testsuite:
 
-Running the tests
+运行测试
 ~~~~~~~~~~~~~~~~~
 
-Run the basic test suite with::
+用以下命令运行基础测试::
 
     pytest
 
-This only runs the tests for the current environment. Whether this is relevant
-depends on which part of Flask you're working on. Travis-CI will run the full
-suite when you submit your pull request.
+这只在当前环境下运行测试。这是否相关取决于你在处理 Flask 的哪个部分。
+当你提交 pull request 时， Travis-CI 会运行全部测试。
 
-The full test suite takes a long time to run because it tests multiple
-combinations of Python and dependencies. You need to have Python 2.7, 3.4,
-3.5 3.6, and PyPy 2.7 installed to run all of the environments. Then run::
+完整的测试套件运行时间会很长，因为它会在多种 Python 及其依赖的环境下运行。
+在所有环境下运行测试需要有 Python 2.7 、 3.4 、 3.5 、 3.6 和 PyPy 2.7 。
+然后运行::
 
     tox
 
-Running test coverage
+运行测试覆盖
 ~~~~~~~~~~~~~~~~~~~~~
 
-Generating a report of lines that do not have test coverage can indicate
-where to start contributing. Run ``pytest`` using ``coverage`` and generate a
-report on the terminal and as an interactive HTML document::
+生成一个哪些代码未被测试覆盖的报告可以指明从哪里开始贡献。使用
+``coverage`` 运行 ``pytest`` 并在终端生成一个报告和一份交互 HTML 文档::
 
     coverage run -m pytest
     coverage report
     coverage html
     # then open htmlcov/index.html
 
-Read more about `coverage <https://coverage.readthedocs.io>`_.
+请阅读更多关于 `coverage <https://coverage.readthedocs.io>`_ 的文档。
 
-Running the full test suite with ``tox`` will combine the coverage reports
-from all runs.
+用 ``tox`` 运行完整测试套件会组合所有运行测试的覆盖报告。
 
 
-Building the docs
+构建文档
 ~~~~~~~~~~~~~~~~~
 
-Build the docs in the ``docs`` directory using Sphinx::
+使用 Sphinx 构建 ``docs`` 文件夹中的文档::
 
     cd docs
     make html
 
-Open ``_build/html/index.html`` in your browser to view the docs.
+在浏览器中打开 ``_build/html/index.html`` 以查看文档。
 
-Read more about `Sphinx <http://www.sphinx-doc.org>`_.
+请阅读更多关于 `Sphinx <http://www.sphinx-doc.org>`_ 的内容。
 
 
-make targets
+make 目标
 ~~~~~~~~~~~~
 
-Flask provides a ``Makefile`` with various shortcuts. They will ensure that
-all dependencies are installed.
+Flask 提供一个 ``Makefile`` ，包含各种捷径。它们可以保证安装好所有依赖。
 
-- ``make test`` runs the basic test suite with ``pytest``
-- ``make cov`` runs the basic test suite with ``coverage``
-- ``make test-all`` runs the full test suite with ``tox``
-- ``make docs`` builds the HTML documentation
+- ``make test`` 用 ``pytest`` 运行基础测试套件
+- ``make cov``  用 ``coverage`` 运行基础测试套件
+- ``make test-all`` 用 ``tox`` 运行完整测试套件
+- ``make docs`` 构建 HTML 文档
 
-Caution: zero-padded file modes
+注意：零填充文件模式
 -------------------------------
 
-This repository contains several zero-padded file modes that may cause issues
-when pushing this repository to git hosts other than GitHub. Fixing this is
-destructive to the commit history, so we suggest ignoring these warnings. If it
-fails to push and you're using a self-hosted git service like GitLab, you can
-turn off repository checks in the admin panel.
+本存储库包含多个零填充文件模式，当提交存储库到 GitHub 之外的 git 主机时可
+能会引发问题。修复这个问题会破坏提交历史记录，因此我们建议忽略这个问题。
+如果推送失败并且你使用的是如 GitLab 这样的自托管 git 服务，那么在管理面板
+中关闭存储库检查。
 
-These files can also cause issues while cloning. If you have ::
+这些文件还会在克隆时引发问题。如果你在 git 配置文件中有以下设置::
 
     [fetch]
     fsckobjects = true
 
-or ::
+或者 ::
 
     [receive]
     fsckObjects = true
 
-set in your git configuration file, cloning this repository will fail. The only
-solution is to set both of the above settings to false while cloning, and then
-setting them back to true after the cloning is finished.
+那么克隆时会失败。唯一的解决方法是在克隆时把上面的设置项目设置为 false ，
+并在克隆完成后恢复。
