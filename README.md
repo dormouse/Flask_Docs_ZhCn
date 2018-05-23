@@ -1,7 +1,7 @@
 # Flask 简体中文文档
 
 ## 关于译者
-由 Dormouse Young 发起并独立翻译，其余参与和修正伙伴参见contributors。
+由 Dormouse Young 发起并独立翻译，其余参与和修正伙伴参见 contributors 。
 
 Initiate and translated by Dormouse Young.
 
@@ -22,7 +22,8 @@ Flask 1.0 docs are being translating now.
 主要步骤为：
 
 * 克隆本项目
-* 安装 sphinx
+* 创建虚拟环境（示例使用 anaconda ）
+* 安装依赖
 * 生成文档（文档生成在 _bulid 目录下)
 
 命令示例：
@@ -35,6 +36,10 @@ source activate flask_doc
 pip install -r requirements.txt
 make html
 ```
+
+### PDF 文档
+
+参见 https://dormouse.github.io/rst-pdf.html
 
 
 
