@@ -15,6 +15,7 @@ author = 'Pallets Team'
 release = '1.0'
 version = '1.0'
 # General --------------------------------------------------------------
+language = 'zh_CN'
 
 master_doc = 'index'
 
