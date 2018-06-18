@@ -259,7 +259,7 @@ URL 构建
 
     @app.route('/user/<username>')
     def profile(username):
-        return '{}'s profile'.format(username)
+        return '{}\'s profile'.format(username)
 
     with app.test_request_context():
         print(url_for('index'))
@@ -278,6 +278,8 @@ Web 应用使用不同的 HTTP 方法处理 URL 。当你使用 Flask 时，应�
 缺省情况下，一个路由只回应 ``GET`` 请求。
 可以使用 :meth:`~flask.Flask.route` 装饰器的 ``methods`` 参数来处理不同的
 HTTP 方法::
+
+    from flask import request
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
@@ -357,7 +359,7 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果你的�
 :class:`~flask.request` 、 :class:`~flask.session` 和
 :class:`~flask.g` [#]_ 对象。
 
-模板在继承使用的情况下尤其有用。其工作原理参见 :ref:`template-inheritance` 
+模板在继承使用的情况下尤其有用。其工作原理参见 :ref:`template-inheritance`
 方案文档。简单的说，模板继承可以使每个页面的特定元素（如页头、导航和页尾）
 保持一致。
 
@@ -382,7 +384,7 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果你的�
    和 ``.xhtml`` 开启。从字符串载入的模板会关闭自动转义。
 
 .. [#] 不理解什么是 :class:`~flask.g` 对象？它是某个可以根据需要储存信息的
-   东西。更多信息参见 :class:`~flask.g` 对象的文档和 :ref:`sqlite3` 文档。 
+   东西。更多信息参见 :class:`~flask.g` 对象的文档和 :ref:`sqlite3` 文档。
 
 操作请求数据
 ----------------------
@@ -469,7 +471,7 @@ Bad Request 错误页面。因此，多数情况下你不必处理这个问题�
     searchword = request.args.get('key', '')
 
 
-用户可能会改变 URL 导致出现一个 400 请求出错页面，这样降低了用户友好度。因此， 
+用户可能会改变 URL 导致出现一个 400 请求出错页面，这样降低了用户友好度。因此，
 我们推荐使用 `get` 或通过捕捉 :exc:`KeyError` 来访问 URL 参数。
 
 完整的请求对象方法和属性参见 :class:`~flask.Request` 文档。

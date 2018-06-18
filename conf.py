@@ -12,8 +12,8 @@ project = 'Flask'
 copyright = '2010 Pallets Team'
 author = 'Pallets Team'
 # release, version = get_version('Flask')
-release = '1.0'
-version = '1.0'
+release = '1.0.2'
+version = '1.0.2'
 # General --------------------------------------------------------------
 language = 'zh_CN'
 
