@@ -94,7 +94,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     **在生产环境中不要开启调试模式。**
 
-    缺省值：当 :data:`ENV` 是 ``'production'`` 时，为 ``True`` ；否则为
+    缺省值：当 :data:`ENV` 是 ``'development'`` 时，为 ``True`` ；否则为
     ``False`` 。
 
 .. py:data:: TESTING
@@ -157,7 +157,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 .. py:data:: SESSION_COOKIE_DOMAIN
 
     认可会话 cookie 的域的匹配规则。如果本变量没有设置，那么 cookie 会被
-    :data:`SERVER_NAME` 的所有子域认可。如果本变量设置为 
+    :data:`SERVER_NAME` 的所有子域认可。如果本变量设置为
     ``False`` ，那么 cookie 域不会被设置。
 
     缺省值： ``None``

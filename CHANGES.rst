@@ -4,6 +4,46 @@ Flask Changelog
 ===============
 
 
+Version 1.0.2
+-------------
+
+Released on May 2nd 2018
+
+-   Fix more backwards compatibility issues with merging slashes between
+    a blueprint prefix and route. (`#2748`_)
+-   Fix error with ``flask routes`` command when there are no routes.
+    (`#2751`_)
+
+.. _#2748: https://github.com/pallets/flask/pull/2748
+.. _#2751: https://github.com/pallets/flask/issues/2751
+
+
+Version 1.0.1
+-------------
+
+Released on April 29th 2018
+
+-   Fix registering partials (with no ``__name__``) as view functions.
+    (`#2730`_)
+-   Don't treat lists returned from view functions the same as tuples.
+    Only tuples are interpreted as response data. (`#2736`_)
+-   Extra slashes between a blueprint's ``url_prefix`` and a route URL
+    are merged. This fixes some backwards compatibility issues with the
+    change in 1.0. (`#2731`_, `#2742`_)
+-   Only trap ``BadRequestKeyError`` errors in debug mode, not all
+    ``BadRequest`` errors. This allows ``abort(400)`` to continue
+    working as expected. (`#2735`_)
+-   The ``FLASK_SKIP_DOTENV`` environment variable can be set to ``1``
+    to skip automatically loading dotenv files. (`#2722`_)
+
+.. _#2722: https://github.com/pallets/flask/issues/2722
+.. _#2730: https://github.com/pallets/flask/pull/2730
+.. _#2731: https://github.com/pallets/flask/issues/2731
+.. _#2735: https://github.com/pallets/flask/issues/2735
+.. _#2736: https://github.com/pallets/flask/issues/2736
+.. _#2742: https://github.com/pallets/flask/issues/2742
+
+
 Version 1.0
 -----------
 

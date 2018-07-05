@@ -178,6 +178,28 @@ Click 被配置为根据环境变量为命令选项载入缺省值。变量使�
 这些可以添加到 ``.flaskenv`` 文件，就像 ``FLASK_APP`` 来控制缺省命令选项。
 
 
+禁用 dotenv
+~~~~~~~~~~~~~~
+
+如果检测到 dotenv 文件，但是没有安装 python-dotenv ，那么 ``flask`` 命令会
+显示一个消息。
+
+.. code-block:: none
+
+    flask run
+     * Tip: There are .env files present. Do "pip install python-dotenv" to use them.
+
+通过设置 ``FLASK_SKIP_DOTENV`` 可以告诉 Flask 不要载入 dotenv 文件。在
+python-dotenv 没有安装到情况下这个设置也是有效的。这个设置主要用于以下情形：当
+你想要手动载入它们的时候，或者当你已经使用了一个项目运行器载入了它们。请牢记，环境
+变量必须在项目载入之前设置，否则出问题。
+
+.. code-block:: none
+
+    export FLASK_SKIP_DOTENV=1
+    flask run
+
+
 通过 virturalenv 设置环境变量
 -------------------------------------
 

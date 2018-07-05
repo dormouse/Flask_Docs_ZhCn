@@ -52,7 +52,7 @@ Flask 自动添加一个 ``static`` 视图，视图使用相对于 ``flaskr/stat
 :gh:`示例代码 <examples/tutorial/flaskr/static/style.css>` 找到一个排版不
 紧凑的 ``style.css`` 。
 
-访问 http://127.0.0.1/auth/login ，页面如下所示。
+访问 http://127.0.0.1:5000/auth/login ，页面如下所示。
 
 .. image:: flaskr_login.png
     :align: center
