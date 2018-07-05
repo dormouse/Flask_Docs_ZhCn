@@ -19,9 +19,8 @@ SQLAlchemy ，那么推荐你使用这个扩展。
 你可以从 `PyPI <https://pypi.org/project/Flask-SQLAlchemy/>`_ 下载
 `Flask-SQLAlchemy`_ 。
 
-<https://pypi.org/project/Flask-SQLAlchemy/>`_.
-
 .. _Flask-SQLAlchemy: http://flask-sqlalchemy.pocoo.org/
+
 
 声明
 -----------
