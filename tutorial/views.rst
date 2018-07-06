@@ -146,7 +146,7 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
 登录
 -----
 
-这个视图和上述 ``register`` 视图模型相同。
+这个视图和上述 ``register`` 视图原理相同。
 
 .. code-block:: python
     :caption: ``flaskr/auth.py``

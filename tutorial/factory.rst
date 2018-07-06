@@ -73,8 +73,8 @@
 
     *   ``instance_relative_config=True`` 告诉应用配置文件是相对于
         :ref:`instance folder <instance-folders>` 的相对路径。实例文件夹在
-        ``flaskr`` 包的外面，用于存放本地数据（例如配置密钥和数据库），应当
-        不要提交到版本控制系统。
+        ``flaskr`` 包的外面，用于存放本地数据（例如配置密钥和数据库），不应当
+        提交到版本控制系统。
 
 #.  :meth:`app.config.from_mapping() <Config.from_mapping>` 设置一个应用的
     缺省配置：
