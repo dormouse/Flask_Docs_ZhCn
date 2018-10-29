@@ -110,7 +110,7 @@ Ruby 版的 WSGI 。但是几乎所有 Ruby 应用都不直接使用 Rack 协议
 Werkzeug 两个库。 Paste 任然可用，但是个人认为正逐步被 WebOb 取代。WebOb
 和 Werkzeug 的开发初衷都是：做一个 WSGI 协议的出色实现，让其他应用受益。
 
-正应为 Werkzeug 出色地实现了 WSGI 协议（有时候这是一个复杂的任务），使得依
+正因为 Werkzeug 出色地实现了 WSGI 协议（有时候这是一个复杂的任务），使得依
 赖于 Werkzeug 的 Flask 受益良多。同时要感谢 Python 包管理的近期开发，包依
 赖问题已经解决，几乎没有理由不使用包依赖的方式。
 
