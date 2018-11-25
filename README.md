@@ -43,7 +43,7 @@ make html
 
 ## 下载PDF格式的
 
-[参见] (https://readthedocs.org/projects/dormousehole/downloads/)
+[参见](https://readthedocs.org/projects/dormousehole/downloads/)
 
 
 
