@@ -37,9 +37,13 @@ pip install -r requirements.txt
 make html
 ```
 
-### PDF 文档
+### html 生成mobi，epub
 
-参见 https://dormouse.github.io/rst-pdf.html
+[参见](https://github.com/agentzh/code2ebook#convert-the-html-site-to-ebooks-in-various-formats)
+
+## 下载PDF格式的
+
+[参见] (https://readthedocs.org/projects/dormousehole/downloads/)
 
 
 
