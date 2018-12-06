@@ -39,7 +39,7 @@ make html
 
 ### PDF 文档
 
-参见 https://dormouse.github.io/rst-pdf.html
+参见 https://dormouse.github.io/zh_cn/2013/rst-sphinx-pdf/
 
 
 
