@@ -24,20 +24,20 @@ mod_wsgi (Apache)
 
 .. sourcecode:: text
 
-    # apt-get install libapache2-mod-wsgi
+    $ apt-get install libapache2-mod-wsgi
 
 如果使用基于 yum 的发行版（ Fedora 、 OpenSUSE 等等），可以这样安装：
 
 .. sourcecode:: text
 
-    # yum install mod_wsgi
+    $ yum install mod_wsgi
 
 在 FreeBSD 系统中，可以通过编译 `www/mod_wsgi` port 或使用 pkg_add 来安装
 `mod_wsgi` ：
 
 .. sourcecode:: text
 
-    # pkg_add -r mod_wsgi
+    $ pkg_add -r mod_wsgi
 
 如果你使用 pkgsrc ，那么可以通过编译 `www/ap2-wsgi` 包来安装 `mod_wsgi` 。
 
@@ -53,6 +53,12 @@ mod_wsgi (Apache)
 对于大多数应用来说，文件包含以下内容就可以了::
 
     from yourapplication import app as application
+
+如果在一个 :file:`__init__.py` 文件中使用了一个工厂函数，那么该函数应当被
+导入::
+
+    from yourapplication import create_app
+    application = create_app()
 
 如果你的应用没有创建函数，只是一个独立的实例，那么可以直接把实例导入为
 `application` 。
@@ -93,14 +99,14 @@ mod_wsgi (Apache)
 
 .. sourcecode:: apache
 
-	<VirtualHost *>
-		ServerName example.com
-		WSGIScriptAlias / C:\yourdir\yourapp.wsgi
-		<Directory C:\yourdir>
-			Order deny,allow
-			Allow from all
-		</Directory>
-	</VirtualHost>
+   <VirtualHost *>
+        ServerName example.com
+        WSGIScriptAlias / C:\yourdir\yourapp.wsgi
+        <Directory C:\yourdir>
+            Order deny,allow
+            Allow from all
+        </Directory>
+    </VirtualHost>
 
 注意： `Apache 2.4`_ 的权限控制配置有一些变化。
 

@@ -4,10 +4,10 @@ uWSGI
 =====
 
 uWSGI 也是部署 Flask 的途径之一,类似的部署途径还有 `nginx`_ 、 `lighttpd`_ 和
-`cherokee`_ 。其他部署途径的信息参见 :ref:`deploying-fastcgi` 和
-:ref:`deploying-wsgi-standalone` 。使用 uWSGI 协议来部署 WSGI 应用的先决条件是
-需要一个 uWSGI 服务器。 uWSGI 既是一个协议也是一个服务器。如果作为一个服务器，
-它可以服务于 uWSGI 、 FastCGI 和 HTTP 协议。
+`cherokee`_ 。其他部署途径的信息参见 :doc:`fastcgi` 和 :doc:`wsgi-standalone` 。
+使用 uWSGI 协议来部署 WSGI 应用的先决条件是需要一个 uWSGI 服务器。 uWSGI
+既是一个协议也是一个服务器。如果作为一个服务器，它可以服务于 uWSGI 、 FastCGI
+和 HTTP 协议。
 
 最流行的 uWSGI 服务器是 `uwsgi`_ ，本文将使用它来举例，请先安装它。
 
@@ -63,4 +63,4 @@ Python 版本相应地加上 ``--plugin python`` 或者 ``--plugin python3`` 。
 .. _nginx: https://nginx.org/
 .. _lighttpd: https://www.lighttpd.net/
 .. _cherokee: http://cherokee-project.com/
-.. _uwsgi: http://projects.unbit.it/uwsgi/
+.. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/

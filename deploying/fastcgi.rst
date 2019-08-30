@@ -4,10 +4,10 @@ FastCGI
 =======
 
 FastCGI 是部署 Flask 的途径之一,类似的部署途径还有 `nginx`_  、
-`lighttpd`_ 和 `cherokee`_ 。其他部署途径的信息参见 :ref:`deploying-uwsgi`
-和 :ref:`deploying-wsgi-standalone` 。本文讲述的是使用 FastCGI 部署，因此
-先决条件是要有一个 FastCGI 服务器。 `flup`_ 最流行的 FastCGI 服务器之一，
-我们将会在本文中使用它。在阅读下文之前先安装好 `flup`_ 。
+`lighttpd`_ 和 `cherokee`_ 。其他部署途径的信息参见 :doc:`uwsgi` 和
+:doc:`wsgi-standalone` 。本文讲述的是使用 FastCGI 部署，因此先决条件是要有
+一个 FastCGI 服务器。 `flup`_ 是最流行的 FastCGI 服务器之一，我们将会在本文
+中使用它。在阅读下文之前先安装好 `flup`_ 。
 
 .. admonition:: 小心
 
@@ -46,7 +46,7 @@ FastCGI 服务器，即把接口的路径传递给
 
 .. sourcecode:: text
 
-    # chmod +x /var/www/yourapplication/yourapplication.fcgi
+    $ chmod +x /var/www/yourapplication/yourapplication.fcgi
 
 配置 Apache
 ------------------

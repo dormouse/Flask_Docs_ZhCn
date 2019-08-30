@@ -1,15 +1,19 @@
 如何为 Flask 做出贡献
 ==========================
 
-感谢您考虑为 Flask 做出贡献！
+感谢您为 Flask 做出贡献！
 
-支持问题
------------------
+问答支持
+--------
 
 请不要使用问题跟踪器来提问。有关你自己代码的问题请使用下列途径之一提问：
 
 * 在 FreeNode 上的 IRC ``#pocoo`` 频道。
 * 更普通的问题请使用 FreeNode 上的 IRC ``#python`` 频道。
+* Discord chat 上的 ``#get-help`` 频道： https://discordapp.com/invite/t6rrQZH
+* FreeNode 上的 IRC ``#pocoo`` 频道与 Discord 关联，但是请优先使用 Discord 。
+
+
 * 邮件列表 flask@python.org 用于长期或者大型问题讨论。
 * 在 `Stack Overflow`_ 上提问。首先使用以下方法在 Google 上搜索：
   ``site:stackoverflow.com flask {search term, exception message, etc.}``
@@ -20,21 +24,26 @@
 ----------------
 
 - 描述你希望发生的事情。
-- 如果可能，提供一个 `最小的、完整的和可验证的示例`_ 以帮助我们找到问题。
+- 如果可能，提供一个 `最小的可重现的示例`_ 以帮助我们找到问题。
   这也有助于鉴别问题是否也你自己的代码有关。
 - 描述实际发生了什么。如果有异常，则应当包含完整的回溯。
 - 列出你的 Python 、 Flask 和 Werkzeug 版本。如果可能，检查是否这个问题已
   在存储库中修复。
 
-.. _最小的、完整的和可验证的示例: https://stackoverflow.com/help/mcve
+.. _最小的可重现的示例: https://stackoverflow.com/help/minimal-reproducible-example
 
 提交补丁
 ------------------
 
+- 使用 `Black`_ 自动格式化你的代码。当你运行 ``pip install -e .[dev]`` 时，
+  这个功能将被配置为一个 git `pre-commit`_ 钩子。
+  你可以还希望使用 Black 的 `编辑器集成`_.
 - 如果补丁是用于解决错误的，那么应当包含一个测试，并明确说明错误发生于何种
   情况之下。确保如果没有补丁，测试就会失败。
-- 尝试遵循 `PEP8`_ ，但是如果代码行长度限制使用代码更丑陋的话，则可以忽略
-  这条规则。
+- 在你的提交信息中包含一个类似 "Fixes #123" 字符串（其中的 123 是指你修正的
+  issue 编号）。
+  参见 `Closing issues using keywords
+  <https://help.github.com/articles/creating-a-pull-request/>`__.
 
 首次设置
 ~~~~~~~~~~~~~~~~
@@ -63,32 +72,49 @@
         . env/bin/activate
         # or "env\Scripts\activate" on Windows
 
-- 用开发依赖在编辑模式下安装 Flask::
+- 在带有开发依赖的编辑模式下安装 Flask::
 
         pip install -e ".[dev]"
 
+- 安装 pre-commit 钩子::
+
+        pre-commit install --install-hooks
+
 .. _GitHub 账号: https://github.com/join
 .. _最新版的 git: https://git-scm.com/downloads
-.. _username: https://help.github.com/articles/setting-your-username-in-git/
-.. _email: https://help.github.com/articles/setting-your-email-in-git/
+.. _username: https://help.github.com/en/articles/setting-your-username-in-git
+.. _email: https://help.github.com/en/articles/setting-your-commit-email-address-in-git
 .. _Fork: https://github.com/pallets/flask/fork
-.. _Clone: https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork
+.. _Clone: https://help.github.com/en/articles/fork-a-repo#step-2-create-a-local-clone-of-your-fork
 
 开始写代码
 ~~~~~~~~~~~~
 
-- 创建一个分支来鉴别你想要处理的问题（例如 ``2287-dry-test-suite`` ）。
+- 创建一个分支来鉴别你想要处理的问题。如果要提交一个缺陷或者文档修正，请从
+  最后的“ .x ”分支来创建分支::
+
+      git checkout -b your-branch-name origin/1.0.x
+
+  如果要提交一个功能增加或者更改，请从“ master ”分支来创建分支::
+
+      git checkout -b your-branch-name origin/master
+
 - 使用你最喜欢的编辑器，修改代码， `随时提交`_ 。
-- 尝试遵循 `PEP8`_ ，但是如果代码行长度限制使用代码更丑陋的话，则可以忽略
-  这条规则。
 - 应当包含覆盖你所做的全部修改的测试。确保没有补丁则测试失败。
   `运行测试 <contributing-testsuite_>`_ 。
-- 将你的提交推送到 GitHub 并 `创建一个 pull request`_ 。
+- 将你的提交推送到 GitHub 并 `创建一个 pull request`_ ::
+
+      git push --set-upstream origin your-branch-name
+
 - 庆祝成功 🎉
 
-.. _随时提交: http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
-.. _PEP8: https://pep8.org/
-.. _创建一个 pull request: https://help.github.com/articles/creating-a-pull-request/
+
+.. _随时提交: https://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
+.. _Black: https://black.readthedocs.io
+.. _编辑器集成: https://black.readthedocs.io/en/stable/editor_integration.html
+.. _pre-commit: https://pre-commit.com
+.. _创建一个 pull request: https://help.github.com/en/articles/creating-a-pull-request
+
 
 .. _contributing-testsuite:
 
@@ -134,18 +160,8 @@
 
 在浏览器中打开 ``_build/html/index.html`` 以查看文档。
 
-请阅读更多关于 `Sphinx <http://www.sphinx-doc.org>`_ 的内容。
+请阅读更多关于 `Sphinx <https://www.sphinx-doc.org/en/master/>`_ 的内容。
 
-
-make 目标
-~~~~~~~~~~~~
-
-Flask 提供一个 ``Makefile`` ，包含各种捷径。它们可以保证安装好所有依赖。
-
-- ``make test`` 用 ``pytest`` 运行基础测试套件
-- ``make cov``  用 ``coverage`` 运行基础测试套件
-- ``make test-all`` 用 ``tox`` 运行完整测试套件
-- ``make docs`` 构建 HTML 文档
 
 注意：零填充文件模式
 -------------------------------

@@ -159,5 +159,4 @@ Fabric 现在会连接所有服务器并运行 fabfile 中的所有命令。首�
 使用 Fabric 是一件有趣的事情。你会发现在电脑上打出 ``fab deploy`` 是非常神奇的。
 你可以看到你的应用被部署到一个又一个服务器上。
 
-.. _Fabric: http://www.fabfile.org/
-
+.. _Fabric: https://www.fabfile.org/

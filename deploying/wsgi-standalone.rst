@@ -14,18 +14,21 @@ Gunicorn
 移植自 Ruby 的 Unicorn 项目的 pre-fork worker 模型。它既支持 `eventlet`_ ，
 也支持 `greenlet`_ 。在 Gunicorn 上运行 Flask 应用非常简单::
 
-    gunicorn myproject:app
+    $ gunicorn myproject:app
 
 `Gunicorn`_ 提供许多命令行参数，可以使用 ``gunicorn -h`` 来获得帮助。下面
 的例子使用 4 worker 进程（ ``-w 4`` ）来运行 Flask 应用，绑定到 localhost
 的 4000 端口（ ``-b 127.0.0.1:4000`` ）::
 
-    gunicorn -w 4 -b 127.0.0.1:4000 myproject:app
+   $ gunicorn -w 4 -b 127.0.0.1:4000 myproject:app
 
-.. _Gunicorn: http://gunicorn.org/
-.. _eventlet: http://eventlet.net/
-.. _greenlet: https://greenlet.readthedocs.io/en/latest/
+``gunicorn`` 命令需要你应用或者包的名称和应用实例。如果你使用工厂模式，那么
+可以传递一个调用来实现::
 
+    $ gunicorn "myproject:create_app()"
+
+.. _Gunicorn: https://gunicorn.org/
+.. _eventlet: https://eventlet.net/
 
 uWSGI
 --------
@@ -36,13 +39,12 @@ gunicorn 。
 
 运行 `uWSGI HTTP Router`_::
 
-    uwsgi --http 127.0.0.1:5000 --module myproject:app
+    $ uwsgi --http 127.0.0.1:5000 --module myproject:app
 
-更有组织的的配置，参见 `配置 uWSGI 和 NGINX`_.
+更有组织的的配置，参见 :doc:`配置 uWSGI 和 NGINX <uwsgi>` 。
 
-.. _uWSGI: http://uwsgi-docs.readthedocs.io/en/latest/
-.. _uWSGI HTTP Router: http://uwsgi-docs.readthedocs.io/en/latest/HTTP.html#the-uwsgi-http-https-router
-.. _配置 uWSGI 和 NGINX: uwsgi.html#starting-your-app-with-uwsgi
+.. _uWSGI: https://uwsgi-docs.readthedocs.io/en/latest/
+.. _uWSGI HTTP Router: https://uwsgi-docs.readthedocs.io/en/latest/HTTP.html#the-uwsgi-http-https-router
 
 
 Gevent
@@ -51,7 +53,7 @@ Gevent
 `Gevent`_ 是一个 Python 并发网络库，它使用了基于 `libev`_ 事件循环的
 `greenlet`_ 来提供一个高级同步 API::
 
-    from gevent.wsgi import WSGIServer
+    from gevent.pywsgi import WSGIServer
     from yourapplication import app
 
     http_server = WSGIServer(('', 5000), app)
@@ -69,7 +71,7 @@ Twisted Web
 事件驱动的网络库。 Twisted Web 带有一个标准的 WSGI 容器，该容器可以使用
 ``twistd`` 工具运行命令行来控制::
 
-    twistd web --wsgi myproject.app
+    $ twistd web --wsgi myproject.app
 
 这个命令会运行一个名为 ``app`` 的 Flask 应用，其模块名为 ``myproject`` 。
 
@@ -77,9 +79,9 @@ Twisted Web
 ``twistd -h`` 和 ``twistd web -h`` 。例如下面命令在前台运行一个来自
 ``myproject`` 的应用， 端口为 8080::
 
-    twistd -n web --port 8080 --wsgi myproject.app
+    $ twistd -n web --port tcp:8080 --wsgi myproject.app
 
-.. _Twisted: https://twistedmatrix.com/
+.. _Twisted: https://twistedmatrix.com/trac/
 .. _Twisted Web: https://twistedmatrix.com/trac/wiki/TwistedWeb
 
 .. _deploying-proxy-setups:
@@ -120,8 +122,8 @@ Twisted Web
 如果你的 httpd 无法提供这些头部，那么最常用的设置是调用
 ``X-Forwarded-Host`` 定义的主机和 ``X-Forwarded-For`` 定义的远程地址::
 
-    from werkzeug.contrib.fixers import ProxyFix
-    app.wsgi_app = ProxyFix(app.wsgi_app)
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 .. admonition:: 头部可信问题
 

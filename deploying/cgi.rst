@@ -53,5 +53,4 @@ CGI 环境。
 
 更多信息参见你所使用的服务器的文档。
 
-.. _App Engine: https://developers.google.com/appengine/
-
+.. _App Engine: https://cloud.google.com/appengine/docs/

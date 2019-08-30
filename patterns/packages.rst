@@ -3,8 +3,7 @@
 大型应用
 ===================
 
-对于大型应用来说使用包代替模块是一个好主意。使用包非常简单。假设有一个小应
-用如下::
+假设有一个简单的应用结构如下::
 
     /yourapplication
         yourapplication.py
@@ -16,7 +15,9 @@
             login.html
             ...
 
-:ref:`教程项目 <tutorial>` 就是这样的结构，参见
+这个结构对于小应用来说没有问题，但是对于大应用来说就不好了，应当用包来代替
+模块。
+:ref:`教程项目 <tutorial>` 就使用了包方案，参见
 :gh:`示例代码 <examples/tutorial>` 。
 
 
@@ -59,16 +60,16 @@
 
 为了运行应用，需要导出一个环境变量，告诉 Flask 应用实例的位置::
 
-    export FLASK_APP=yourapplication
+    $ export FLASK_APP=yourapplication
 
 如果位于项目文件夹之外，请确保提供绝对路径。同样可以这样打开开发功能::
 
-    export FLASK_ENV=development
+    $ export FLASK_ENV=development
 
 为了安装并运行应用，需要执行以下命令::
 
-    pip install -e .
-    flask run
+    $ pip install -e .
+    $ flask run
 
 我们从中学到了什么？现在我们来重构一下应用以适应多模块。只要记住以下几点：
 

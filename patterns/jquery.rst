@@ -9,7 +9,7 @@ JSON 是一种非常轻巧的传输格式，非常类似于 Python 原语（数�
 和列表）。 JSON 被广泛支持，易于解析。 JSON 在几年之前开始流行，在网络应用
 中迅速取代了 XML 。
 
-.. _jQuery: http://jquery.com/
+.. _jQuery: https://jquery.com/
 
 载入 jQuery
 --------------
@@ -24,7 +24,7 @@ JSON 是一种非常轻巧的传输格式，非常类似于 Python 原语（数�
      url_for('static', filename='jquery.js') }}"></script>
 
 另一个方法是使用 Google 的 `AJAX 库 API
-<https://developers.google.com/speed/libraries/devguide>`_ 来载入 jQuery：
+<https://developers.google.com/speed/libraries/>`_ 来载入 jQuery：
 
 .. sourcecode:: html
 

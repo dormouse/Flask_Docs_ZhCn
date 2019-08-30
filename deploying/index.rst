@@ -16,12 +16,9 @@
 托管于：
 
 - `Heroku <https://devcenter.heroku.com/articles/getting-started-with-python>`_
-- `OpenShift <https://developers.openshift.com/en/python-flask.html>`_
-- `Webfaction <http://flask.pocoo.org/snippets/65/>`_
 - `Google App Engine <https://cloud.google.com/appengine/docs/standard/python/getting-started/python-standard-env>`_
 - `AWS Elastic Beanstalk <https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html>`_
-- `Localtunnel <http://flask.pocoo.org/snippets/89/>`_
-- `Azure (IIS) <https://azure.microsoft.com/documentation/articles/web-sites-python-configure/>`_
+- `Azure (IIS) <https://docs.microsoft.com/en-us/azure/app-service/containers/how-to-configure-python>`_
 - `PythonAnywhere <https://help.pythonanywhere.com/pages/Flask/>`_
 
 自主部署选项

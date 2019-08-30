@@ -8,7 +8,7 @@
 Celery 是强大的任务队列库，它可以用于简单的后台任务，也可用于复杂的多阶段
 应用的计划。本文主要说明如何在 Flask 中配置使用 Celery 。本文假设你
 已经阅读过了其官方文档中的 `Celery 入门
-<http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html>`_
+<https://celery.readthedocs.io/en/latest/getting-started/first-steps-with-celery.html>`_ 。
 
 
 安装

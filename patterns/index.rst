@@ -32,7 +32,7 @@ Flask 方案
    jquery
    errorpages
    lazyloading
-   mongokit
+   mongoengine
    favicon
    streaming
    deferredcallbacks
@@ -40,3 +40,4 @@ Flask 方案
    requestchecksum
    celery
    subclassing
+   singlepageapplications

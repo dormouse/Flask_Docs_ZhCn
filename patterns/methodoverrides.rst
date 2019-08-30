@@ -6,9 +6,10 @@ PACTH ）。在这种情况下，可以通过使用完全相反的协议，用�
 理”另一种 HTTP 方法。
 
 实现的思路是让客户端发送一个 HTTP POST 请求，并设置
-``X-HTTP-Method-Override`` 头部为需要的 HTTP 方法（例如 ``PATCH`` ）。
+``X-HTTP-Method-Override`` 头部。然后 HTTP 方法就会在传递给 Flask 前被头部
+的值代替。
 
-通过 HTTP 中间件可以轻易的实现::
+通过 HTTP 中间件可以实现::
 
     class HTTPMethodOverrideMiddleware(object):
         allowed_methods = frozenset([
@@ -28,13 +29,12 @@ PACTH ）。在这种情况下，可以通过使用完全相反的协议，用�
         def __call__(self, environ, start_response):
             method = environ.get('HTTP_X_HTTP_METHOD_OVERRIDE', '').upper()
             if method in self.allowed_methods:
-                method = method.encode('ascii', 'replace')
                 environ['REQUEST_METHOD'] = method
             if method in self.bodyless_methods:
                 environ['CONTENT_LENGTH'] = '0'
             return self.app(environ, start_response)
 
-通过以下代码就可以与 Flask 一同工作了::
+用中间件包裹 app 对象就可以与 Flask 一同工作了::
 
     from flask import Flask
 

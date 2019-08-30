@@ -52,8 +52,8 @@
 
 最好分别创建扩展和应用工厂，这样扩展对象就不会过早绑定到应用。
 
-以使用 `Flask-SQLAlchemy <http://flask-sqlalchemy.pocoo.org/>`_ 为例，不应
-当这样::
+以使用 `Flask-SQLAlchemy <https://flask-sqlalchemy.palletsprojects.com/>`_
+为例，不应当这样::
 
     def create_app(config_filename):
         app = Flask(__name__)
@@ -82,17 +82,17 @@
 
 使用 :command:`flask` 命令运行工厂应用::
 
-    export FLASK_APP=myapp
-    flask run
+    $ export FLASK_APP=myapp
+    $ flask run
     
 Flask 会自动在 ``myapp`` 中探测工厂（ ``create_app`` 或者 ``make_app`` ）。
 还可这样向工厂传递参数::
 
-    export FLASK_APP="myapp:create_app('dev')"
-    flask run
+    $ export FLASK_APP="myapp:create_app('dev')"
+    $ flask run
     
-这样，  ``myapp`` 中的 ``create_app`` 工厂就会使用
-``'dev'`` 作为参数。更多细节参见 :doc:`/cli` 。
+这样， ``myapp`` 中的 ``create_app`` 工厂就会使用 ``'dev'`` 作为参数。更多
+细节参见 :doc:`/cli` 。
 
 
 改进工厂

@@ -35,5 +35,6 @@ Flask 的设计思路之一是：响应对象创建后被传递给一串回调�
             @after_this_request
             def remember_language(response):
                 response.set_cookie('user_lang', language)
+                return response
 
         g.language = language

@@ -88,3 +88,30 @@ Flask 有一个方便的 :func:`~flask.abort` 函数，它可以通过一个 HTT
       <p>What you were looking for is just not there.
       <p><a href="{{ url_for('index') }}">go somewhere nice</a>
     {% endblock %}
+
+
+以 JSON 格式返回 API 错误
+----------------------------
+
+当把 Flask 用于 网络 API 的时候，可以使用上述同样的技术，以 JSON 格式返回
+错误。调用 :func:`~flask.abort` 时使用 ``description`` 参数，
+:meth:`~flask.errorhandler` 会把它作为 JSON 格式的错误信息，并设置状态码为
+404 。
+
+.. code-block:: python
+
+    from flask import abort, jsonify
+
+    @app.errorhandler(404)
+    def resource_not_found(e):
+        return jsonify(error=str(e)), 404
+
+    @app.route("/cheese")
+    def get_one_cheese():
+        resource = get_resource()
+
+        if resource is None:
+            abort(404, description="Resource not found")
+
+        return jsonify(resource)
+
