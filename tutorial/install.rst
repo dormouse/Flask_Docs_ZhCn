@@ -61,8 +61,7 @@
 
 更多内容和参数参见 `官方打包指南`_ 。
 
-.. _官方打包指南: https://packaging.python.org/tutorials/distributing-packages/
-
+.. _官方打包指南: https://packaging.python.org/tutorials/packaging-projects/
 
 安装项目
 -------------------
@@ -71,7 +70,7 @@
 
 .. code-block:: none
 
-    pip install -e .
+    $ pip install -e .
 
 这个命令告诉 pip 在当前文件夹中寻找 ``setup.py`` 并在 *编辑* 或 *开发*
 模式下安装。编辑模式是指当改变本地代码后，只需要重新项目。比如改变了项目
@@ -81,7 +80,7 @@
 
 .. code-block:: none
 
-    pip list
+    $ pip list
 
     Package        Version   Location
     -------------- --------- ----------------------------------
@@ -97,8 +96,8 @@
     wheel          0.30.0
 
 
-至此，如何运行项目没有改变。
-``FLASK_APP`` 还是被设置为 ``flaskr`` ，并且还是使用 ``flask run`` 运行
-应用。
+至此，没有改变项目运行的方式， ``FLASK_APP`` 还是被设置为 ``flaskr`` ，
+还是使用 ``flask run`` 运行应用。不同的是可以在任何地方运行应用，而不仅仅
+是在 ``flask-tutorial`` 目录下。
 
 下面请阅读 :doc:`tests` 。

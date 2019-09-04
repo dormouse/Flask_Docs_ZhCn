@@ -169,7 +169,7 @@ HTML5 增加了许多新功能，使得网络应用易写易用。
 `Dive Into HTML5`_ 一书是 HTML5 新特性的优秀指导书。目前，并不是所有的新特
 性都已被浏览器支持，无论如何，请谨慎使用。
 
-.. _Dive Into HTML5: http://diveintohtml5.info/
+.. _Dive Into HTML5: https://diveintohtml5.info/
 
 应该使用什么？
 --------------

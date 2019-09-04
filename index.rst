@@ -1,5 +1,6 @@
 .. rst-class:: hide-header
 
+.. rst-class:: hide-header
 
 欢迎来到 Flask 的世界
 =====================

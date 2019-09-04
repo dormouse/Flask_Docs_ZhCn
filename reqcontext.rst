@@ -158,14 +158,13 @@ with 块结束。
 
     # teardown functions are called after the context with block exits
 
-    with app.test_client():
+    with app.test_client() as client:
         client.get('/')
         # the contexts are not popped even though the request ended
         print(request.path)
 
     # the contexts are popped and teardown functions are called after
     # the client with block exists
-
 
 信号
 ~~~~~~~

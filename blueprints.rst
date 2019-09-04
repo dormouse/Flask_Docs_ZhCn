@@ -60,9 +60,9 @@ Flask 中的蓝图不是一个可插拨的应用，因为它不是一个真正�
             abort(404)
 
 当你使用 ``@simple_page.route`` 装饰器绑定一个函数时，蓝图会记录下所登记的
-`show` 函数。当以后在应用中注册蓝图时，这个函数会被注册到应用中。另外，它
+``show`` 函数。当以后在应用中注册蓝图时，这个函数会被注册到应用中。另外，它
 会把构建 :class:`Blueprint` 时所使用的名称（在本例为 ``simple_page`` ）作
-为函数端点的前缀。
+为函数端点的前缀。蓝图的名称不修改 URL ，只修改端点。
 
 注册蓝图
 ----------------------
@@ -77,9 +77,10 @@ Flask 中的蓝图不是一个可插拨的应用，因为它不是一个真正�
 
 以下是注册蓝图后形成的规则::
 
-    [<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
+    >>> app.url_map
+    Map([<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
      <Rule '/<page>' (HEAD, OPTIONS, GET) -> simple_page.show>,
-     <Rule '/' (HEAD, OPTIONS, GET) -> simple_page.show>]
+     <Rule '/' (HEAD, OPTIONS, GET) -> simple_page.show>])
 
 第一条很明显，是来自于应用本身的用于静态文件的。后面两条是用于蓝图
 ``simple_page`` 的 `show` 函数的。你可以看到，它们的前缀都是蓝图的名称，并
@@ -91,9 +92,10 @@ Flask 中的蓝图不是一个可插拨的应用，因为它不是一个真正�
 
 这样就会形成如下规则::
 
-    [<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
+    >>> app.url_map
+    Map([<Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
      <Rule '/pages/<page>' (HEAD, OPTIONS, GET) -> simple_page.show>,
-     <Rule '/pages/' (HEAD, OPTIONS, GET) -> simple_page.show>]
+     <Rule '/pages/' (HEAD, OPTIONS, GET) -> simple_page.show>])
 
 总之，你可以多次注册蓝图，但是不一定每个蓝图都能正确响应。是否能够多次注册
 实际上取决于你的蓝图是如何编写的，是否能根据不同的位置做出正确的响应。
@@ -203,8 +205,8 @@ URL 应该是蓝图的 ``url_prefix`` 加上 ``/static`` 。
 错误处理器
 --------------
 
-蓝图像 :class:`Flask` 应用对象一样支持错误处理装饰器，所以很容易使用蓝图特
-定的自定义错误页面。
+蓝图像 :class:`Flask` 应用对象一样支持 ``errorhandler`` 装饰器，所以很容易
+使用蓝图特定的自定义错误页面。
 
 下面是 "404 Page Not Found" 异常的例子::
 

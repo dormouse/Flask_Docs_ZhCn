@@ -9,7 +9,7 @@
 行接口。在终端中执行该脚本可以操作内建的、扩展的和应用定义的命令。关于命令
 的更多信息和选择可以通过使用 ``--help`` 参数查看。
 
-.. _Click: http://click.pocoo.org/
+.. _Click: https://click.palletsprojects.com/
 
 
 探索应用
@@ -190,9 +190,9 @@ Click 被配置为根据环境变量为命令选项载入缺省值。变量使�
      * Tip: There are .env files present. Do "pip install python-dotenv" to use them.
 
 通过设置 ``FLASK_SKIP_DOTENV`` 可以告诉 Flask 不要载入 dotenv 文件。在
-python-dotenv 没有安装到情况下这个设置也是有效的。这个设置主要用于以下情形：当
-你想要手动载入它们的时候，或者当你已经使用了一个项目运行器载入了它们。请牢记，环境
-变量必须在项目载入之前设置，否则出问题。
+python-dotenv 没有安装到情况下这个设置也是有效的。这个设置主要用于以下情形：
+当你想要手动载入它们的时候，或者当你已经使用了一个项目运行器载入了它们。请
+牢记，环境变量必须在项目载入之前设置，否则出问题。
 
 .. code-block:: none
 
@@ -223,21 +223,21 @@ Windows CMD ， :file:`venv\\Scripts\\activate.bat`::
 
 ``flask`` 命令使用 `Click`_ 来实现。如何编写命令的完整信息参见该项目的文档。
 
-以下示例添加了 ``create_user`` 命令，带有 ``name`` 参数。 ::
+以下示例添加了 ``create-user`` 命令，带有 ``name`` 参数。 ::
 
     import click
     from flask import Flask
 
     app = Flask(__name__)
 
-    @app.cli.command()
-    @click.argument('name')
+    @app.cli.command("create-user")
+    @click.argument("name")
     def create_user(name):
         ...
 
 ::
 
-    flask create_user admin
+    $ flask create-user admin
 
 以下示例也添加了同样功能的命令，但是以命令组的方式添加的，名为
 ``user create`` 。这样做有助于组织一组相关的命令。 ::
@@ -261,6 +261,59 @@ Windows CMD ， :file:`venv\\Scripts\\activate.bat`::
     flask user create demo
 
 关于如何测试自定义命令的概览，参见 :ref:`testing-cli` 。
+
+
+以蓝图注册命令
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+如果你的应用使用蓝图，那么可以把 CLI 命令 直接注册到蓝图上。当蓝图注册到
+应用上的时候，相关的命令就可以应用于 ``flask`` 命令了。缺省情况下，那些
+命令会嵌套于一个与蓝图相关匹配的组。
+
+.. code-block:: python
+
+    from flask import Blueprint
+
+    bp = Blueprint('students', __name__)
+
+    @bp.cli.command('create')
+    @click.argument('name')
+    def create(name):
+        ...
+
+    app.register_blueprint(bp)
+
+.. code-block:: text
+
+    $ flask students create alice
+
+组名称可以在创建 :class:`Blueprint` 对像时通过 ``cli_group`` 参数定义，也
+可以创建之后使用
+:meth:`app.register_blueprint(bp, cli_group='...') <Flask.register_blueprint>`
+来变更。
+下面两条命令功能是相同的：
+
+.. code-block:: python
+
+    bp = Blueprint('students', __name__, cli_group='other')
+    # or
+    app.register_blueprint(bp, cli_group='other')
+
+.. code-block:: text
+
+    $ flask other create alice
+
+指定 ``cli_group=None`` 会删除嵌套并把命令直接合并到应用级别：
+
+.. code-block:: python
+
+    bp = Blueprint('students', __name__, cli_group=None)
+    # or
+    app.register_blueprint(bp, cli_group=None)
+
+.. code-block:: text
+
+    $ flask create alice
 
 
 应用情境
@@ -308,7 +361,7 @@ Flask 会自动载入在 ``flask.commands`` `entry point`_ 定义的命令。这
     )
 
 
-.. _entry point: https://packaging.python.org/tutorials/distributing-packages/#entry-points
+.. _entry point: https://packaging.python.org/tutorials/packaging-projects/#entry-points
 
 在 :file:`flask_my_extension/commands.py` 内可以导出一个 Click 对象::
 
@@ -374,7 +427,7 @@ Flask 会自动载入在 ``flask.commands`` `entry point`_ 定义的命令。这
     一般建议使用 ``flask`` 命令，因为该命令与你的代码是分离的，不会出现
     这种问题。
 
-.. _console script: https://packaging.python.org/tutorials/distributing-packages/#console-scripts
+.. _console script: https://packaging.python.org/tutorials/packaging-projects/#console-scripts
 
 
 PyCharm 集成

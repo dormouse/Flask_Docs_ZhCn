@@ -3,9 +3,9 @@
 Flask 扩展开发
 ==============
 
-Flask 作为一个微框架，为了让第三方库可以运作，经常需要做一些重复工作。为了
-避免重复劳动，我们创建了 `Flask 扩展注册表`_ ，把这些重复工作进行抽象，使
-其可以支持不同项目。
+Flask 作为一个微框架，不可避免地会使用第三方库。使用第三方库时，经常需要做
+一些重复工作。为了避免重复劳动，
+`PyPI <https://pypi.org/search/?c=Framework+%3A%3A+Flask>`_ 提供了许多扩展。
 
 如果你需要创建自己的扩展，那么本文可以帮助你让扩展立马上线运行。
 
@@ -211,7 +211,7 @@ flask_sqlite3.py
 
 另外， ``init_app`` 方法用于在创建应用时支持工厂模式::
 
-    db = Sqlite3()
+    db = SQLite3()
     # Then later on.
     app = create_app('the-config.cfg')
     db.init_app(app)
@@ -286,5 +286,5 @@ Flask 有已审核的扩展的概念。已审核的扩展会被视作 Flask 的�
 .. _OAuth 扩展: https://pythonhosted.org/Flask-OAuth/
 .. _邮件列表: http://flask.pocoo.org/mailinglist/
 .. _IRC 频道: http://flask.pocoo.org/community/irc/
-.. _官方 Pallets 主题: https://pypi.org/project/pallets-sphinx-themes/
+.. _官方 Pallets 主题: https://pypi.org/project/Pallets-Sphinx-Themes/
 

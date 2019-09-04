@@ -3,10 +3,12 @@
 日志
 =======
 
-Flask 使用标准 Python :mod:`logging` 。所有 Flask 相关消息都记录于
-``'flask'`` 日志记录器命令空间。
-:meth:`Flask.logger <flask.Flask.logger>` 可返回名为 ``'flask.app'`` 的日
-志记录器，可用于应用的日志记录。::
+Flask 使用标准 Python :mod:`logging` 。所有与 Flask 相关的消息都用
+:meth:`app.logger <flask.Flask.logger>` 来记录，其名称与
+:attr:`app.name <flask.Flask.name>` 相同。这个日志记录器也可用于你自己的
+的日志记录。
+
+.. code-block:: python
 
     @app.route('/login', methods=['POST'])
     def login():
@@ -114,13 +116,18 @@ Python 文档。
 以修改 Flask 缺省的日志记录器、上文所述的电子邮件日志记录器或者其他日志记
 录器的格式器。::
 
-    from flask import request
+    from flask import has_request_context, request
     from flask.logging import default_handler
 
     class RequestFormatter(logging.Formatter):
         def format(self, record):
-            record.url = request.url
-            record.remote_addr = request.remote_addr
+            if has_request_context():
+                record.url = request.url
+                record.remote_addr = request.remote_addr
+            else:
+                record.url = None
+                record.remote_addr = None
+
             return super().format(record)
 
     formatter = RequestFormatter(

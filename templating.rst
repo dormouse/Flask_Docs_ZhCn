@@ -10,7 +10,7 @@ Flask 使用 Jinja2 作为默认模板引擎。你完全可以使用其它模板
 
 本文只是简单介绍如何在 Flask 中使用 Jinja2 。如果要详细了解这个模板引擎的
 语法，请查阅
-`Jinja2 模板官方文档 <http://jinja.pocoo.org/docs/templates>`_ 。
+`Jinja2 模板官方文档 <http://jinja.pocoo.org/docs/templates/>`_ 。
 
 
 Jinja 设置
@@ -97,14 +97,24 @@ Jinja 设置
    这个函数可以把对象转换为 JSON 格式。如果你要动态生成 JavaScript ，那么
    这个函数非常有用。
 
-   注意，在 ``script`` 标记内部不能转义，因此在 Flask 0.10 之前的版本中，
-   如果要在 script 标记内部使用这个函数必须用 ``|safe`` 关闭转义：
 
    .. sourcecode:: html+jinja
 
        <script type=text/javascript>
-           doSomethingWith({{ user.username|tojson|safe }});
+           doSomethingWith({{ user.username|tojson }});
        </script>
+
+   在一个 *单引号* HTML 属性中使用 `|tojson` 的输出也是安全的：
+
+   .. sourcecode:: html+jinja
+
+       <button onclick='doSomethingWith({{ user.username|tojson }})'>
+           Click me
+       </button>
+
+   请注意，在 0.10 版本之前的 Flask 中，如果在 ``script`` 里面使用
+   ``| tojson`` 的输出，请确保用 ``| safe`` 禁用转义。
+   在 Flask 0.10 及更高版本中，这会自动发生。
 
 控制自动转义
 ------------------------

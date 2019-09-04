@@ -22,7 +22,7 @@
 
 .. code-block:: none
 
-    pip install pytest coverage
+    $ pip install pytest coverage
 
 .. _pytest: https://pytest.readthedocs.io/
 .. _coverage: https://coverage.readthedocs.io/
@@ -168,7 +168,7 @@ Pytest 通过匹配固件函数名称和测试函数的参数名称来使用固�
         with pytest.raises(sqlite3.ProgrammingError) as e:
             db.execute('SELECT 1')
 
-        assert 'closed' in str(e)
+        assert 'closed' in str(e.value)
 
 ``init-db`` 命令应当调用 ``init_db`` 函数并输出一个信息。
 
@@ -471,7 +471,7 @@ URL 的 ``Location`` 头部。
 
 .. code-block:: none
 
-    pytest
+    $ pytest
 
     ========================= test session starts ==========================
     platform linux -- Python 3.6.4, pytest-3.5.0, py-1.5.3, pluggy-0.6.0
@@ -493,13 +493,13 @@ URL 的 ``Location`` 头部。
 
 .. code-block:: none
 
-    coverage run -m pytest
+    $ coverage run -m pytest
 
 在终端中，可以看到一个简单的覆盖率报告：
 
 .. code-block:: none
 
-    coverage report
+    $ coverage report
 
     Name                 Stmts   Miss Branch BrPart  Cover
     ------------------------------------------------------
@@ -514,7 +514,7 @@ URL 的 ``Location`` 头部。
 
 .. code-block:: none
 
-    coverage html
+    $ coverage html
 
 这个命令在 ``htmlcov`` 文件夹中生成测试报告，然后在浏览器中打开
 ``htmlcov/index.html`` 查看。

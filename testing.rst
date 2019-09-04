@@ -14,10 +14,9 @@ Flask 提供的测试渠道是使用 Werkzeug 的 :class:`~werkzeug.test.Client`
 
 本文使用 `pytest`_ 包作为测试的基础框架。你可以像这样使用 ``pip`` 来安装它::
 
-    pip install pytest
+    $ pip install pytest
 
-.. _pytest:
-   https://pytest.org
+.. _pytest: https://docs.pytest.org/
 
 
 应用
@@ -48,17 +47,14 @@ pytest 自动发现。
     def client():
         db_fd, flaskr.app.config['DATABASE'] = tempfile.mkstemp()
         flaskr.app.config['TESTING'] = True
-        client = flaskr.app.test_client()
 
-        with flaskr.app.app_context():
-            flaskr.init_db()
-
-        yield client
+        with flaskr.app.test_client() as client:
+            with flaskr.app.app_context():
+                flaskr.init_db()
+            yield client
 
         os.close(db_fd)
         os.unlink(flaskr.app.config['DATABASE'])
-
-
 
 
 这个客户端固件会被每个独立的测试调用。它提供了一个简单的应用接口，用于向应
@@ -320,14 +316,15 @@ pytest 自动发现。
         assert flask.session['foo'] == 42
 
 但是这个方法无法修改会话或在请求发出前访问会话。自 Flask 0.8 开始，我们提供了
-“会话处理”，用打开测试环境中会话和修改会话，最后保存会话。处理后的会话独立于
-后端实际使用的会话::
+“会话处理”，用打开测试环境中会话和修改会话。最后会话被保存，准备好被客户端
+测试。处理后的会话独立于后端实际使用的会话::
 
     with app.test_client() as c:
         with c.session_transaction() as sess:
             sess['a_key'] = 'a value'
 
-        # once this is reached the session was stored
+        # once this is reached the session was stored and ready to be used by the client
+        c.get(...)
 
 注意在这种情况下必须使用 ``sess`` 对象来代替 :data:`flask.session` 代理。
 ``sess`` 对象本身可以提供相同的接口。
@@ -352,7 +349,7 @@ Flask 对 JSON 的支持非常好，并且是一个创建 JSON API 的流行选�
 
     with app.test_client() as c:
         rv = c.post('/api/auth', json={
-            'username': 'flask', 'password': 'secret'
+            'email': 'flask@example.com', 'password': 'secret'
         })
         json_data = rv.get_json()
         assert verify_token(email, json_data['token'])
@@ -414,5 +411,5 @@ Flask 提供 :meth:`~flask.Flask.test_cli_runner` 来创建一个
         context = hello_command.make_context('hello', ['--name', 'flask'])
         assert context.params['name'] == 'FLASK'
 
-.. _click: http://click.pocoo.org/
-.. _测试工具: http://click.pocoo.org/testing
+.. _click: https://click.palletsprojects.com/
+.. _测试工具: https://click.palletsprojects.com/testing/

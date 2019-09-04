@@ -24,7 +24,7 @@
 
 .. code-block:: none
 
-    mkdir flaskr
+    $ mkdir flaskr
 
 .. code-block:: python
     :caption: ``flaskr/__init__.py``
@@ -108,7 +108,8 @@
 -------------------
 
 现在可以通过使用 ``flask`` 命令来运行应用。在终端中告诉 Flask 你的应用在哪里，
-然后在开发模式下运行应用。
+然后在开发模式下运行应用。请记住，现在还是应当在最顶层的``flask-tutorial``
+目录下，不是在 ``flaskr`` 包里面。
 
 开发模式下，当页面出错的时候会显示一个可以互动的调试器；当你修改代码保存的
 时候会重启服务器。在学习本教程的过程中，你可以一直让它保持运行，只需要刷新
@@ -118,25 +119,17 @@
 
 .. code-block:: none
 
-    export FLASK_APP=flaskr
-    export FLASK_ENV=development
-    flask run
+    $ export FLASK_APP=flaskr
+    $ export FLASK_ENV=development
+    $ flask run
 
 在 Windows 下，使用 ``set`` 代替 ``export`` ：
 
 .. code-block:: none
 
-    set FLASK_APP=flaskr
-    set FLASK_ENV=development
-    flask run
-
-在 Windows PowerShell 下，使用 ``$env:`` 代替 ``export`` ：
-
-.. code-block:: none
-
-    $env:FLASK_APP = "flaskr"
-    $env:FLASK_ENV = "development"
-    flask run
+    > set FLASK_APP=flaskr
+    > set FLASK_ENV=development
+    > flask run
 
 可以看到类似如下输出内容：
 
@@ -150,7 +143,7 @@
      * Debugger is active!
      * Debugger PIN: 855-212-761
 
-在浏览器中访问 http://127.0.0.1:5000/hello ，就可以看到
-"Hello, World!" 信息。恭喜你， Flask 网络应用成功运行了！
+在浏览器中访问 http://127.0.0.1:5000/hello ，就可以看到 "Hello, World!"
+信息。恭喜你， Flask 网络应用成功运行了！
 
 下面请阅读 :doc:`database` 。

@@ -21,11 +21,11 @@ Python 3 、 Python 2.7 和 PyPy 。
 * `Click`_ 是一个命令行应用的框架。用于提供 ``flask`` 命令，并允许添加自定义
   管理命令。
 
-.. _Werkzeug: http://werkzeug.pocoo.org/
-.. _Jinja: http://jinja.pocoo.org/
-.. _MarkupSafe: https://pypi.org/project/MarkupSafe/
-.. _ItsDangerous: https://pythonhosted.org/itsdangerous/
-.. _Click: http://click.pocoo.org/
+.. _Werkzeug: https://palletsprojects.com/p/werkzeug/
+.. _Jinja: https://palletsprojects.com/p/jinja/
+.. _MarkupSafe: https://palletsprojects.com/p/markupsafe/
+.. _ItsDangerous: https://palletsprojects.com/p/itsdangerous/
+.. _Click: https://palletsprojects.com/p/click/
 
 可选依赖
 ~~~~~~~~~~~~~~~~~~~~~
@@ -69,27 +69,27 @@ Python 版本，那么请接着阅读本文下面的内容。
 
 .. code-block:: sh
 
-    mkdir myproject
-    cd myproject
-    python3 -m venv venv
+    $ mkdir myproject
+    $ cd myproject
+    $ python3 -m venv venv
 
 在 Windows 下：
 
 .. code-block:: bat
 
-    py -3 -m venv venv
+    $ py -3 -m venv venv
 
 在老版本的 Python 中要使用下面的命令创建虚拟环境：
 
 .. code-block:: sh
 
-    virtualenv venv
+    $ python2 -m virtualenv venv
 
 在 Windows 下：
 
 .. code-block:: bat
 
-    \Python27\Scripts\virtualenv.exe venv
+    > \Python27\Scripts\virtualenv.exe venv
 
 .. _install-activate-env:
 
@@ -100,13 +100,13 @@ Python 版本，那么请接着阅读本文下面的内容。
 
 .. code-block:: sh
 
-    . venv/bin/activate
+    $ . venv/bin/activate
 
 在 Windows 下：
 
 .. code-block:: bat
 
-    venv\Scripts\activate
+    > venv\Scripts\activate
 
 激活后，你的终端提示符会显示虚拟环境的名称。
 
@@ -117,17 +117,20 @@ Python 版本，那么请接着阅读本文下面的内容。
 
 .. code-block:: sh
 
-    pip install Flask
+    $ pip install Flask
 
-活在当下
-~~~~~~~~~~~~~~~~~~
+Flask 现在已经安装完毕。请阅读 :doc:`/quickstart` 或者
+:doc:`文档目录 </index>` 。
+
+与时俱进
+~~~~~~~~
 
 如果想要在正式发行之前使用最新的 Flask 开发版本，可以使用如下命令从主分支
 安装或者更新代码：
 
 .. code-block:: sh
 
-    pip install -U https://github.com/pallets/flask/archive/master.tar.gz
+    $ pip install -U https://github.com/pallets/flask/archive/master.tar.gz
 
 .. _install-install-virtualenv:
 
@@ -142,29 +145,29 @@ Python 版本，那么请接着阅读本文下面的内容。
 .. code-block:: sh
 
     # Debian, Ubuntu
-    sudo apt-get install python-virtualenv
+    $ sudo apt-get install python-virtualenv
 
     # CentOS, Fedora
-    sudo yum install python-virtualenv
+    $ sudo yum install python-virtualenv
 
     # Arch
-    sudo pacman -S python-virtualenv
+    $ sudo pacman -S python-virtualenv
 
 如果是 Mac OS X 或者 Windows ，下载 `get-pip.py`_ ，然后：
 
 .. code-block:: sh
 
-    sudo python2 Downloads/get-pip.py
-    sudo python2 -m pip install virtualenv
+    $ sudo python2 Downloads/get-pip.py
+    $ sudo python2 -m pip install virtualenv
 
 在 Windows 下，需要要 administrator 权限：
 
 .. code-block:: bat
 
-    \Python27\python.exe Downloads\get-pip.py
-    \Python27\python.exe -m pip install virtualenv
+    > \Python27\python.exe Downloads\get-pip.py
+    > \Python27\python.exe -m pip install virtualenv
 
-现在可以继续阅读 :ref:`install-create-env` 。
+现在可以返回上面， :ref:`install-create-env` 。
 
 .. _virtualenv: https://virtualenv.pypa.io/
 .. _get-pip.py: https://bootstrap.pypa.io/get-pip.py

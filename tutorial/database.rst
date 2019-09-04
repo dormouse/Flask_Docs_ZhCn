@@ -181,7 +181,7 @@ Flask 在返回响应后进行清理的时候调用此函数。
 
 .. code-block:: none
 
-    flask init-db
+    $ flask init-db
     Initialized the database.
 
 现在会有一个 ``flaskr.sqlite`` 文件出现在项目所在文件夹的 ``instance`` 文件夹

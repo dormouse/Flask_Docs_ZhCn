@@ -15,14 +15,14 @@
 
 .. code-block:: none
 
-    pip install wheel
+    $ pip install wheel
 
 用 Python 运行 ``setup.py`` 会得到一个命令行工具，以使用构建相关命令。
 ``bdist_wheel`` 命令会构建一个 wheel 发行文件。
 
 .. code-block:: none
 
-    python setup.py bdist_wheel
+    $ python setup.py bdist_wheel
 
 构建的文件为 ``dist/flaskr-1.0.0-py3-none-any.whl`` 。文件名由项目名称、版
 本号和一些关于项目安装要求的标记组成。
@@ -32,7 +32,7 @@
 
 .. code-block:: none
 
-    pip install flaskr-1.0.0-py3-none-any.whl
+    $ pip install flaskr-1.0.0-py3-none-any.whl
 
 Pip 会安装项目和相关依赖。
 
@@ -41,8 +41,8 @@ Pip 会安装项目和相关依赖。
 
 .. code-block:: none
 
-    export FLASK_APP=flaskr
-    flask init-db
+    $ export FLASK_APP=flaskr
+    $ flask init-db
 
 当 Flask 探测到它已被安装（不在编辑模式下），它会与前文不同，使用
 ``venv/var/flaskr-instance`` 作为实例文件夹。
@@ -59,7 +59,7 @@ cookie ，或者其他任何使用密钥的东西。
 
 .. code-block:: none
 
-    python -c 'import os; print(os.urandom(16))'
+    $ python -c 'import os; print(os.urandom(16))'
 
     b'_5#y2L"F4Q8z\n\xec]/'
 
@@ -86,14 +86,14 @@ cookie ，或者其他任何使用密钥的东西。
 
 .. code-block:: none
 
-    pip install waitress
+    $ pip install waitress
 
 需要把应用告知 Waitree ，但是方式与 ``flask run`` 那样使用 ``FLASK_APP`` 
 不同。需要告知 Waitree 导入并调用应用工厂来得到一个应用对象。
 
 .. code-block:: none
 
-    waitress-serve --call 'flaskr:create_app'
+    $ waitress-serve --call 'flaskr:create_app'
 
     Serving on http://0.0.0.0:8080
 
@@ -101,6 +101,6 @@ cookie ，或者其他任何使用密钥的东西。
 只是一个示例，选择它是因为它同时支持 Windows 和 Linux 。还有其他许多 WSGI
 服务器和部署选项可供选择。
 
-.. _Waitress: https://docs.pylonsproject.org/projects/waitress/
+.. _Waitress: https://docs.pylonsproject.org/projects/waitress/en/stable/
 
 下面请阅读 :doc:`next` 。

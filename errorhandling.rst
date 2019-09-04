@@ -29,35 +29,35 @@
 
 当足够多的用户触发了错误时，发送关于出错信息的邮件，即使仅包含严重错误的邮
 件也会是一场空难。更不用提从来不会去看的日志文件了。
-因此，推荐使用 `Sentry <https://www.getsentry.com/>`_ 来处理应用错误。它可
+因此，推荐使用 `Sentry <https://sentry.io/>`_ 来处理应用错误。它可
 以在一个开源项目 `on GitHub <https://github.com/getsentry/sentry>`_ 中获得，
-也可以在 `hosted version <https://getsentry.com/signup/>`_ 中免费试用。
+也可以在 `hosted version <https://sentry.io/signup/>`_ 中免费试用。
 Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并在发生新的或者指定
 频度的错误时发送电子邮件。
 
-要使用 Sentry 需要安装带有 `flask` 依赖的 `raven` 客户端::
+要使用 Sentry 需要安装带有 `flask` 依赖的 `sentry-sdk` 客户端::
 
-    $ pip install raven[flask]
+    $ pip install sentry-sdk[flask]
 
 把下面内容加入 Flask 应用::
 
-    from raven.contrib.flask import Sentry
-    sentry = Sentry(app, dsn='YOUR_DSN_HERE')
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
 
-或者，如果使用了工厂，那么可以在稍后初始化::
+    sentry_sdk.init('YOUR_DSN_HERE',integrations=[FlaskIntegration()])
 
-    from raven.contrib.flask import Sentry
-    sentry = Sentry(dsn='YOUR_DSN_HERE')
-
-    def create_app():
-        app = Flask(__name__)
-        sentry.init_app(app)
-        ...
-        return app
 
 `YOUR_DSN_HERE` 需要被替换为在 Sentry 安装时获得的 DSN 值。
 
-之后，服务信息会自动向 Sentry 报告，你就可以接收到出错通知。
+安装好以后，内部服务出错信息会自动向 Sentry 报告，你会接收到出错通知。
+
+后续阅读：
+
+* Sentry 也支持从队列（ RQ 、 Celery ）中捕获错误。详见
+  `Python SDK 文档
+  <https://docs.sentry.io/platforms/python/>`_ 。
+* `Sentry 入门 <https://docs.sentry.io/quickstart/?platform=python>`_
+* `Flask-相关文档 <https://docs.sentry.io/platforms/python/flask/>`_
 
 .. _error-handlers:
 
@@ -96,7 +96,7 @@ Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并�
         code = 507
         description = 'Not enough storage space.'
 
-    app.register_error_handler(InsuffcientStorage, handle_507)
+    app.register_error_handler(InsufficientStorage, handle_507)
 
     raise InsufficientStorage()
 
@@ -121,10 +121,86 @@ Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并�
 局注册的出错处理器。但是，蓝图无法处理 404 路由错误，因为 404 发生的路由级
 别还不能检测到蓝图。
 
-.. versionchanged:: 0.11
 
-   Handlers are prioritized by specificity of the exception classes they are
-   registered for instead of the order they are registered in.
+通用异常处理器
+``````````````````````````
+
+可以为非常通用的基类注册异常处理器，例如 ``HTTPException`` 基类或者甚至
+``Exception`` 基类。但是，请注意，这样会捕捉到超出你预期的异常。
+
+基于 ``HTTPException`` 的异常处理器对于把缺省的 HTML 出错页面转换为 JSON
+非常有用，但是这个处理器会触发不由你直接产生的东西，如路由过程中产生的
+404 和 405 错误。请仔细制作你的处理器，确保不会丢失关于 HTTP 错误的信息。
+
+.. code-block:: python
+
+    from flask import json
+    from werkzeug.exceptions import HTTPException
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        # start with the correct headers and status code from the error
+        response = e.get_response()
+        # replace the body with JSON
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        response.content_type = "application/json"
+        return response
+
+
+基于 ``Exception`` 的异常处理器有助于改变所有异常处理的表现形式，甚至包含
+未处理的异常。但是，与在 Python 使用 ``except Exception:`` 类似，这样会捕
+获 *所有* 未处理的异常，包括所有 HTTP 状态码。因此，在大多数情况下，设定
+只针对特定异常的处理器比较安全。
+因为 ``HTTPException`` 实例是一个合法的 WSGI 响应，你可以直接传递该实例。
+
+.. code-block:: python
+
+    from werkzeug.exceptions import HTTPException
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # pass through HTTP errors
+        if isinstance(e, HTTPException):
+            return e
+
+        # now you're handling non-HTTP exceptions only
+        return render_template("500_generic.html", e=e), 500
+
+异常处理器仍然遵循异常烦类的继承层次。如果同时基于 ``HTTPException`` 和
+``Exception`` 注册了异常处理器， ``Exception`` 处理器不会处理
+``HTTPException`` 子类，因为 ``HTTPException`` 更有针对性。
+
+
+未处理的异常
+````````````````````
+
+当一个异常发生时，如果没有对应的异常处理器，那么就会返回一个 500
+内部服务错误。关于此行为的更多内容参见
+:meth:`flask.Flask.handle_exception` 。
+
+如果针为 ``InternalServerError`` 注册了异常处理器，那么出现内部服务错误时就
+会调用这个处理器。自 Flask 1.1.0 开始，总是会传递一个
+``InternalServerError`` 实例给这个异常处理器，而不是以前的未处理异常。原始
+的异常可以通过 ``e.original_error`` 访问。在 Werkzeug 1.0.0 以前，这个属性
+只有未处理异常有。建议使用 ``getattr`` 访问这个属性，以保证兼容性。
+
+.. code-block:: python
+
+    @app.errorhandler(InternalServerError)
+    def handle_500(e):
+        original = getattr(e, "original_exception", None)
+
+        if original is None:
+            # direct 500 error, such as abort(500)
+            return render_template("500.html"), 500
+
+        # wrapped unhandled error
+        return render_template("500_unhandled.html", e=original), 500
 
 日志
 -------
@@ -160,7 +236,7 @@ Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并�
 
 * ``debug``        - 是否开启调试模式并捕捉异常
 * ``use_debugger`` - 是否使用 Flask 内建的调试器
-* ``use_reloader`` - 出现异常后是否重载或者派生进程
+* ``use_reloader`` - 模块变化后是否重载并派生进程
 
 ``debug`` 必须设置为 True （即必须捕获异常），另两个随便。
 
@@ -179,11 +255,6 @@ Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并�
        # To allow aptana to receive errors, set use_debugger=False
        app = create_app(config="config.yaml")
 
-       if app.debug: use_debugger = True
-       try:
-           # Disable Flask's debugger if external debugger is requested
-           use_debugger = not(app.config.get('DEBUG_WITH_APTANA'))
-       except:
-           pass
+       use_debugger = app.debug and not(app.config.get('DEBUG_WITH_APTANA'))
        app.run(use_debugger=use_debugger, debug=app.debug,
                use_reloader=use_debugger, host='0.0.0.0')

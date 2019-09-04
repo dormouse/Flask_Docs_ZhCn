@@ -141,7 +141,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     变量应当是一个字节型长随机字符串，虽然 unicode 也是可以接受的。例如，
     复制如下输出到你的配置中::
 
-        python -c 'import os; print(os.urandom(16))'
+        $ python -c 'import os; print(os.urandom(16))'
         b'_5#y2L"F4Q8z\n\xec]/'
 
     **当发贴提问或者提交代码时，不要泄露密钥。**
@@ -245,7 +245,9 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: APPLICATION_ROOT
 
-    通知应用应用的根路径是什么。
+    通知应用应用的根路径是什么。这个变量用于生成请求环境之外的 URL （请求
+    内的会根据 ``SCRIPT_NAME`` 生成；参见 :ref:`应用调度 <app-dispatch>`
+    ）。
 
     如果 ``SESSION_COOKIE_PATH`` 没有配置，那么本变量会用于会话 cookie 路
     径。
@@ -342,7 +344,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. versionchanged:: 1.0
     ``LOGGER_NAME`` 和 ``LOGGER_HANDLER_POLICY`` 被删除。关于配置的更多内
-    容参见 :ref:`logging` 。
+    容参见 :doc:`/logging` 。
 
     添加 :data:`ENV` 来映射 :envvar:`FLASK_ENV` 环境变量。
 
@@ -377,7 +379,7 @@ export 命令来设置::
 
 在 Windows 系统中使用内置的 `set` 来代替::
 
-    >set YOURAPPLICATION_SETTINGS=\path\to\settings.cfg
+    > set YOURAPPLICATION_SETTINGS=\path\to\settings.cfg
 
 配置文件本身实质是 Python 文件。只有全部是大写字母的变量才会被配置对象所使
 用。因此请确保使用大写字母。
@@ -402,32 +404,29 @@ export 命令来设置::
 量::
 
     $ export SECRET_KEY='5f352379324c22463451387a0aec5d2f'
-    $ export DEBUG=False
+    $ export MAIL_ENABLED=false
     $ python run-app.py
      * Running on http://127.0.0.1:5000/
-     * Restarting with reloader...
 
-在 Windows 系统中使用内置的 `set` 来代替::
+在 Windows 系统中使用内置的 ``set`` 来代替::
 
-    >set SECRET_KEY='5f352379324c22463451387a0aec5d2f'
-    >set DEBUG=False
+    > set SECRET_KEY='5f352379324c22463451387a0aec5d2f'
 
 尽管这种方法很简单易用，但重要的是要记住环境变量是字符串，它们不会自动反序
 列化为 Python 类型。
 
 以下是使用环境变量的配置文件示例::
 
-    # Example configuration
     import os
 
-    ENVIRONMENT_DEBUG = os.environ.get("DEBUG", default=False)
-    if ENVIRONMENT_DEBUG.lower() in ("f", "false"):
-        ENVIRONMENT_DEBUG = False
+    _mail_enabled = os.environ.get("MAIL_ENABLED", default="true")
+    MAIL_ENABLED = _mail_enabled.lower() in {"1", "t", "true"}
 
-    DEBUG = ENVIRONMENT_DEBUG
-    SECRET_KEY = os.environ.get("SECRET_KEY", default=None)
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+
     if not SECRET_KEY:
-        raise ValueError("No secret key set for Flask application")
+        raise ValueError("No SECRET_KEY set for Flask application")
+
 
 请注意，除了空字符串之外的任何值都将被解释为 Python 中的布尔值 ``True`` ，
 如果环境显式设置值为 ``False`` ，则需要注意。
@@ -492,6 +491,43 @@ export 命令来设置::
 
     app.config.from_object('configmodule.ProductionConfig')
 
+注意 :meth:`~flask.Config.from_object` 不会实例化类对象。如果要操作已经实
+例化的类，比如读取一个属性，那么在调用 :meth:`~flask.Config.from_object`
+之前应当先实例化这个类::
+
+    from configmodule import ProductionConfig
+    app.config.from_object(ProductionConfig())
+
+    # Alternatively, import via string:
+    from werkzeug.utils import import_string
+    cfg = import_string('configmodule.ProductionConfig')()
+    app.config.from_object(cfg)
+
+在你的配置类中，实例化配置对象时允许使用 ``@property`` ::
+
+    class Config(object):
+        """Base config, uses staging database server."""
+        DEBUG = False
+        TESTING = False
+        DB_SERVER = '192.168.1.56'
+
+        @property
+        def DATABASE_URI(self):         # Note: all caps
+            return 'mysql://user@{}/foo'.format(self.DB_SERVER)
+
+    class ProductionConfig(Config):
+        """Uses production database server."""
+        DB_SERVER = '192.168.19.32'
+
+    class DevelopmentConfig(Config):
+        DB_SERVER = 'localhost'
+        DEBUG = True
+
+    class TestingConfig(Config):
+        DB_SERVER = 'localhost'
+        DEBUG = True
+        DATABASE_URI = 'sqlite:///:memory:'
+
 配置的方法多种多样，由你定度。以下是一些好的建议：
 
 -   在版本控制中保存一个缺省配置。要么在应用中使用这些缺省配置，要么先导入
@@ -502,8 +538,7 @@ export 命令来设置::
 -   在生产应用中使用 `fabric`_ 之类的工具，向服务器分别传送代码和配置。更
     多细节参见 :ref:`fabric-deployment` 方案。
 
-.. _fabric: http://www.fabfile.org/
-
+.. _fabric: https://www.fabfile.org/
 
 .. _instance-folders:
 
@@ -558,7 +593,7 @@ Flask 0.8 引入了一个新的属性： :attr:`Flask.instance_path` 。它指�
 
     app = Flask(__name__, instance_relative_config=True)
 
-以下是一个完整的配置 Flask 的例子，从一个模块预先载入配置，然后从配置文件
+以下是一个完整的配置 Flask 的例子，从一个模块预先载入配置，然后从实例文件
 夹中的一个配置文件（如果这个文件存在的话）载入要重载的配置::
 
     app = Flask(__name__, instance_relative_config=True)

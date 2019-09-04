@@ -5,8 +5,8 @@
 
 .. code-block:: none
 
-    mkdir flask-tutorial
-    cd flask-tutorial
+    $ mkdir flask-tutorial
+    $ cd flask-tutorial
 
 接下来按照 :doc:`安装简介 </installation>` 设置一个 Python 虚拟环境，然后
 为项目安装 Flask 。

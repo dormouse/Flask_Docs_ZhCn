@@ -37,7 +37,8 @@ Werkzeug （ WSGI ）和 Jinja （模板）是两个被广泛使用的工具，�
 
 :ref:`app-dispatch` 一文中详细阐述了如何使用中间件。你可以引入中间件来包装
 你的 Flask 实例，在你的应用和 HTTP 服务器之间的层有所作为。
-Werkzeug 包含许多 `中间件 <http://werkzeug.pocoo.org/docs/middlewares/>`_ 。
+Werkzeug 包含许多
+`中间件 <https://werkzeug.palletsprojects.com/middleware/>`_ 。
 
 派生
 -----

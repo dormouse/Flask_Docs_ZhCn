@@ -4,7 +4,7 @@ Flask 中的 Unicode
 Flask 与 Jinja2 、 Werkzeug 一样，文本方面完全基于 Unicode ，大多数与 web
 相关的 Python 库都是这样处理文本的。如果你还不了解 Unicode ，最好先阅读 
 `软件开发人员 Unicode 和 字符集应知应会
-<http://www.joelonsoftware.com/articles/Unicode.html>`_ 。
+<https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/>`_ 。
 本文档尝试介绍一些基本的知识，以便于能够愉快地处理与 Unicode 相关的问题。
 
 自动转换
@@ -33,8 +33,8 @@ HTTP header 中注明。为了避免不必要的复杂性， Flask 假设你发�
 经验法则：如果不是处理二进制数据，一律使用 Unicode 。在 Python 2.x 中，
 如何使用 Unicode ？
 
--   只使用 ASCII charpoints （基本是数字、非变音或非奇特的拉丁字母）时，
-    可以使用常规的字符串常量（ ``'Hello World'`` ）。
+-   只使用 ASCII 码点（基本是数字、非变音或非奇特的拉丁字母）时，可以使用
+    常规的字符串常量（ ``'Hello World'`` ）。
 -   如果你的字符串里有 ASCII 之外的东西，需要把这个字符串标记为 Unicode
     字符串，方法是加上一个小写 `u` 作为前辍（比如
     ``u'Hänsel und Gretel'`` ）

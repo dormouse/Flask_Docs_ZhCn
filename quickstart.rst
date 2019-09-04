@@ -58,8 +58,7 @@
 这样就启动了一个非常简单的内建的服务器。这个服务器用于测试应该是足够了，但是
 用于生产可能是不够的。关于部署的有关内容参见《 :ref:`deployment` 》。
 
-现在在浏览器中打开 `http://127.0.0.1:5000/ <http://127.0.0.1:5000/>`_ ，应该
-可以看到 Hello World! 字样。
+现在在浏览器中打开 http://127.0.0.1:5000/ ，应该可以看到 Hello World! 字样。
 
 .. _public-server:
 
@@ -72,7 +71,7 @@
    如果你关闭了调试器或信任你网络中的用户，那么可以让服务器被公开访问。
    只要在命令行上简单的加上 ``--host=0.0.0.0`` 即可::
 
-       flask run --host=0.0.0.0
+       $ flask run --host=0.0.0.0
 
    这行代码告诉你的操作系统监听所有公开的 IP 。
 
@@ -142,9 +141,9 @@
    :class: screenshot
    :alt: screenshot of debugger in action
 
-更多关于调试器的信息参见 `Werkzeug documentation`_ 。
+更多关于调试器的信息参见 `Werkzeug 文档`_ 。
 
-.. _Werkzeug documentation: http://werkzeug.pocoo.org/docs/debug/#using-the-debugger
+.. _Werkzeug 文档: https://werkzeug.palletsprojects.com/debug/#using-the-debugger
 
 想使用其他调试器？请参阅 :ref:`working-with-debuggers` 。
 
@@ -178,7 +177,7 @@
     @app.route('/user/<username>')
     def show_user_profile(username):
         # show the user profile for that user
-        return 'User %s' % username
+        return 'User %s' % escape(username)
 
     @app.route('/post/<int:post_id>')
     def show_post(post_id):
@@ -188,7 +187,7 @@
     @app.route('/path/<path:subpath>')
     def show_subpath(subpath):
         # show the subpath after /path/
-        return 'Subpath %s' % subpath
+        return 'Subpath %s' % escape(subpath)
 
 转换器类型：
 
@@ -243,9 +242,11 @@ URL 构建
 例如，这里我们使用 :meth:`~flask.Flask.test_request_context` 方法来尝试使用
 :func:`~flask.url_for` 。 :meth:`~flask.Flask.test_request_context`
 告诉 Flask 正在处理一个请求，而实际上也许我们正处在交互 Python shell 之中，
-并没有真正的请求。参见 :ref:`context-locals` 。 ::
+并没有真正的请求。参见 :ref:`context-locals` 。
 
-    from flask import Flask, url_for
+.. code-block:: python
+
+    from flask import Flask, escape, url_for
 
     app = Flask(__name__)
 
@@ -259,7 +260,7 @@ URL 构建
 
     @app.route('/user/<username>')
     def profile(username):
-        return '{}\'s profile'.format(username)
+        return '{}\'s profile'.format(escape(username))
 
     with app.test_request_context():
         print(url_for('index'))
@@ -267,10 +268,13 @@ URL 构建
         print(url_for('login', next='/'))
         print(url_for('profile', username='John Doe'))
 
+.. code-block:: text
+
     /
     /login
     /login?next=/
     /user/John%20Doe
+
 
 HTTP 方法
 ````````````
@@ -341,7 +345,7 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果你的�
             /hello.html
 
 你可以充分使用 Jinja2 模板引擎的威力。更多内容，详见官方
-`Jinja2 模板文档 <http://jinja.pocoo.org/docs/templates>`_ 。
+`Jinja2 模板文档 <http://jinja.pocoo.org/docs/templates/>`_ 。
 
 模板示例：
 
@@ -590,19 +594,22 @@ Cookies
 关于响应
 ---------------
 
-视图函数的返回值会自动转换为一个响应对象。如果返回值是一个字符串，那么会被转换
-为一个包含作为响应体的字符串、一个 ``200 OK`` 出错代码 和一个
-:mimetype:`text/html` 类型的响应对象。以下是转换的规则：
+视图函数的返回值会自动转换为一个响应对象。如果返回值是一个字符串，那么会被
+转换为一个包含作为响应体的字符串、一个 ``200 OK`` 出错代码 和一个
+:mimetype:`text/html` 类型的响应对象。如果返回值是一个字典，那么会调用
+:func:`jsonify` 来产生一个响应。以下是转换的规则：
 
 
 1.  如果视图返回的是一个响应对象，那么就直接返回它。
 2.  如果返回的是一个字符串，那么根据这个字符串和缺省参数生成一个用于返回的
     响应对象。
-3.  如果返回的是一个元组，那么元组中的项目可以提供额外的信息。元组中必须至少
-    包含一个项目，且项目应当由  ``(response, status, headers)`` 或者
-    ``(response, headers)`` 组成。 ``status`` 的值会重载状态代码， ``headers``
-    是一个由额外头部值组成的列表或字典。
-4.  如果以上都不是，那么 Flask 会假定返回值是一个有效的 WSGI 应用并把它转换为
+3.  如果返回的是一个字典，那么调用 ``jsonify`` 创建一个响应对象。
+4.  如果返回的是一个元组，那么元组中的项目可以提供额外的信息。元组中必须至少
+    包含一个项目，且项目应当由 ``(response, status)`` 、
+    ``(response, headers)`` 或者 ``(response, status, headers)``  组成。
+    ``status`` 的值会重载状态代码， ``headers`` 是一个由额外头部值组成的列表
+    或字典。
+5.  如果以上都不是，那么 Flask 会假定返回值是一个有效的 WSGI 应用并把它转换为
     一个响应对象。
 
 如果想要在视图内部掌控响应对象的结果，那么可以使用
@@ -622,6 +629,36 @@ Cookies
         resp = make_response(render_template('error.html'), 404)
         resp.headers['X-Something'] = 'A value'
         return resp
+
+
+JSON 格式的 API
+````````````````
+
+JSON 格式的响应是常见的，用 Flask 写这样的 API 是很容易上手的。如果从视图
+返回一个 ``dict`` ，那么它会被转换为一个 JSON 响应。
+
+.. code-block:: python
+
+    @app.route("/me")
+    def me_api():
+        user = get_current_user()
+        return {
+            "username": user.username,
+            "theme": user.theme,
+            "image": url_for("user_image", filename=user.image),
+        }
+
+如果 ``dict`` 还不能满足需求，还需要创建其他类型的 JSON 格式响应，可以使用
+:func:`~flask.json.jsonify` 函数。该函数会序列化任何支持的 JSON 数据类型。
+也可以研究研究 Flask 社区扩展，以支持更复杂的应用。
+
+.. code-block:: python
+
+    @app.route("/users")
+    def users_api():
+        users = get_all_users()
+        return jsonify([user.to_json() for user in users])
+
 
 .. _sessions:
 
@@ -715,10 +752,10 @@ cookie 中。在打开 cookie 的情况下，如果需要查找某个值，但�
     app.logger.error('An error occurred')
 
 :attr:`~flask.Flask.logger` 是一个标准的 :class:`~logging.Logger` Logger 类，
-更多信息详见官方的
-`logging 文档 <https://docs.python.org/library/logging.html>`_ 。
+更多信息详见官方的 :mod:`logging` 文档。
 
 更多内容请参阅 :ref:`application-errors` 。
+
 
 集成 WSGI 中间件
 ---------------------------
