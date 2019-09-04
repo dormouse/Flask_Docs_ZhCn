@@ -1,0 +1,51 @@
+{% extends "basic/layout.html" %}
+
+{% set metatags %}
+  {{- metatags }}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+{%- endset %}
+
+{% block extrahead %}
+  {%- if page_canonical_url %}
+    <link rel="canonical" href="{{ page_canonical_url }}">
+  {%- endif %}
+  <script>DOCUMENTATION_OPTIONS.URL_ROOT = '{{ url_root }}';</script>
+  {{ super() }}
+{%- endblock %}
+
+{% block sidebarlogo %}
+  {% if pagename != "index" or theme_index_sidebar_logo %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% set version_warning = current_version.banner() if current_version %}
+
+{% block document %}
+  {%- if version_warning %}
+    <p class="version-warning"><strong>Warning:</strong> {{ version_warning }}</p>
+  {%- endif %}
+  {{- super() }}
+{%- endblock %}
+
+{% block relbar2 %}{% endblock %}
+
+{% block sidebar2 %}
+  <span id="sidebar-top"></span>
+  {{- super() }}
+{%- endblock %}
+
+{% block footer %}
+  {{ super() }}
+  {%- if READTHEDOCS and not readthedocs_docsearch %}
+    <script>
+      if (typeof READTHEDOCS_DATA !== 'undefined') {
+        if (!READTHEDOCS_DATA.features) {
+          READTHEDOCS_DATA.features = {};
+        }
+        READTHEDOCS_DATA.features.docsearch_disabled = true;
+      }
+    </script>
+  {%- endif %}
+  {{ js_tag("_static/version_warning_offset.js") }}
+{% endblock %}
