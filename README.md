@@ -7,9 +7,9 @@ Initiate and translated by Dormouse Young.
 
 ## 版本
 
-现在正在翻译的是 Flask 1.0.2 的文档。
+现在正在翻译的是 Flask 1.1.1 的文档。
 
-Flask 1.0.2 docs are being translating now.
+Flask 1.1.1 docs are being translating now.
 
 ## 线上地址
 
@@ -40,6 +40,4 @@ make html
 ### PDF 文档
 
 参见 https://dormouse.github.io/zh_cn/2013/rst-sphinx-pdf/
-
-
 

@@ -37,11 +37,12 @@ html_theme = "flask"
 html_theme_options = {"index_sidebar_logo": False}
 html_context = {
     "project_links": [
-        ProjectLink("Donate to Pallets", "https://palletsprojects.com/donate"),
-        ProjectLink("Flask Website", "https://palletsprojects.com/p/flask/"),
-        ProjectLink("PyPI releases", "https://pypi.org/project/Flask/"),
-        ProjectLink("Source Code", "https://github.com/pallets/flask/"),
-        ProjectLink("Issue Tracker", "https://github.com/pallets/flask/issues/"),
+        ProjectLink("赞助 Pallets", "https://palletsprojects.com/donate"),
+        ProjectLink("Flask 官网", "https://palletsprojects.com/p/flask/"),
+        ProjectLink("PyPI 发行", "https://pypi.org/project/Flask/"),
+        ProjectLink("源代码", "https://github.com/pallets/flask/"),
+        ProjectLink("问题追踪", "https://github.com/pallets/flask/issues/"),
+        ProjectLink("中文翻译", "https://github.com/dormouse/Flask_Docs_ZhCn"),
     ]
 }
 html_sidebars = {
@@ -52,7 +53,7 @@ singlehtml_sidebars = {"index": ["project.html", "localtoc.html"]}
 html_static_path = ["_static"]
 html_favicon = "_static/flask-icon.png"
 html_logo = "_static/flask-icon.png"
-html_title = "Flask Documentation ({})".format(version)
+html_title = "Flask 中文文档（ 1.1.1 ）"
 html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------
