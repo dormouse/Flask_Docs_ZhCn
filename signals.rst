@@ -92,7 +92,7 @@ Flask 自身有许多信号，其他扩展可能还会带来更多信号。请�
 创建信号
 ----------------
 
-如果相要在你自己的应用中使用信号，那么可以直接使用 blinker 库。最常见的,也
+如果想要在你自己的应用中使用信号，那么可以直接使用 blinker 库。最常见的,也
 是最推荐的方法是在自定义的 :class:`~blinker.base.Namespace` 中命名信号::
 
     from blinker import Namespace
