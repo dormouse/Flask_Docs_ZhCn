@@ -1,8 +1,8 @@
+flask==1.1.2
 Sphinx
 sphinx-issues
 sphinx-tabs
 sphinxcontrib-log-cabinet
 pallets-sphinx-themes==1.2.3
 packaging
-flask==1.1.2
 
