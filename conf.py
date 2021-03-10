@@ -1,7 +1,9 @@
 import packaging.version
-from collections import namedtuple
+# from collections import namedtuple
+from pallets_sphinx_themes import get_version
+from pallets_sphinx_themes import ProjectLink
 
-ProjectLink = namedtuple("ProjectLink", ("title", "url"))
+#ProjectLink = namedtuple("ProjectLink", ("title", "url"))
 
 # Project --------------------------------------------------------------
 
