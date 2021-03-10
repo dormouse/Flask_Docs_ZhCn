@@ -186,8 +186,8 @@ Sentry 统计重复错误，捕获堆栈数据和本地变量用于排错，并�
 如果针为 ``InternalServerError`` 注册了异常处理器，那么出现内部服务错误时就
 会调用这个处理器。自 Flask 1.1.0 开始，总是会传递一个
 ``InternalServerError`` 实例给这个异常处理器，而不是以前的未处理异常。原始
-的异常可以通过 ``e.original_error`` 访问。在 Werkzeug 1.0.0 以前，这个属性
-只有未处理异常有。建议使用 ``getattr`` 访问这个属性，以保证兼容性。
+的异常可以通过 ``e.original_exception`` 访问。在 Werkzeug 1.0.0 以前，这个
+属性只有未处理异常有。建议使用 ``getattr`` 访问这个属性，以保证兼容性。
 
 .. code-block:: python
 

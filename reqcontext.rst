@@ -164,7 +164,7 @@ with 块结束。
         print(request.path)
 
     # the contexts are popped and teardown functions are called after
-    # the client with block exists
+    # the client with block exits
 
 信号
 ~~~~~~~
@@ -205,15 +205,16 @@ with 块结束。
 关于代理的说明
 ----------------
 
-Flask 提供的一些对象是其他对象的代理。每个工作线程都能以相同的方式
-访问代理，但是在后台每个工作线程绑定了唯一对象。
+Flask 提供的一些对象是其他对象的代理。每个工作线程都能以相同的方式访问代理，
+但是在后台每个工作线程绑定了唯一对象。
 
-多数情况下，你不必关心这个问题。但是也有例外，在下列情况有下，知道对象是一
-个代理 对象是有好处的：
+多数情况下，你不必关心这个问题。但是也有例外，在下列情况下，知道对象是一个
+代理对象是有好处的：
 
 -   代理对象不能将它们的类型伪装为实际的对象类型。如果要执行实例检查，则必
     须检查被代理的原始对象。
--   对象引用非常重要的情况，例如发送 :ref:`signals` 或将数据传递给后台线程。
+-   代理对象引用在某些情况下是必需的，例如发送 :ref:`signals` 或将数据传递
+    给后台线程。
 
 如果您需要访问被代理的源对象，请使用
 :meth:`~werkzeug.local.LocalProxy._get_current_object` 方法::

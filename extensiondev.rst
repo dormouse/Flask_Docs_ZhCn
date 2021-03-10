@@ -4,12 +4,9 @@ Flask 扩展开发
 ==============
 
 Flask 作为一个微框架，不可避免地会使用第三方库。使用第三方库时，经常需要做
-一些重复工作。为了避免重复劳动，
-`PyPI <https://pypi.org/search/?c=Framework+%3A%3A+Flask>`_ 提供了许多扩展。
+一些重复工作。为了避免重复劳动， `PyPI`_ 提供了许多扩展。
 
 如果你需要创建自己的扩展，那么本文可以帮助你让扩展立马上线运行。
-
-.. _Flask 扩展注册表: http://flask.pocoo.org/extensions/
 
 剖析一个扩展
 -----------------------
@@ -237,13 +234,14 @@ flask_sqlite3.py
 的属性 ``connection`` 来访问。在请求解散时， ``sqlite3_db`` 连接被关闭。
 通过使用这个模式，在请求持续的期间，可以访问 *相同* 的 sqlite3 数据库连接。
 
+
 学习借鉴
 --------
 
-本文只是谈了一些扩展开发的皮毛。如果想要深入，那么查看 `Flask 扩展注册表`_
-上已有的扩展是明智的。如果你感到迷失，还可以通过 `邮件列表`_ 和
-`IRC 频道`_ 学习到优秀的 APIs 。尤其当你要开发一个全新的扩展时，建议先多看
-多问多听，这样不仅可以知道别人的需求，同时也避免闭门造车。
+本文只涉及了一些扩展开发的皮毛。如果想要深入，那么明智的选择是查看 `PyPI`_
+上现存的扩展。如果你感到迷失，还可以通过 `邮件列表`_ 和 `Discord 服务`_
+学习到优秀的 APIs 。尤其当你要开发一个全新的扩展时，建议先多看多问多听，
+这样不仅可以知道别人的需求，同时也避免闭门造车。
 
 谨记：设计优秀的 API 是艰难的。因此请先在邮件列表里介绍你的项目，让其他
 开发者在 API 设计上助你一臂之力。
@@ -253,38 +251,36 @@ flask_sqlite3.py
 已审核的扩展
 ------------
 
-Flask 有已审核的扩展的概念。已审核的扩展会被视作 Flask 的一部分来测试，以
-保证扩展在新版本发布时不会出问题。这些已审核的扩展会在 `Flask 扩展注册表`_
-中列出，并有相应的标记。如果你想要自己的扩展通过审核，请遵循以下的指导方针：
+以前， Flask 有已审核的扩展的概念，主要是审核扩展的支持度和兼容性。但是随着
+时间的推移，已审核扩展的清单地维护变得越来越困难了。但是以下对于扩展的指南
+仍然有着重要的意义，可以帮助 Flask 生态系统保持一致和兼容。 
 
 0.  一个已审核的 Flask 扩展需要一个维护者。如果一个扩展作者想要放弃项目，
     那么项目应该寻找一个新的维护者，包括移交完整的源码托管和 PyPI 访问。
-    如果找不到新的维护者，请赋予 Flask 核心团队访问权限。
-1.  一个已审核的 Flask 扩展必须提供一个名如 ``flask_extensionname`` 的包或
-    模块。
-2.  它必须带有测试套件，套件可以使用 ``make test`` 或者
-    ``python setup.py test`` 来调用。如果是使用 ``make test`` 调用的测试
-    套件，那么必须保证所有的依赖可以自动安装。如果是使用 ``python setup.py
-    test`` 调用的测试套件，那么测试的依赖可以在 :file:`setup.py` 文件中定
-    义。测试套件分发的必要组成部分。
-3.  已审核的扩展的 API 可以通过下面特性的检查:
+    如果找不到新的维护者，请赋予 Pallets 核心团队访问权限。
+1.  命名模式是 *Flask-ExtensionName* 或者 *ExtensionName-Flask* 。必须
+    提供一个名如 ``flask_extension_name`` 的包或者模块。
+2.  扩展必须使用 BSD 或者 MIT 许可协议，必须是开源的，属于公共领域的。
+3.  扩展的 API 必须具备以下特性:
     
-   -   一个已审核的扩展必须支持在同一个 Python 进程中运行的多个应用。
-   -   它必须支持使用工厂模式创建应用
+    -   必须支持在同一个 Python 进程中运行的多个应用。每个应用实例的配置和
+        状态应当使用 ``current_app`` 储存，而不是 ``self.app`` 。
+    -   它必须支持使用工厂模式创建应用。使用 ``ext.init_app()`` 方案。
 
-4.  许可协议必须是 BSD/MIT/WTFPL 协议。
-5.  官方扩展的命名模式是 *Flask-ExtensionName* 或 *ExtensionName-Flask* 。
-6.  已审核的扩展必须在 :file:`setup.py` 文件里定义所有的依赖关系，除非在
-    PyPI 上不可用。
-7.  扩展的文档必须使用来自 `官方 Pallets 主题`_ 的 ``flask`` 主题。
-8.  setup.py 描述（即 PyPI 描述）必须链接到文档、网站（如果有的话），
-    并且必须有自动安装开发版本的链接（ ``PackageName==dev`` ）。
-9.  安装脚本中的 ``zip_safe`` 标志必须被设置为 ``False`` ，即使扩展对于
-    压缩是安全的。
-10. 现行扩展必须支持 Python 2.7 和 Python 3.4 （及以后版本）。
+4.  如果是以克隆方式获得扩展的话，那么扩展的依赖必须可以使用
+    ``pip install -e .`` 安装。
+5.  必须带有一个可以通过 ``tox -e py`` 或者 ``pytest`` 调用的测试套件。如果
+    使用 ``tox`` ，那么测试依赖应当在一个 ``requirements.txt`` 文件中定义。
+    测试必须是 sdist 分发的一部分。
+6.  扩展的文档必须使用来自 `官方 Pallets 主题`_ 的 ``flask`` 主题。
+    PyPI 的元数据或者自述文件中必须包含文档或者项目的链接。
+7.  为了获得最大的兼容性，扩展应当支持与 Flask 支持的同样版本的 Python 。
+    2020年推荐支持 3.6+ 版本的 Python 。请在 ``setup.py`` 中使用
+    ``python_requires=">= 3.6"`` 明确支持的 Python 版本。
 
+.. _PyPI: https://pypi.org/search/?c=Framework+%3A%3A+Flask
 .. _OAuth 扩展: https://pythonhosted.org/Flask-OAuth/
-.. _邮件列表: http://flask.pocoo.org/mailinglist/
-.. _IRC 频道: http://flask.pocoo.org/community/irc/
+.. _邮件列表: https://mail.python.org/mailman/listinfo/flask
+.. _Discord 服务: https://discord.gg/t6rrQZH
 .. _官方 Pallets 主题: https://pypi.org/project/Pallets-Sphinx-Themes/
 

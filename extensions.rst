@@ -10,9 +10,8 @@
 寻找扩展
 ------------------
 
-Flask 的扩展通常命名为“ Flask-Foo ”或者“ Foo-Flask ” 。许多扩展已经列
-入了 `扩展仓库`_ ，由其开发者维护。还可以在 PyPI 搜索标记为
-`Framework :: Flask <pypi_>`_ 扩展包。
+Flask 的扩展通常命名为“ Flask-Foo ”或者“ Foo-Flask ” 。可以在 PyPI 搜索
+标记为 `Framework :: Flask <pypi_>`_ 扩展包。
 
 
 使用扩展
@@ -38,8 +37,7 @@ Flask 的扩展通常命名为“ Flask-Foo ”或者“ Foo-Flask ” 。许多
 创建扩展
 -------------------
 
-虽然 `扩展仓库`_ 已经包含许多 Flask 扩展，但是如果找不到合适的，
-那么可以创建自己的扩展。如何创建扩展请参阅 :ref:`extension-dev` 。
+虽然 `PyPI <pypi_>`_ 已经包含许多 Flask 扩展，但是如果找不到合适的，
+那么可以创建自己的扩展。如何创建扩展请参阅 :doc:`/extensiondev` 。
 
-.. _扩展仓库: http://flask.pocoo.org/extensions/
 .. _pypi: https://pypi.org/search/?c=Framework+%3A%3A+Flask

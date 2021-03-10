@@ -7,9 +7,9 @@ Initiate and translated by Dormouse Young.
 
 ## 版本
 
-现在正在翻译的是 Flask 1.1.1 的文档。
+现在正在翻译的是 Flask 1.1.2 的文档。
 
-Flask 1.1.1 docs are being translating now.
+Flask 1.1.2 docs are being translating now.
 
 ## 线上地址
 
@@ -29,9 +29,9 @@ Flask 1.1.1 docs are being translating now.
 命令示例：
 
 ```shell
-git clone git@github.com:dormouse/Flask_Docs_ZhCn.git
+git clone https://github.com/dormouse/Flask_Docs_ZhCn.git
 cd Flask_Docs_ZhCn/
-conda create -n flask_doc python=3*
+conda create -n flask_doc
 source activate flask_doc
 pip install -r requirements.txt
 make html

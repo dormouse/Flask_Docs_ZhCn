@@ -109,7 +109,7 @@
 :class:`~werkzeug.wsgi.SharedDataMiddleware` 。这种方式可以在 Flask 老版本
 中使用::
 
-    from werkzeug import SharedDataMiddleware
+    from werkzeug.middleware.shared_data import SharedDataMiddleware
     app.add_url_rule('/uploads/<filename>', 'uploaded_file',
                      build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {

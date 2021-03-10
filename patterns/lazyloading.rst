@@ -50,7 +50,7 @@ URL 映射。
 至此，我们只是把视图与路由分离，但是模块还是预先载入了。理想的方式是按需载
 入视图。下面我们使用一个类似函数的辅助类来实现按需载入::
 
-    from werkzeug import import_string, cached_property
+    from werkzeug.utils import import_string, cached_property
 
     class LazyView(object):
 

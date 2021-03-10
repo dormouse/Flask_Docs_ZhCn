@@ -1,5 +1,16 @@
 .. currentmodule:: flask
 
+Version 1.1.2
+-------------
+
+Released 2020-04-03
+
+-   Work around an issue when running the ``flask`` command with an
+    external debugger on Windows. :issue:`3297`
+-   The static route will not catch all URLs if the ``Flask``
+    ``static_folder`` argument ends with a slash. :issue:`3452`
+
+
 Version 1.1.1
 -------------
 
@@ -326,6 +337,14 @@ Released 2018-04-26
 -   Rewrote the tutorial docs and example project to take a more
     structured approach to help new users avoid common pitfalls.
     :pr:`2676`
+
+
+Version 0.12.5
+--------------
+
+Released 2020-02-10
+
+-   Pin Werkzeug to < 1.0.0. :issue:`3497`
 
 
 Version 0.12.4

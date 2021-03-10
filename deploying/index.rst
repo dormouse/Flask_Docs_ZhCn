@@ -16,7 +16,7 @@
 托管于：
 
 - `Heroku <https://devcenter.heroku.com/articles/getting-started-with-python>`_
-- `Google App Engine <https://cloud.google.com/appengine/docs/standard/python/getting-started/python-standard-env>`_
+- `Google App Engine <https://cloud.google.com/appengine/docs/standard/python3/runtime>`_
 - `AWS Elastic Beanstalk <https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html>`_
 - `Azure (IIS) <https://docs.microsoft.com/en-us/azure/app-service/containers/how-to-configure-python>`_
 - `PythonAnywhere <https://help.pythonanywhere.com/pages/Flask/>`_

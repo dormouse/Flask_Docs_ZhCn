@@ -8,7 +8,7 @@ Flask 可以用为单页应用（ SPA ）提供服务，实现方式是把前端
 
     from flask import Flask, jsonify
 
-    app = Flask(__name__, static_folder='app')
+    app = Flask(__name__, static_folder='app', static_url_path="/app")
 
 
     @app.route("/heartbeat")

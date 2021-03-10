@@ -120,7 +120,7 @@ Flask 还会自动推送应用情境。
 如果你正在编写扩展， :data:`g` 应该保留给用户。你可以将内部数据存储在情境
 本身中，但一定要使用足够唯一的名称。当前上下文使用
 :data:`_app_ctx_stack.top <_app_ctx_stack>` 访问。 欲了解更多信息，请参阅
-:doc:`extensiondev` 。
+:doc:`/extensiondev` 。
 
 事件和信号
 ------------------

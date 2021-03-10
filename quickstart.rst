@@ -174,6 +174,8 @@
 部分会作为关键字参数传递给函数。通过使用 ``<converter:variable_name>`` ，可以
 选择性的加上一个转换器，为变量指定规则。请看下面的例子::
 
+    from markupsafe import escape
+
     @app.route('/user/<username>')
     def show_user_profile(username):
         # show the user profile for that user
@@ -246,7 +248,8 @@ URL 构建
 
 .. code-block:: python
 
-    from flask import Flask, escape, url_for
+    from flask import Flask, url_for
+    from markupsafe import escape
 
     app = Flask(__name__)
 
@@ -372,9 +375,9 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果你的�
 的模块），那么可以使用 :class:`~jinja2.Markup` 类把它标记为安全的，或者在模板
 中使用 ``|safe`` 过滤器。更多例子参见 Jinja 2 文档。
 
-下面 :class:`~jinja2.Markup` 类的基本使用方法::
+下面 :class:`~markupsafe.Markup` 类的基本使用方法::
 
-    >>> from flask import Markup
+    >>> from markupsafe import Markup
     >>> Markup('<strong>Hello %s!</strong>') % '<blink>hacker</blink>'
     Markup(u'<strong>Hello &lt;blink&gt;hacker&lt;/blink&gt;!</strong>')
     >>> Markup.escape('<blink>hacker</blink>')
@@ -670,7 +673,8 @@ cookie ，但是如果没有密钥就无法修改它。
 
 使用会话之前你必须设置一个密钥。举例说明::
 
-    from flask import Flask, session, redirect, url_for, escape, request
+    from flask import Flask, session, redirect, url_for, request
+    from markupsafe import escape
 
     app = Flask(__name__)
 
@@ -759,11 +763,16 @@ cookie 中。在打开 cookie 的情况下，如果需要查找某个值，但�
 
 集成 WSGI 中间件
 ---------------------------
-如果想要在应用中添加一个 WSGI 中间件，那么可以包装内部的 WSGI 应用。假设为了
-解决 lighttpd 的错误，你要使用一个来自 Werkzeug 包的中间件，那么可以这样做::
 
-    from werkzeug.contrib.fixers import LighttpdCGIRootFix
-    app.wsgi_app = LighttpdCGIRootFix(app.wsgi_app)
+如果想要在应用中添加一个 WSGI 中间件，那么可以用应用的 ``wsgi_app`` 属性来
+包装。例如，假设需要在 Nginx 后面使用
+:class:`~werkzeug.middlware.proxy_fix.ProxyFix` 中间件，那么可以这样做::
+
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app)
+ 
+用 ``app.wsgi_app`` 来包装，而不用 ``app`` 包装，意味着 ``app`` 仍旧指向你
+的 Flask 应用，而不是指向中间件。这样可以继续直接使用和配置 ``app`` 。
 
 使用 Flask 扩展
 ----------------------

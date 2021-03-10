@@ -433,8 +433,9 @@ Flask 会自动载入在 ``flask.commands`` `entry point`_ 定义的命令。这
 PyCharm 集成
 -------------------
 
-在 PyCharm 2018.1 版本之前， Flask CLI 功能尚未能完全整合进 PyCharm ，因此
-我们必需做些调整才能顺利使用。这些说明同样也适用于其他 IDE 。
+PyCharm 专业版提供了一个特定的 Flask run 配置。对于 PyCharm 社区版来说，
+我们必需做些配置才能顺利使用正确的环境变量来调用 ``flask run`` 命令行接口。
+这些说明同样也适用于其他 IDE 。
 
 在 PyCharm 中，打开你的项目，在菜单中点击 *Run* 后点击
 *Edit Configurations* 。你会看到类似如下窗口：
@@ -442,15 +443,14 @@ PyCharm 集成
 .. image:: _static/pycharm-runconfig.png
     :align: center
     :class: screenshot
-    :alt: screenshot of pycharm's run configuration settings
+    :alt: screenshot of PyCharms's run configuration settings.
 
 有许多选项要改变，但一旦做好了一条命令，其他命令只要复制整个配置调整一下就
 行了。包括你想自定义的其他命令也同样如此。
 
 点击 + （ *Add New Configuration* ）按钮选择 *Python* 。为配置取一个具有良
-好描述性的名称，例如“ Run Flask Server ”（运行 Flask 服务器）。
-为 ``flask run`` 命令选择“ Single instance only ”，因为不能同时运行多个
-服务器。
+好描述性的名称，例如“ flask run ”。为 ``flask run`` 命令选择
+“ Single instance only ”，因为不能同时运行多个服务器。
 
 从（ **A** ）下拉框中选择 *Module name* ，然后输入 ``flask`` 。
 
@@ -459,7 +459,8 @@ PyCharm 集成
 
 如果使用 :ref:`dotenv` 可以跳过这一步。为了标识我们的应用，需要添加一个环
 境变量（ **C** ）。点击展开按钮，并在左边添加一个 ``FLASK_APP`` 条目，
-Python 要导入的库或者文件放在右边（本例使用 ``hello`` ）。
+Python 要导入的库或者文件放在右边（本例使用 ``hello`` ）。新增一个
+``FLASK_ENV`` 条目并设置为 ``development`` 。
 
 下一步我们需要把应用所在的文件夹设置为工作文件夹（ **D** ）。
 

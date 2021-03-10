@@ -55,12 +55,12 @@ Werkzeug 提供了一个内建开发服务器，它使用
 
 假设你的主应用运行于 ``/`` ，后台接口位于 ``/backend``::
 
-    from werkzeug.wsgi import DispatcherMiddleware
+    from werkzeug.middleware.dispatcher import DispatcherMiddleware
     from frontend_app import application as frontend
     from backend_app import application as backend
 
     application = DispatcherMiddleware(frontend, {
-        '/backend':     backend
+        '/backend': backend
     })
 
 

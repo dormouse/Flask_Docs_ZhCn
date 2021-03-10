@@ -76,6 +76,7 @@
 
         pip install -e ".[dev]"
 
+- 安装 `pre-commit framework`_.
 - 安装 pre-commit 钩子::
 
         pre-commit install --install-hooks
@@ -86,6 +87,7 @@
 .. _email: https://help.github.com/en/articles/setting-your-commit-email-address-in-git
 .. _Fork: https://github.com/pallets/flask/fork
 .. _Clone: https://help.github.com/en/articles/fork-a-repo#step-2-create-a-local-clone-of-your-fork
+.. _pre-commit framework: https://pre-commit.com/#install
 
 开始写代码
 ~~~~~~~~~~~~
@@ -156,6 +158,7 @@
 使用 Sphinx 构建 ``docs`` 文件夹中的文档::
 
     cd docs
+    pip install -r requirements.txt
     make html
 
 在浏览器中打开 ``_build/html/index.html`` 以查看文档。
