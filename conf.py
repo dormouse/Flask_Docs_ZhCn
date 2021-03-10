@@ -35,10 +35,10 @@ intersphinx_mapping = {
 issues_github_path = "pallets/flask"
 
 # HTML -----------------------------------------------------------------
-# html_theme = 'pallets_sphinx_themes'
-# html_theme_path = ["."]
+html_theme = 'pallets_sphinx_themes'
+html_theme_path = ["."]
 
-html_theme = "flask"
+# html_theme = "flask"
 html_theme_options = {"index_sidebar_logo": False}
 html_context = {
     "project_links": [
