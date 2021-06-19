@@ -3,186 +3,209 @@
 
 感谢您为 Flask 做出贡献！
 
+
 问答支持
 --------
 
-请不要使用问题跟踪器来提问。有关你自己代码的问题请使用下列途径之一提问：
+问题跟踪器的用途是记录 Flask 本身相关的问题和功能需求的，因此请不要使用问题
+跟踪器来提问。如果有关于 Flask 使用方面或者你自己代码的方面的问题，请使用下
+列途径之一提问：
 
-* 在 FreeNode 上的 IRC ``#pocoo`` 频道。
-* 更普通的问题请使用 FreeNode 上的 IRC ``#python`` 频道。
-* Discord chat 上的 ``#get-help`` 频道： https://discordapp.com/invite/t6rrQZH
-* FreeNode 上的 IRC ``#pocoo`` 频道与 Discord 关联，但是请优先使用 Discord 。
+-   Discord chat 上的 ``#get-help`` 频道：
+    https://discord.gg/pallets
+-   邮件列表 flask@python.org 用于长期或者大型问题讨论。
+-   在 `Stack Overflow`_ 上提问。提问前请先使用以下方法在 Google 上搜索：
+    ``site:stackoverflow.com flask {search term, exception message, etc.}``
 
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/flask?tab=Frequent
 
-* 邮件列表 flask@python.org 用于长期或者大型问题讨论。
-* 在 `Stack Overflow`_ 上提问。首先使用以下方法在 Google 上搜索：
-  ``site:stackoverflow.com flask {search term, exception message, etc.}``
-
-.. _Stack Overflow: https://stackoverflow.com/questions/tagged/flask?sort=linked
 
 报告问题
 ----------------
 
-- 描述你希望发生的事情。
-- 如果可能，提供一个 `最小的可重现的示例`_ 以帮助我们找到问题。
-  这也有助于鉴别问题是否也你自己的代码有关。
-- 描述实际发生了什么。如果有异常，则应当包含完整的回溯。
-- 列出你的 Python 、 Flask 和 Werkzeug 版本。如果可能，检查是否这个问题已
-  在存储库中修复。
+请在报告中包含以下内容：
+
+-   描述你希望发生的事情。
+-   如果可能，提供一个 `最小的可重现的示例`_ 以帮助我们找到问题。
+    这也有助于鉴别问题是否也你自己的代码有关。
+-   描述实际发生了什么。如果有异常，则应当包含完整的回溯。
+-   列出你的 Python 、 Flask 和 Werkzeug 版本。如果可能，检查是否这个问题已
+    在存储库中修复。
 
 .. _最小的可重现的示例: https://stackoverflow.com/help/minimal-reproducible-example
+
 
 提交补丁
 ------------------
 
-- 使用 `Black`_ 自动格式化你的代码。当你运行 ``pip install -e .[dev]`` 时，
-  这个功能将被配置为一个 git `pre-commit`_ 钩子。
-  你可以还希望使用 Black 的 `编辑器集成`_.
-- 如果补丁是用于解决错误的，那么应当包含一个测试，并明确说明错误发生于何种
-  情况之下。确保如果没有补丁，测试就会失败。
-- 在你的提交信息中包含一个类似 "Fixes #123" 字符串（其中的 123 是指你修正的
-  issue 编号）。
-  参见 `Closing issues using keywords
-  <https://help.github.com/articles/creating-a-pull-request/>`__.
+在提交一个 PR 之前，如果没有相关的开放议题，那么建议打开一个新的相关议题讨论
+一下。如果你对某个议题感兴趣，而这个议题没有相关联的 PR 也没有指定维护人，那么
+你就直接上手吧，不需要征得同意。
+
+提交补丁应当做好以下工作：
+
+-   使用 `Black`_ 格式化你的代码。如果按照下面的介绍，安装好了
+    `pre-commit`_ ，那么这个工具及其他的工具都可以自动运行。
+-   如果补丁增加或者改动了代码，那么应当包含测试，并确保如果没有补丁，测试就会
+    失败。
+-   更新所有的相关文档页面和 docstring 。文档页面和 docstring 应当在第 72 个字符
+    处换行。
+-   在 ``CHANGES.rst`` 中增加一个条目，条目的样式与其他条目相同。同时，在相关的
+    docstring 中包含 ``.. versionchanged::`` 行内变更记录。
+
+.. _Black: https://black.readthedocs.io
+.. _pre-commit: https://pre-commit.com
+
 
 首次设置
 ~~~~~~~~~~~~~~~~
 
-- 下载并安装 `最新版的 git`_.
-- 配置使用 git 的 `username`_ 和 `email`_::
+-   下载并安装 `最新版的 git`_ 。
+-   配置使用 git 的 `username`_ 和 `email`_ 。
 
-        git config --global user.name 'your name'
-        git config --global user.email 'your email'
+    .. code-block:: text
 
-- 确保你有一个 `GitHub 账号`_.
-- 点击 `Fork`_ 按钮将 Flask fork 到你的 GitHub 账户。
-- 把你的 GitHub fork `Clone`_ 到本地::
+        $ git config --global user.name 'your name'
+        $ git config --global user.email 'your email'
 
-        git clone https://github.com/{username}/flask
-        cd flask
+-   确保你有一个 `GitHub 账号`_ 。
+-   点击 `Fork`_ 按钮将 Flask fork 到你的 GitHub 账户。
+-   把主仓库 `Clone`_ 到本地。
 
-- 添加一个主存储库作为远程库，稍后更新::
+    .. code-block:: text
 
-        git remote add pallets https://github.com/pallets/flask
-        git fetch pallets
+        $ git clone https://github.com/pallets/flask
+        $ cd flask
 
-- 创建一个 virtualenv::
+-   把你的工作作为一个远程分支，用你的用户名替换 ``{username}`` ，这样对远程
+    分支进行了命名，缺省的 Pallets 远程分支名为 "origin" 。
 
-        python3 -m venv env
-        . env/bin/activate
-        # or "env\Scripts\activate" on Windows
+    .. code-block:: text
 
-- 在带有开发依赖的编辑模式下安装 Flask::
+        git remote add fork https://github.com/{username}/flask
 
-        pip install -e ".[dev]"
+-   创建一个 virtualenv 。
 
-- 安装 `pre-commit framework`_.
-- 安装 pre-commit 钩子::
+    .. tabs::
 
-        pre-commit install --install-hooks
+       .. group-tab:: Linux/macOS
 
-.. _GitHub 账号: https://github.com/join
+          .. code-block:: text
+
+             $ python3 -m venv env
+             $ . env/bin/activate
+
+       .. group-tab:: Windows
+
+          .. code-block:: text
+
+             > py -3 -m venv env
+             > env\Scripts\activate
+
+-   升级 pip 和 setuptools 。
+
+    .. code-block:: text
+
+        $ python -m pip install --upgrade pip setuptools
+
+-   安装开发依赖，然后在可编辑模式下安装 Flask 。
+
+    .. code-block:: text
+
+        $ pip install -r requirements/dev.txt && pip install -e .
+
+-   安装 pre-commit 钩子。
+
+    .. code-block:: text
+
+        $ pre-commit install
+
+
 .. _最新版的 git: https://git-scm.com/downloads
-.. _username: https://help.github.com/en/articles/setting-your-username-in-git
-.. _email: https://help.github.com/en/articles/setting-your-commit-email-address-in-git
+.. _username: https://docs.github.com/en/github/using-git/setting-your-username-in-git
+.. _email: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/setting-your-commit-email-address
+.. _GitHub 账号: https://github.com/join
 .. _Fork: https://github.com/pallets/flask/fork
-.. _Clone: https://help.github.com/en/articles/fork-a-repo#step-2-create-a-local-clone-of-your-fork
-.. _pre-commit framework: https://pre-commit.com/#install
+.. _Clone: https://docs.github.com/en/github/getting-started-with-github/fork-a-repo#step-2-create-a-local-clone-of-your-fork
+
 
 开始写代码
 ~~~~~~~~~~~~
 
-- 创建一个分支来鉴别你想要处理的问题。如果要提交一个缺陷或者文档修正，请从
-  最后的“ .x ”分支来创建分支::
+-    创建一个分支来表明你想要处理的议题。如果要提交一个缺陷修复或者文档修正，
+     请从最后的“ .x ”分支来创建分支。
 
-      git checkout -b your-branch-name origin/1.0.x
+    .. code-block:: text
 
-  如果要提交一个功能增加或者更改，请从“ master ”分支来创建分支::
+        $ git fetch origin
+        $ git checkout -b your-branch-name origin/2.0.x
 
-      git checkout -b your-branch-name origin/master
+     如果要提交的是增加功能或者改变功能，请从“ main ”分支来创建分支。
 
-- 使用你最喜欢的编辑器，修改代码， `随时提交`_ 。
-- 应当包含覆盖你所做的全部修改的测试。确保没有补丁则测试失败。
-  `运行测试 <contributing-testsuite_>`_ 。
-- 将你的提交推送到 GitHub 并 `创建一个 pull request`_ ::
+    .. code-block:: text
 
-      git push --set-upstream origin your-branch-name
+        $ git fetch origin
+        $ git checkout -b your-branch-name origin/main
 
-- 庆祝成功 🎉
+-   使用你最喜欢的编辑器，修改代码， `随时提交`_ 。
+-   应当包含覆盖你所做的全部修改的测试，并且确保没有补丁则测试失败。详细内容见
+    下一节。
+-   把你的提交推送到 GitHub 上你的分支中，并 `创建一个拉取请求`_ 。在拉取请求中
+    链接类似 ``fixes #123`` 的议题。
 
+    .. code-block:: text
+
+        $ git push --set-upstream fork your-branch-name
 
 .. _随时提交: https://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
-.. _Black: https://black.readthedocs.io
-.. _编辑器集成: https://black.readthedocs.io/en/stable/editor_integration.html
-.. _pre-commit: https://pre-commit.com
-.. _创建一个 pull request: https://help.github.com/en/articles/creating-a-pull-request
+.. _创建一个拉取请求: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
 
-
-.. _contributing-testsuite:
 
 运行测试
 ~~~~~~~~~~~~~~~~~
 
-用以下命令运行基础测试::
+用 pytest 运行基本的测试套件。
 
-    pytest
+.. code-block:: text
 
-这只在当前环境下运行测试。这是否相关取决于你在处理 Flask 的哪个部分。
-当你提交 pull request 时， Travis-CI 会运行全部测试。
+    $ pytest
 
-完整的测试套件运行时间会很长，因为它会在多种 Python 及其依赖的环境下运行。
-在所有环境下运行测试需要有 Python 2.7 、 3.4 、 3.5 、 3.6 和 PyPy 2.7 。
-然后运行::
+上述测试是针对当前环境的，通常是有效的。当你提交拉取请求时， CI 会运行全部测试。
+如果不想浪费时间，那么可以用 tox 运行所有测试。
 
-    tox
+.. code-block:: text
+
+    $ tox
+
 
 运行测试覆盖
 ~~~~~~~~~~~~~~~~~~~~~
 
-生成一个哪些代码未被测试覆盖的报告可以指明从哪里开始贡献。使用
-``coverage`` 运行 ``pytest`` 并在终端生成一个报告和一份交互 HTML 文档::
+生成一个报告，确定哪些代码未被测试覆盖，以指明工作的方向。
+使用 ``coverage`` 运行 ``pytest`` 并生成一份报告。
 
-    coverage run -m pytest
-    coverage report
-    coverage html
-    # then open htmlcov/index.html
+.. code-block:: text
 
-请阅读更多关于 `coverage <https://coverage.readthedocs.io>`_ 的文档。
+    $ pip install coverage
+    $ coverage run -m pytest
+    $ coverage html
 
-用 ``tox`` 运行完整测试套件会组合所有运行测试的覆盖报告。
+在浏览器中打开 ``htmlcov/index.html`` 并研读报告。
+
+请阅读更多关于 `coverage <https://coverage.readthedocs.io>`__ 的文档。
 
 
 构建文档
 ~~~~~~~~~~~~~~~~~
 
-使用 Sphinx 构建 ``docs`` 文件夹中的文档::
+使用 Sphinx 构建 ``docs`` 文件夹中的文档。
 
-    cd docs
-    pip install -r requirements.txt
-    make html
+.. code-block:: text
+
+    $ cd docs
+    $ make html
+
 
 在浏览器中打开 ``_build/html/index.html`` 以查看文档。
 
-请阅读更多关于 `Sphinx <https://www.sphinx-doc.org/en/master/>`_ 的内容。
-
-
-注意：零填充文件模式
--------------------------------
-
-本存储库包含多个零填充文件模式，当提交存储库到 GitHub 之外的 git 主机时可
-能会引发问题。修复这个问题会破坏提交历史记录，因此我们建议忽略这个问题。
-如果推送失败并且你使用的是如 GitLab 这样的自托管 git 服务，那么在管理面板
-中关闭存储库检查。
-
-这些文件还会在克隆时引发问题。如果你在 git 配置文件中有以下设置::
-
-    [fetch]
-    fsckobjects = true
-
-或者 ::
-
-    [receive]
-    fsckObjects = true
-
-那么克隆时会失败。唯一的解决方法是在克隆时把上面的设置项目设置为 false ，
-并在克隆完成后恢复。
+请阅读更多关于 `Sphinx <https://www.sphinx-doc.org/en/stable/>`__ 的内容。

@@ -1,5 +1,148 @@
 .. currentmodule:: flask
 
+Version 2.0.1
+-------------
+
+Released 2021-05-21
+
+-   Re-add the ``filename`` parameter in ``send_from_directory``. The
+    ``filename`` parameter has been renamed to ``path``, the old name
+    is deprecated. :pr:`4019`
+-   Mark top-level names as exported so type checking understands
+    imports in user projects. :issue:`4024`
+-   Fix type annotation for ``g`` and inform mypy that it is a namespace
+    object that has arbitrary attributes. :issue:`4020`
+-   Fix some types that weren't available in Python 3.6.0. :issue:`4040`
+-   Improve typing for ``send_file``, ``send_from_directory``, and
+    ``get_send_file_max_age``. :issue:`4044`, :pr:`4026`
+-   Show an error when a blueprint name contains a dot. The ``.`` has
+    special meaning, it is used to separate (nested) blueprint names and
+    the endpoint name. :issue:`4041`
+-   Combine URL prefixes when nesting blueprints that were created with
+    a ``url_prefix`` value. :issue:`4037`
+-   Roll back a change to the order that URL matching was done. The
+    URL is again matched after the session is loaded, so the session is
+    available in custom URL converters. :issue:`4053`
+-   Re-add deprecated ``Config.from_json``, which was accidentally
+    removed early. :issue:`4078`
+-   Improve typing for some functions using ``Callable`` in their type
+    signatures, focusing on decorator factories. :issue:`4060`
+-   Nested blueprints are registered with their dotted name. This allows
+    different blueprints with the same name to be nested at different
+    locations. :issue:`4069`
+-   ``register_blueprint`` takes a ``name`` option to change the
+    (pre-dotted) name the blueprint is registered with. This allows the
+    same blueprint to be registered multiple times with unique names for
+    ``url_for``. Registering the same blueprint with the same name
+    multiple times is deprecated. :issue:`1091`
+-   Improve typing for ``stream_with_context``. :issue:`4052`
+
+
+Version 2.0.0
+-------------
+
+Released 2021-05-11
+
+-   Drop support for Python 2 and 3.5.
+-   Bump minimum versions of other Pallets projects: Werkzeug >= 2,
+    Jinja2 >= 3, MarkupSafe >= 2, ItsDangerous >= 2, Click >= 8. Be sure
+    to check the change logs for each project. For better compatibility
+    with other applications (e.g. Celery) that still require Click 7,
+    there is no hard dependency on Click 8 yet, but using Click 7 will
+    trigger a DeprecationWarning and Flask 2.1 will depend on Click 8.
+-   JSON support no longer uses simplejson. To use another JSON module,
+    override ``app.json_encoder`` and ``json_decoder``. :issue:`3555`
+-   The ``encoding`` option to JSON functions is deprecated. :pr:`3562`
+-   Passing ``script_info`` to app factory functions is deprecated. This
+    was not portable outside the ``flask`` command. Use
+    ``click.get_current_context().obj`` if it's needed. :issue:`3552`
+-   The CLI shows better error messages when the app failed to load
+    when looking up commands. :issue:`2741`
+-   Add :meth:`sessions.SessionInterface.get_cookie_name` to allow
+    setting the session cookie name dynamically. :pr:`3369`
+-   Add :meth:`Config.from_file` to load config using arbitrary file
+    loaders, such as ``toml.load`` or ``json.load``.
+    :meth:`Config.from_json` is deprecated in favor of this. :pr:`3398`
+-   The ``flask run`` command will only defer errors on reload. Errors
+    present during the initial call will cause the server to exit with
+    the traceback immediately. :issue:`3431`
+-   :func:`send_file` raises a :exc:`ValueError` when passed an
+    :mod:`io` object in text mode. Previously, it would respond with
+    200 OK and an empty file. :issue:`3358`
+-   When using ad-hoc certificates, check for the cryptography library
+    instead of PyOpenSSL. :pr:`3492`
+-   When specifying a factory function with ``FLASK_APP``, keyword
+    argument can be passed. :issue:`3553`
+-   When loading a ``.env`` or ``.flaskenv`` file, the current working
+    directory is no longer changed to the location of the file.
+    :pr:`3560`
+-   When returning a ``(response, headers)`` tuple from a view, the
+    headers replace rather than extend existing headers on the response.
+    For example, this allows setting the ``Content-Type`` for
+    ``jsonify()``. Use ``response.headers.extend()`` if extending is
+    desired. :issue:`3628`
+-   The ``Scaffold`` class provides a common API for the ``Flask`` and
+    ``Blueprint`` classes. ``Blueprint`` information is stored in
+    attributes just like ``Flask``, rather than opaque lambda functions.
+    This is intended to improve consistency and maintainability.
+    :issue:`3215`
+-   Include ``samesite`` and ``secure`` options when removing the
+    session cookie. :pr:`3726`
+-   Support passing a ``pathlib.Path`` to ``static_folder``. :pr:`3579`
+-   ``send_file`` and ``send_from_directory`` are wrappers around the
+    implementations in ``werkzeug.utils``. :pr:`3828`
+-   Some ``send_file`` parameters have been renamed, the old names are
+    deprecated. ``attachment_filename`` is renamed to ``download_name``.
+    ``cache_timeout`` is renamed to ``max_age``. ``add_etags`` is
+    renamed to ``etag``. :pr:`3828, 3883`
+-   ``send_file`` passes ``download_name`` even if
+    ``as_attachment=False`` by using ``Content-Disposition: inline``.
+    :pr:`3828`
+-   ``send_file`` sets ``conditional=True`` and ``max_age=None`` by
+    default. ``Cache-Control`` is set to ``no-cache`` if ``max_age`` is
+    not set, otherwise ``public``. This tells browsers to validate
+    conditional requests instead of using a timed cache. :pr:`3828`
+-   ``helpers.safe_join`` is deprecated. Use
+    ``werkzeug.utils.safe_join`` instead. :pr:`3828`
+-   The request context does route matching before opening the session.
+    This could allow a session interface to change behavior based on
+    ``request.endpoint``. :issue:`3776`
+-   Use Jinja's implementation of the ``|tojson`` filter. :issue:`3881`
+-   Add route decorators for common HTTP methods. For example,
+    ``@app.post("/login")`` is a shortcut for
+    ``@app.route("/login", methods=["POST"])``. :pr:`3907`
+-   Support async views, error handlers, before and after request, and
+    teardown functions. :pr:`3412`
+-   Support nesting blueprints. :issue:`593, 1548`, :pr:`3923`
+-   Set the default encoding to "UTF-8" when loading ``.env`` and
+    ``.flaskenv`` files to allow to use non-ASCII characters. :issue:`3931`
+-   ``flask shell`` sets up tab and history completion like the default
+    ``python`` shell if ``readline`` is installed. :issue:`3941`
+-   ``helpers.total_seconds()`` is deprecated. Use
+    ``timedelta.total_seconds()`` instead. :pr:`3962`
+-   Add type hinting. :pr:`3973`.
+
+
+Version 1.1.4
+-------------
+
+Released 2021-05-13
+
+-   Update ``static_folder`` to use ``_compat.fspath`` instead of
+    ``os.fspath`` to continue supporting Python < 3.6 :issue:`4050`
+
+
+Version 1.1.3
+-------------
+
+Released 2021-05-13
+
+-   Set maximum versions of Werkzeug, Jinja, Click, and ItsDangerous.
+    :issue:`4043`
+-   Re-add support for passing a ``pathlib.Path`` for ``static_folder``.
+    :pr:`3579`
+
+
 Version 1.1.2
 -------------
 
@@ -432,7 +575,7 @@ Released 2016-05-29, codename Absinthe
 
 -   Added support to serializing top-level arrays to
     :func:`flask.jsonify`. This introduces a security risk in ancient
-    browsers. See :ref:`json-security` for details.
+    browsers.
 -   Added before_render_template signal.
 -   Added ``**kwargs`` to :meth:`flask.Test.test_client` to support
     passing additional keyword arguments to the constructor of
@@ -547,8 +690,7 @@ Version 0.10
 Released 2013-06-13, codename Limoncello
 
 -   Changed default cookie serialization format from pickle to JSON to
-    limit the impact an attacker can do if the secret key leaks. See
-    :ref:`upgrading-to-010` for more information.
+    limit the impact an attacker can do if the secret key leaks.
 -   Added ``template_test`` methods in addition to the already existing
     ``template_filter`` method family.
 -   Added ``template_global`` methods in addition to the already
@@ -577,8 +719,7 @@ Released 2013-06-13, codename Limoncello
 -   Added an option to generate non-ascii encoded JSON which should
     result in less bytes being transmitted over the network. It's
     disabled by default to not cause confusion with existing libraries
-    that might expect ``flask.json.dumps`` to return bytestrings by
-    default.
+    that might expect ``flask.json.dumps`` to return bytes by default.
 -   ``flask.g`` is now stored on the app context instead of the request
     context.
 -   ``flask.g`` now gained a ``get()`` method for not erroring out on
@@ -742,7 +883,7 @@ Released 2011-09-29, codename Rakija
     designated place to drop files that are modified at runtime (uploads
     etc.). Also this is conceptually only instance depending and outside
     version control so it's the perfect place to put configuration files
-    etc. For more information see :ref:`instance-folders`.
+    etc.
 -   Added the ``APPLICATION_ROOT`` configuration variable.
 -   Implemented :meth:`~flask.testing.TestClient.session_transaction` to
     easily modify sessions from the test environment.
@@ -822,8 +963,7 @@ Released 2011-06-28, codename Grappa
 -   Added ``teardown_request`` decorator, for functions that should run
     at the end of a request regardless of whether an exception occurred.
     Also the behavior for ``after_request`` was changed. It's now no
-    longer executed when an exception is raised. See
-    :ref:`upgrading-to-new-teardown-handling`
+    longer executed when an exception is raised.
 -   Implemented :func:`flask.has_request_context`
 -   Deprecated ``init_jinja_globals``. Override the
     :meth:`~flask.Flask.create_jinja_environment` method instead to
@@ -840,7 +980,7 @@ Released 2011-06-28, codename Grappa
     errors that might occur during request processing (for instance
     database connection errors, timeouts from remote resources etc.).
 -   Blueprints can provide blueprint specific error handlers.
--   Implemented generic :ref:`views` (class-based views).
+-   Implemented generic class-based views.
 
 
 Version 0.6.1

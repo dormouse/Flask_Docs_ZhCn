@@ -54,16 +54,34 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     Added :envvar:`FLASK_ENV` to control the environment separately
     from debug mode. The development environment enables debug mode.
 
-为把 Flask 转换到开发环境并开启调试模式，设置 :envvar:`FLASK_ENV`::
+为把 Flask 转换到开发环境并开启调试模式，设置 :envvar:`FLASK_ENV`:
 
-    $ export FLASK_ENV=development
-    $ flask run
+.. tabs::
 
-（在 Windows 下，使用 ``set`` 代替 ``export`` 。）
+   .. group-tab:: Bash
 
-推荐使用如上文的方式设置环境变量。虽然可以在配置或者代码中设置
-环境变量无法及时地被 ``flask`` 命令读取，一个系统或者扩展就可能会使用自己
-已定义的环境变量。
+      .. code-block:: text
+
+         $ export FLASK_ENV=development
+         $ flask run
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_ENV=development
+         > flask run
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_ENV = "development"
+         > flask run
+
+建议使用上述环境变量。 尽管可以在你的配置中或者代码中设置 :data:`ENV` 和
+:data:`DEBUG` ，但是强烈不推荐这样做。因为它们不能被 ``flask`` 命令提前
+使用，并且一些系统或扩展可能会根据前面的值来配置自己。 
 
 
 内置配置变量
@@ -137,9 +155,9 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: SECRET_KEY
 
-    密钥用于会话 cookie 的安全签名，并可用于应用或者扩展的其他安全需求。本
-    变量应当是一个字节型长随机字符串，虽然 unicode 也是可以接受的。例如，
-    复制如下输出到你的配置中::
+    密钥用于会话 cookie 的安全签名，并可用于应用或者扩展的其他安全需求。
+    密钥应当是一个长的随机的 ``bytes`` 或者 ``str`` 。例如，复制下面的
+    输出到你的配置中::
 
         $ python -c 'import os; print(os.urandom(16))'
         b'_5#y2L"F4Q8z\n\xec]/'
@@ -220,12 +238,15 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: SEND_FILE_MAX_AGE_DEFAULT
 
-    当提供文件服务时，设置缓存，控制最长存活期，以秒为单位。可以是一个
-    :class:`datetime.timedelta` 或者一个 ``int`` 。在一个应用或者蓝图上使
-    用 :meth:`~flask.Flask.get_send_file_max_age` 可以基于单个文件重载本变
-    量。
+    当提供文件服务时，设置缓存控制最长存活期，以秒为单位。可以是一个
+    :class:`datetime.timedelta` 或者一个 ``int`` 。在一个应用或者蓝图上
+    使用 :meth:`~flask.Flask.get_send_file_max_age` 可以基于单个文件重载
+    本变量。
 
-    缺省值： ``timedelta(hours=12)`` （ ``43200`` 秒）
+    如果设置为 ``None`` ，那么 ``send_file`` 会告诉浏览器使用条件请求
+    代替一个计时缓存，这样做比较推荐。
+
+    缺省值： ``None``
 
 .. py:data:: SERVER_NAME
 
@@ -246,8 +267,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 .. py:data:: APPLICATION_ROOT
 
     通知应用应用的根路径是什么。这个变量用于生成请求环境之外的 URL （请求
-    内的会根据 ``SCRIPT_NAME`` 生成；参见 :ref:`应用调度 <app-dispatch>`
-    ）。
+    内的会根据 ``SCRIPT_NAME`` 生成；参见 :doc:`/patterns/appdispatch` ）。
 
     如果 ``SESSION_COOKIE_PATH`` 没有配置，那么本变量会用于会话 cookie 路
     径。
@@ -269,9 +289,9 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: JSON_AS_ASCII
 
-    把对象序列化为 ASCII-encoded JSON 。如果禁用，那么 JSON 会被返回为一个
-    Unicode 字符串或者被 ``jsonify`` 编码为 ``UTF-8`` 格式。本变量应当保持
-    启用，因为在模块内把 JSON 渲染到 JavaScript 时会安全一点。
+    把对象序列化为 ASCII-encoded JSON 。如果禁用，那么 ``jsonify`` 返回
+    的 JSON 会包含 Unicode 字符。这样的话，在把 JSON 渲染到 JavaScript
+    时会有安全隐患。因此，通常应当开启这个变量。
 
     缺省值： ``True``
 
@@ -354,12 +374,12 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     添加 :data:`MAX_COOKIE_SIZE` 来控制来自于 Werkzeug 警告。
 
 
-使用配置文件
+使用 Python 配置文件
 ----------------------
 
-如果把配置放在一个单独的文件中会更有用。理想情况下配置文件应当放在应用包之
-外。这样可以使用不同的工具进行打包与分发（ :ref:`distribute-deployment` ），
-而后修改配置文件也没有影响。
+如果把配置放在一个单独的文件中会更有用。理想情况下配置文件应当放在应用包
+之外。这样可以使用不同的工具进行打包与分发（ :doc:`/patterns/distribute`
+），而后修改配置文件也没有影响。
 
 因此，常见用法如下::
 
@@ -369,29 +389,64 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 首先从 `yourapplication.default_settings` 模块载入配置，然后根据
 :envvar:`YOURAPPLICATION_SETTINGS` 环境变量所指向的文件的内容重载配置的值。
-在启动服务器前，在 Linux 或 OS X 操作系统中，这个环境变量可以在终端中使用
-export 命令来设置::
+在启动服务器前，这个环境变量可以在终端中设置:
 
-    $ export YOURAPPLICATION_SETTINGS=/path/to/settings.cfg
-    $ python run-app.py
-     * Running on http://127.0.0.1:5000/
-     * Restarting with reloader...
+.. tabs::
 
-在 Windows 系统中使用内置的 `set` 来代替::
+   .. group-tab:: Bash
 
-    > set YOURAPPLICATION_SETTINGS=\path\to\settings.cfg
+      .. code-block:: text
 
-配置文件本身实质是 Python 文件。只有全部是大写字母的变量才会被配置对象所使
-用。因此请确保使用大写字母。
+         $ export YOURAPPLICATION_SETTINGS=/path/to/settings.cfg
+         $ flask run
+          * Running on http://127.0.0.1:5000/
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set YOURAPPLICATION_SETTINGS=\path\to\settings.cfg
+         > flask run
+          * Running on http://127.0.0.1:5000/
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:YOURAPPLICATION_SETTINGS = "\path\to\settings.cfg"
+         > flask run
+          * Running on http://127.0.0.1:5000/
+
+配置文件本身实质是 Python 文件。只有全部是大写字母的变量才会被配置对象
+所使用。因此请确保使用大写字母。
 
 一个配置文件的例子::
 
     # Example configuration
-    DEBUG = False
     SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
 
 请确保尽早载入配置，以便于扩展在启动时可以访问相关配置。除了从文件载入配置外，
 配置对象还有其他方法可以载入配置，详见 :class:`~flask.Config` 对象的文档。
+
+
+使用数据文件来配置
+---------------------------
+
+也可以使用 :meth:`~flask.Config.from_file` 从其他格式的文件来加载配置。
+例如，从 TOML 文件加载：
+
+.. code-block:: python
+
+    import toml
+    app.config.from_file("config.toml", load=toml.load)
+
+或者从 JSON 文件加载：
+
+.. code-block:: python
+
+    import json
+    app.config.from_file("config.json", load=json.load)
+
 
 
 使用环境变量来配置
@@ -400,17 +455,36 @@ export 命令来设置::
 除了使用环境变量指向配置文件之外，你可能会发现直接从环境中控制配置值很有用
 （或必要）。
 
-启动服务器之前，可以在 Linux 或 OS X 上使用 shell 中的export命令设置环境变
-量::
+在启动服务器前，可以在终端中设置环境变量:
 
-    $ export SECRET_KEY='5f352379324c22463451387a0aec5d2f'
-    $ export MAIL_ENABLED=false
-    $ python run-app.py
-     * Running on http://127.0.0.1:5000/
+.. tabs::
 
-在 Windows 系统中使用内置的 ``set`` 来代替::
+   .. group-tab:: Bash
 
-    > set SECRET_KEY='5f352379324c22463451387a0aec5d2f'
+      .. code-block:: text
+
+         $ export SECRET_KEY="5f352379324c22463451387a0aec5d2f"
+         $ export MAIL_ENABLED=false
+         $ flask run
+          * Running on http://127.0.0.1:5000/
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set SECRET_KEY="5f352379324c22463451387a0aec5d2f"
+         > set MAIL_ENABLED=false
+         > flask run
+          * Running on http://127.0.0.1:5000/
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:SECRET_KEY = "5f352379324c22463451387a0aec5d2f"
+         > $env:MAIL_ENABLED = "false"
+         > flask run
+          * Running on http://127.0.0.1:5000/
 
 尽管这种方法很简单易用，但重要的是要记住环境变量是字符串，它们不会自动反序
 列化为 Python 类型。
@@ -474,17 +548,16 @@ export 命令来设置::
 一个有趣的方案是使用类和类的继承来配置::
 
     class Config(object):
-        DEBUG = False
         TESTING = False
-        DATABASE_URI = 'sqlite:///:memory:'
 
     class ProductionConfig(Config):
         DATABASE_URI = 'mysql://user@localhost/foo'
 
     class DevelopmentConfig(Config):
-        DEBUG = True
+        DATABASE_URI = "sqlite:////tmp/foo.db"
 
     class TestingConfig(Config):
+        DATABASE_URI = 'sqlite:///:memory:'
         TESTING = True
 
 如果要使用这样的方案，那么必须使用 :meth:`~flask.Config.from_object`::
@@ -507,13 +580,12 @@ export 命令来设置::
 
     class Config(object):
         """Base config, uses staging database server."""
-        DEBUG = False
         TESTING = False
         DB_SERVER = '192.168.1.56'
 
         @property
-        def DATABASE_URI(self):         # Note: all caps
-            return 'mysql://user@{}/foo'.format(self.DB_SERVER)
+        def DATABASE_URI(self):  # Note: all caps
+            return f"mysql://user@{self.DB_SERVER}/foo"
 
     class ProductionConfig(Config):
         """Uses production database server."""
@@ -521,11 +593,9 @@ export 命令来设置::
 
     class DevelopmentConfig(Config):
         DB_SERVER = 'localhost'
-        DEBUG = True
 
     class TestingConfig(Config):
         DB_SERVER = 'localhost'
-        DEBUG = True
         DATABASE_URI = 'sqlite:///:memory:'
 
 配置的方法多种多样，由你定度。以下是一些好的建议：
@@ -536,12 +606,12 @@ export 命令来设置::
     而根本不用改动代码，使开发和部署更方便，更快捷。如果你经常在不同的项目
     间切换，那么你甚至可以创建代码来激活 virtualenv 并导出开发配置。
 -   在生产应用中使用 `fabric`_ 之类的工具，向服务器分别传送代码和配置。更
-    多细节参见 :ref:`fabric-deployment` 方案。
+    多细节参见 :doc:`/patterns/fabric` 方案。
 
 .. _fabric: https://www.fabfile.org/
 
-.. _instance-folders:
 
+.. _instance-folders:
 
 实例文件夹
 ----------------
@@ -579,7 +649,7 @@ Flask 0.8 引入了一个新的属性： :attr:`Flask.instance_path` 。它指�
 
 -   已安装的模块或包::
 
-        $PREFIX/lib/python2.X/site-packages/myapp
+        $PREFIX/lib/pythonX.Y/site-packages/myapp
         $PREFIX/var/myapp-instance
 
     ``$PREFIX`` 是你的 Python 安装的前缀。可能是 ``/usr`` 或你的

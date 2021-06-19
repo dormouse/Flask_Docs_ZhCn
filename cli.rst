@@ -1,7 +1,5 @@
 .. currentmodule:: flask
 
-.. _cli:
-
 命令行接口
 ======================
 
@@ -18,30 +16,40 @@
 ``flask`` 命令由 Flask 安装，而不是你的应用。为了可以使用，它必须被告知可
 以在哪里找到你的应用。 ``FLASK_APP`` 环境变量用于定义如何载入应用。
 
-Unix Bash （ Linux 、Mac 及其他）::
+.. tabs::
 
-    $ export FLASK_APP=hello
-    $ flask run
+   .. group-tab:: Bash
 
-Windows CMD::
+      .. code-block:: text
 
-    > set FLASK_APP=hello
-    > flask run
+         $ export FLASK_APP=hello
+         $ flask run
 
-Windows PowerShell::
+   .. group-tab:: CMD
 
-    > $env:FLASK_APP = "hello"
-    > flask run
+      .. code-block:: text
+
+         > set FLASK_APP=hello
+         > flask run
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_APP = "hello"
+         > flask run
 
 虽然 ``FLASK_APP`` 支持多种选项来定义应用，但多数情况下应该很简单。以下是
 典型值：
 
 (空)
-    :file:`wsgi.py` 文件被导入，自动探测应用（ ``app`` ）。这提供了一种简
-    单的方法来从工厂创建具有额外参数的应用。
+    名称“ app ”或者“ wsgi ”被导入（作为一个“ .py ”文件或者包），
+    自动探测一个应用（ ``app`` 或者 ``application`` ）或者工厂（
+    ``create_app`` 或者 ``make_app`` ）。
 
 ``FLASK_APP=hello``
-    名称被导入，自动探测一个应用（ ``app`` ）或者工厂（ ``create_app`` ）。
+    给定的名称被导入，自动探测一个应用（ ``app`` 或者 ``application`` ）
+    或者工厂（ ``create_app`` 或者 ``make_app`` ）。
 
 ----
 
@@ -64,29 +72,27 @@ Windows PowerShell::
 如果没有设置 ``FLASK_APP`` ，命令会查找 :file:`wsgi.py` 文件或者
 :file:`app.py` 文件并尝试探测一个应用实例或者工厂。
 
-根据给定的导入，命令会寻找一个名为 ``app`` 或者 ``application`` 的应用实例。
-如果找不到会继续寻找任意应用实例。如果找不到任何实例，会接着寻找名为
-``create_app`` 或者 ``make_app`` 的函数，使用该函数返回的实例。
+根据给定的导入，命令会寻找一个名为 ``app`` 或者 ``application`` 的应用
+实例。如果找不到会继续寻找任意应用实例。如果找不到任何实例，会接着寻找
+名为 ``create_app`` 或者 ``make_app`` 的函数，使用该函数返回的实例。
 
-当调用一个应用工厂时，如果工厂接收一个名为 ``info`` 的参数，那么
-class:`~cli.ScriptInfo` 实例会被作为一个关键字参数传递。如果括号紧随着工厂
-名称，那么其中的内容会被视作为 Python 语言内容，并用作函数的参数。这意味着
-字符串必须使用双引号包围。
+如果工厂名称后面是括号，那么其中的内容会被视作为 Python 语言内容，并用
+作函数的参数。这意味着字符串必须使用双引号包围。
 
 
 运行开发服务器
 --------------------------
 
-:func:`run <cli.run_command>` 命令可以启动开发服务器，它在大多数情况下替代
-:meth:`Flask.run` 方法。::
+:func:`run <cli.run_command>` 命令可以启动开发服务器，它在大多数情况下
+替代 :meth:`Flask.run` 方法。::
 
     $ flask run
      * Serving Flask app "hello"
      * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 
-.. warning:: 不要在生产中使用此命令运行应用，只能在开发过程中使用开发服务
-    器。开发服务器只是为了提供方便，但是不够安全、稳定和高效。有关如何在生
-    产中运行服务器，请参阅 :ref:`deployment` 。
+.. warning:: 不要在生产中使用此命令运行应用，只能在开发过程中使用开发
+    服务器。开发服务器只是为了提供方便，但是不够安全、稳定和高效。有关
+    如何在生产中运行服务器，请参阅 :doc:`/deploying/index` 。
 
 打开一个 Shell
 ------------------------
@@ -116,16 +122,93 @@ Flask 和扩展可能基于环境不同而改变行为。
 如果环境是 ``development`` ， ``flask`` 命令会开启调试模式并且
 ``flask run`` 会开启交互调试器和重启器。
 
-::
+.. tabs::
 
-    $ FLASK_ENV=development flask run
-     * Serving Flask app "hello"
-     * Environment: development
-     * Debug mode: on
-     * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-     * Restarting with inotify reloader
-     * Debugger is active!
-     * Debugger PIN: 223-456-919
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+         $ export FLASK_ENV=development
+         $ flask run
+          * Serving Flask app "hello"
+          * Environment: development
+          * Debug mode: on
+          * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+          * Restarting with inotify reloader
+          * Debugger is active!
+          * Debugger PIN: 223-456-919
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_ENV=development
+         > flask run
+          * Serving Flask app "hello"
+          * Environment: development
+          * Debug mode: on
+          * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+          * Restarting with inotify reloader
+          * Debugger is active!
+          * Debugger PIN: 223-456-919
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_ENV = "development"
+         > flask run
+          * Serving Flask app "hello"
+          * Environment: development
+          * Debug mode: on
+          * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+          * Restarting with inotify reloader
+          * Debugger is active!
+          * Debugger PIN: 223-456-919
+
+
+用重启器监视额外文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+当使用开发模式时，您的 Python 代码或者导入模块发生变动时会触发重启器。
+如果使用 ``--extra-files`` 参数或者设置 ``FLASK_RUN_EXTRA_FILES``
+环境变量，那么重启器可以监视额外的文件。多重路径使用 ``:`` 分隔，
+Windows 下使用 ``;`` 。
+
+.. tabs::
+
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+          $ flask run --extra-files file1:dirA/file2:dirB/
+          # or
+          $ export FLASK_RUN_EXTRA_FILES=file1:dirA/file2:dirB/
+          $ flask run
+           * Running on http://127.0.0.1:8000/
+           * Detected change in '/path/to/file1', reloading
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+          > flask run --extra-files file1:dirA/file2:dirB/
+          # or
+          > set FLASK_RUN_EXTRA_FILES=file1:dirA/file2:dirB/
+          > flask run
+           * Running on http://127.0.0.1:8000/
+           * Detected change in '/path/to/file1', reloading
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+          > flask run --extra-files file1:dirA/file2:dirB/
+          # or
+          > $env:FLASK_RUN_EXTRA_FILES = "file1:dirA/file2:dirB/"
+          > flask run
+           * Running on http://127.0.0.1:8000/
+           * Detected change in '/path/to/file1', reloading
 
 
 调试模式
@@ -169,11 +252,31 @@ Click 被配置为根据环境变量为命令选项载入缺省值。变量使�
 ``FLASK_COMMAND_OPTION`` 模式。例如，要为运行命令设置端口，不使用
 ``flask run --port 8000`` ，而是使用:
 
-.. code-block:: none
+.. tabs::
 
-    export FLASK_RUN_PORT=8000
-    flask run
-     * Running on http://127.0.0.1:8000/
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+         $ export FLASK_RUN_PORT=8000
+         $ flask run
+          * Running on http://127.0.0.1:8000/
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_RUN_PORT=8000
+         > flask run
+          * Running on http://127.0.0.1:8000/
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_RUN_PORT = 8000
+         > flask run
+          * Running on http://127.0.0.1:8000/
 
 这些可以添加到 ``.flaskenv`` 文件，就像 ``FLASK_APP`` 来控制缺省命令选项。
 
@@ -194,10 +297,28 @@ python-dotenv 没有安装到情况下这个设置也是有效的。这个设置
 当你想要手动载入它们的时候，或者当你已经使用了一个项目运行器载入了它们。请
 牢记，环境变量必须在项目载入之前设置，否则出问题。
 
-.. code-block:: none
+.. tabs::
 
-    export FLASK_SKIP_DOTENV=1
-    flask run
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+         $ export FLASK_SKIP_DOTENV=1
+         $ flask run
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_SKIP_DOTENV=1
+         > flask run
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_SKIP_DOTENV = 1
+         > flask run
 
 
 通过 virturalenv 设置环境变量
@@ -206,13 +327,25 @@ python-dotenv 没有安装到情况下这个设置也是有效的。这个设置
 如果不想安装 dotenv 支持，可以通过把它们添加到 virtualenv 的
 :file:`activate` 文件末尾来设置环境变量。激活 virtualenv 时会设置环境变量。
 
-Unix Bash ， :file:`venv/bin/activate`::
+.. tabs::
 
-    export FLASK_APP=hello
+   .. group-tab:: Bash
 
-Windows CMD ， :file:`venv\\Scripts\\activate.bat`::
+      Unix Bash, :file:`venv/bin/activate`::
 
-    set FLASK_APP=hello
+          $ export FLASK_APP=hello
+
+   .. group-tab:: CMD
+
+      Windows CMD, :file:`venv\\Scripts\\activate.bat`::
+
+          > set FLASK_APP=hello
+
+   .. group-tab:: Powershell
+
+      Windows Powershell, :file:`venv\\Scripts\\activate.ps1`::
+
+          > $env:FLASK_APP = "hello"
 
 建议使用 dotenv 支持来做，因为 :file:`.flaskenv` 可以被提交到储存库，当提
 取项目代码后就可以自动发挥作用。

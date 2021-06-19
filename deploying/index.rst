@@ -17,6 +17,7 @@
 
 - `Heroku <https://devcenter.heroku.com/articles/getting-started-with-python>`_
 - `Google App Engine <https://cloud.google.com/appengine/docs/standard/python3/runtime>`_
+- `Google Cloud Run <https://cloud.google.com/run/docs/quickstarts/build-and-deploy/python>`_
 - `AWS Elastic Beanstalk <https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html>`_
 - `Azure (IIS) <https://docs.microsoft.com/en-us/azure/app-service/containers/how-to-configure-python>`_
 - `PythonAnywhere <https://help.pythonanywhere.com/pages/Flask/>`_
@@ -32,3 +33,4 @@
    mod_wsgi
    fastcgi
    cgi
+   asgi

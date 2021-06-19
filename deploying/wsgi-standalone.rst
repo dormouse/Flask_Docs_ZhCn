@@ -1,5 +1,3 @@
-.. _deploying-wsgi-standalone:
-
 独立 WSGI 容器
 ==========================
 

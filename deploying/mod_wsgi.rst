@@ -1,5 +1,3 @@
-.. _mod_wsgi-deployment:
-
 mod_wsgi (Apache)
 =================
 
@@ -24,7 +22,7 @@ mod_wsgi (Apache)
 
 .. sourcecode:: text
 
-    $ apt-get install libapache2-mod-wsgi
+    $ apt-get install libapache2-mod-wsgi-py3
 
 如果使用基于 yum 的发行版（ Fedora 、 OpenSUSE 等等），可以这样安装：
 
@@ -37,7 +35,7 @@ mod_wsgi (Apache)
 
 .. sourcecode:: text
 
-    $ pkg_add -r mod_wsgi
+    $ pkg install ap24-py37-mod_wsgi
 
 如果你使用 pkgsrc ，那么可以通过编译 `www/ap2-wsgi` 包来安装 `mod_wsgi` 。
 
@@ -192,13 +190,7 @@ mod_wsgi (Apache)
 在你的 ``.wsgi`` 文件顶部加入下列内容::
 
     activate_this = '/path/to/env/bin/activate_this.py'
-    execfile(activate_this, dict(__file__=activate_this))
-
-Python 3 中需要把下列内容添加到你的 ``.wsgi`` 文件顶端::
-
-    activate_this = '/path/to/env/bin/activate_this.py'
     with open(activate_this) as file_:
         exec(file_.read(), dict(__file__=activate_this))
 
-以上代码会根据虚拟环境的设置载入相关路径。请记住路径必须是绝对路径。
-
+这样设置就可以根据虚拟环境的设置来载入路径。请记住，路径终须是绝对路径。

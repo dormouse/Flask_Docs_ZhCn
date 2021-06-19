@@ -1,7 +1,5 @@
 .. currentmodule:: flask
 
-.. _app-context:
-
 应用情境
 =======================
 
@@ -98,7 +96,7 @@ Flask 还会自动推送应用情境。
         return g.db
 
     @app.teardown_appcontext
-    def teardown_db():
+    def teardown_db(exception):
         db = g.pop('db', None)
 
         if db is not None:

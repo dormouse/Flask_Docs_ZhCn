@@ -1,5 +1,3 @@
-.. _becomingbig:
-
 大型应用
 ============
 
@@ -18,25 +16,25 @@ Werkzeug （ WSGI ）和 Jinja （模板）是两个被广泛使用的工具，�
 挂接，扩展
 -------------
 
-:ref:`api` 文档随处可见可用重载、挂接点和 :ref:`signals` 。你可以定制类似
-请求或响应对象的自定义类。请深入研究你所使用的 API ，并在 Flask 发行版中有
-哪些可以立即使用的可定制部分。请研究你的哪些项目可以重构为工具集或 Flask
-扩展。你可以在社区中发现很多 :doc:`/extensions` 。如果找不到满意的，那就自己
-写一个吧。
+:doc:`/api` 文档随处可见可用重载、挂接点和 :doc:`/signals` 。你可以定制类
+似请求或响应对象的自定义类。请深入研究你所使用的 API ，并在 Flask 发行版
+中有哪些可以立即使用的可定制部分。请研究你的哪些项目可以重构为工具集或
+Flask 扩展。你可以在社区中发现很多 :doc:`/extensions` 。如果找不到满意的，
+那就自己写一个吧。
 
 继承
 ---------
 
 :class:`~flask.Flask` 类有许多方法专门为继承而设计。你可通过继承
 :class:`~flask.Flask` （参见链接的方法文档）快速的添加或者定制行为，并把子
-类实例化为一个应用类。这种方法同样适用于 :ref:`app-factories` 。示例参见
-:doc:`/patterns/subclassing` 。
+类实例化为一个应用类。这种方法同样适用于 :doc:`/patterns/appfactories` 。
+示例参见 :doc:`/patterns/subclassing` 。
 
 用中间件包装
 ---------------------
 
-:ref:`app-dispatch` 一文中详细阐述了如何使用中间件。你可以引入中间件来包装
-你的 Flask 实例，在你的应用和 HTTP 服务器之间的层有所作为。
+:doc:`/patterns/appdispatch` 一文中详细阐述了如何使用中间件。你可以引入
+中间件来包装你的 Flask 实例，在你的应用和 HTTP 服务器之间的层有所作为。
 Werkzeug 包含许多
 `中间件 <https://werkzeug.palletsprojects.com/middleware/>`_ 。
 

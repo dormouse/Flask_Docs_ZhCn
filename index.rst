@@ -1,7 +1,5 @@
 .. rst-class:: hide-header
 
-.. rst-class:: hide-header
-
 欢迎来到 Flask 的世界
 =====================
 
@@ -10,15 +8,16 @@
     :align: center
     :target: https://palletsprojects.com/p/flask/
 
-欢迎阅读 Flask 的文档。推荐您先阅读《 :ref:`installation` 》，然后阅读
-《 :ref:`quickstart` 》。《 :ref:`tutorial` 》比快速上手文档更详细一点，该
-文档介绍了如何创建一个完整（尽管很小）的 Flask 应用。 《 :ref:`patterns` 》
+欢迎阅读 Flask 的文档。推荐您先从《 :doc:`installation` 》入手，然后阅
+读《 :doc:`quickstart` 》。更详细一些的《 :doc:`tutorial/index` 》介绍
+了如何创建一个完整（尽管很小）的 Flask 应用。《 :doc:`patterns/index` 》
 中介绍了一些常用的解决方案。其余的文档详细介绍了 Flask 的每一个组件。
-《 :ref:`api` 》提供了最详细的参考。
+《 :doc:`api` 》提供了最详细的参考。
 
-Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的文档请移步：
+Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的文档请
+移步：
 
-- `Jinja 文档 <http://jinja.pocoo.org/docs>`_
+- `Jinja 文档 <https://jinja.palletsprojects.com/>`_
 - `Werkzeug 文档 <https://werkzeug.palletsprojects.com/>`_
 
 .. _Jinja: https://www.palletsprojects.com/p/jinja/
@@ -42,6 +41,7 @@ Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的�
    templating
    testing
    errorhandling
+   debugging
    logging
    config
    signals
@@ -56,6 +56,8 @@ Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的�
    patterns/index
    deploying/index
    becomingbig
+   async-await
+
 
 API 参考
 -------------
@@ -78,11 +80,7 @@ API 参考
    design
    htmlfaq
    security
-   unicode
    extensiondev
-   styleguide
-   upgrading
-   changelog
-   license
    contributing
-
+   license
+   changes

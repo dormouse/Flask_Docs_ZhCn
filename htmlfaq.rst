@@ -165,20 +165,19 @@ HTML5 增加了许多新功能，使得网络应用易写易用。
 -   高级 JavaScript API ，诸如 Web Storage 、 Web Workers 、 Web Sockets 、
     地理位置以及离线应用。
 
-除了上述功能之外， HTML5 还添加了许多其它的特性。 Mark Pilgrim 即将出版的
-`Dive Into HTML5`_ 一书是 HTML5 新特性的优秀指导书。目前，并不是所有的新特
-性都已被浏览器支持，无论如何，请谨慎使用。
+除了上述功能之外， HTML5 还添加了许多其它的特性。 Mark Pilgrim 所著的
+`Dive Into HTML5`_ 一书是 HTML5 新特性的优秀指导书。目前，并不是所有的新
+特性都已被浏览器支持，无论如何，请谨慎使用。
 
 .. _Dive Into HTML5: https://diveintohtml5.info/
 
 应该使用什么？
 --------------
 
-当前情况下，答案是 HTML5 。考虑到 web 浏览器最新的开发，几乎没有理由再使用
-XHTML 。综上所述：
+当前情况下，答案是 HTML5 。考虑到 web 浏览器最新的开发，几乎没有理由再
+使用 XHTML 。综上所述：
 
--   Internet Explorer （令人悲伤的是目前市场份额处于领先） 对 XHTML 支持不
-    佳。
+-   Internet Explorer 对 XHTML 支持不佳。
 -   许多 JavaScript 库也不支持 XHTML ，原因是它需要复杂的命名空间 API 。
 -   HTML5 添加了数个新特性，包括语义标记和期待已久的 ``<audio>`` 和
     ``<video>`` 标记。
