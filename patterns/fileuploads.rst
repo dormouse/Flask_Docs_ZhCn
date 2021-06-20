@@ -1,5 +1,3 @@
-.. _uploading-files:
-
 上传文件
 ===============
 
@@ -29,13 +27,15 @@
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 首先我们导入了一堆东西，大多数是浅显易懂的。
-:func:`werkzeug.secure_filename` 会在稍后解释。 ``UPLOAD_FOLDER`` 是上传文
-件要储存的目录， ``ALLOWED_EXTENSIONS`` 是允许上传的文件扩展名的集合。
+:func:`werkzeug.secure_filename` 会在稍后解释。 ``UPLOAD_FOLDER`` 是上
+传文件要储存的目录， ``ALLOWED_EXTENSIONS`` 是允许上传的文件扩展名的集
+合。
 
-为什么要限制文件件的扩展名呢？如果直接向客户端发送数据，那么你可能不会想让
-用户上传任意文件。否则，你必须确保用户不能上传 HTML 文件，因为 HTML 可能引
-起 XSS 问题（参见 :ref:`xss` ）。如果服务器可以执行 PHP 文件，那么还必须确
-保不允许上传 ``.php`` 文件。但是谁又会在服务器上安装 PHP 呢，对不？  :)
+为什么要限制文件件的扩展名呢？如果直接向客户端发送数据，那么你可能不会
+想让用户上传任意文件。否则，你必须确保用户不能上传 HTML 文件，因为 HTML
+可能引起 XSS 问题（参见 :ref:`security-xss` ）。如果服务器可以执行 PHP
+文件，那么还必须确保不允许上传 ``.php`` 文件。但是谁又会在服务器上安装
+PHP 呢，对不？  :)
 
 下一个函数检查扩展名是否合法，上传文件，把用户重定向到已上传文件的 URL::
 
@@ -51,16 +51,15 @@
                 flash('No file part')
                 return redirect(request.url)
             file = request.files['file']
-            # if user does not select file, browser also
-            # submit an empty part without filename
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
             if file.filename == '':
                 flash('No selected file')
                 return redirect(request.url)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                return redirect(url_for('uploaded_file',
-                                        filename=filename))
+                return redirect(url_for('download_file', name=filename))
         return '''
         <!doctype html>
         <title>Upload new File</title>
@@ -93,30 +92,27 @@
    >>> secure_filename('../../../../home/username/.bashrc')
    'home_username_.bashrc'
 
-现在还剩下一件事：为已上传的文件提供服务。在 :func:`upload_file()` 中，我
-们把用户重定向到 ``url_for('uploaded_file', filename=filename)`` ，即
-``/uploads/filename`` 。因此我们写一个 :func:`uploaded_file` 来返回该文件
-名称。 Flask 0.5 版本开始我们可以使用一个函数来完成这个任务::
+我们需要为已上传的文件提供服务，使之能够被用户下载。我们将定义一个
+``download_file`` 视图来为上传文件夹中的文件提供服务，
+``url_for("download_file", name=name)`` 依据文件名生成下载 URL 。
+
+.. code-block:: python
 
     from flask import send_from_directory
 
-    @app.route('/uploads/<filename>')
-    def uploaded_file(filename):
-        return send_from_directory(app.config['UPLOAD_FOLDER'],
-                                   filename)
+    @app.route('/uploads/<name>')
+    def download_file(name):
+        return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
-另外，可以把 `uploaded_file` 注册为 `build_only` 规则，并使用
-:class:`~werkzeug.wsgi.SharedDataMiddleware` 。这种方式可以在 Flask 老版本
-中使用::
+如果您正在使用中间件或者 HTTP 服务器为文件提供服务，那么可以把
+``download_file`` 端点注册为 ``build_only`` 规则，这样 ``url_for`` 会在
+没有视图函数的情况下生效。
 
-    from werkzeug.middleware.shared_data import SharedDataMiddleware
-    app.add_url_rule('/uploads/<filename>', 'uploaded_file',
-                     build_only=True)
-    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-        '/uploads':  app.config['UPLOAD_FOLDER']
-    })
+.. code-block:: python
 
-如果你现在运行应用，那么应该一切都应该按预期正常工作。
+    app.add_url_rule(
+        "/uploads/<name>", endpoint="download_file", build_only=True
+    )
 
 
 改进上传
@@ -124,16 +120,16 @@
 
 .. versionadded:: 0.6
 
-Flask 到底是如何处理文件上传的呢？如果上传的文件很小，那么会把它们储存在内
-存中。否则就会把它们保存到一个临时的位置（通过 :func:`tempfile.gettempdir`
-可以得到这个位置）。但是，如何限制上传文件的尺寸呢？缺省情况下， Flask 是
-不限制上传文件的尺寸的。可以通过设置配置的 ``MAX_CONTENT_LENGTH`` 来限制文
-件尺寸::
+Flask 到底是如何处理文件上传的呢？如果上传的文件很小，那么会把它们储存
+在内存中。否则就会把它们保存到一个临时的位置（通过
+:func:`tempfile.gettempdir` 可以得到这个位置）。但是，如何限制上传文件
+的尺寸呢？缺省情况下， Flask 是不限制上传文件的尺寸的。可以通过设置配置
+的 ``MAX_CONTENT_LENGTH`` 来限制文件尺寸::
 
     from flask import Flask, Request
 
     app = Flask(__name__)
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 上面的代码会把尺寸限制为 16 M 。如果上传了大于这个尺寸的文件， Flask 会抛
 出一个 :exc:`~werkzeug.exceptions.RequestEntityTooLarge` 异常。
@@ -150,20 +146,20 @@ Flask 0.6 版本中添加了这个功能。但是通过继承请求对象，在�
 上传进度条
 --------------------
 
-在不久以前，许多开发者是这样实现上传进度条的：分块读取上传的文件，在数据库
-中储存上传的进度，然后在客户端通过 JavaScript 获取进度。简而言之，客户端每
-5 秒钟向服务器询问一次上传进度。觉得讽刺吗？客户端在明知故问。
+在不久以前，许多开发者是这样实现上传进度条的：分块读取上传的文件，在数
+据库中储存上传的进度，然后在客户端通过 JavaScript 获取进度。客户端每 5
+秒钟向服务器询问一次上传进度。觉得讽刺吗？客户端在明知故问。
 
 一个更简便的方案
 ------------------
 
-现在有了更好的解决方案，更快且更可靠。像 jQuery_ 之类的 JavaScript 库包含
-成的轻松构建进度条的插件。
+现在有了更好的解决方案，更快且更可靠。像 jQuery_ 之类的 JavaScript 库包
+含成的轻松构建进度条的插件。
 
-因为所有应用中上传文件的方案基本相同，因此可以使用 `Flask-Uploads`_ 扩展来
-实现文件上传。这个扩展实现了完整的上传机制，还具有白名单功能、黑名单功能以
-及其他功能。
+因为所有应用中上传文件的方案基本相同，因此可以使用 `Flask-Uploads`_ 扩
+展来实现文件上传。这个扩展实现了完整的上传机制，可以通过文件扩展名控制
+可上传文件的种类。
 
 .. _jQuery: https://jquery.com/
-.. _Flask-Uploads: https://pythonhosted.org/Flask-Uploads/
+.. _Flask-Uploads: https://flask-uploads.readthedocs.io/en/latest/
 

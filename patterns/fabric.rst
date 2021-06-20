@@ -1,20 +1,19 @@
-.. _fabric-deployment:
-
 使用 Fabric 部署
 =====================
 
-`Fabric`_ 是一个 Python 工具，与 Makefiles 类似，但是能够在远程服务器上执
-行命令。如果与适当的 Python 包（ :ref:`larger-applications` ）与优良的配置
-（ :ref:`config` ）相结合那么 `Fabric` 将是在外部服务器上部署 Flask 的利器。
+`Fabric`_ 是一个 Python 工具，与 Makefiles 类似，但是能够在远程服务器上
+执行命令。如果与适当的 Python 包（ :doc:`packages` ）与优良的配置
+（ :doc:`/config` ）相结合那么 `Fabric` 将是在外部服务器上部署 Flask 的
+利器。
 
 在下文开始之前，有几点需要明确：
 
 -   Fabric 1.0 需要要被安装到本地。本教程假设使用的是最新版本的 Fabric 。
 -   应用已经是一个包，且有一个可用的 :file:`setup.py` 文件（
-    :ref:`distribute-deployment` ）。
--   在下面的例子中，我们假设远程服务器使用 `mod_wsgi` 。当然，你可以使用你
-    自己喜欢的服务器，但是在示例中我们选择 Apache + `mod_wsgi` ，因为它们
-    设置方便，且在没有 root 权限情况下可以方便的重载应用。
+    :doc:`distribute` ）。
+-   在下面的例子中，我们假设远程服务器使用 `mod_wsgi` 。当然，你可以使
+    用你自己喜欢的服务器，但是在示例中我们选择 Apache + `mod_wsgi` ，因
+    为它们设置方便，且在没有 root 权限情况下可以方便的重载应用。
 
 创建第一个 Fabfile
 --------------------------
@@ -29,9 +28,9 @@ fabfile 是控制 Fabric 的东西，其文件名为 :file:`fabfile.py` ，由 `
 
     from fabric.api import *
 
-    # 使用远程命令的用户名
+    # the user to use for the remote commands
     env.user = 'appuser'
-    # 执行命令的服务器
+    # the servers where the commands are executed
     env.hosts = ['server1.example.com', 'server2.example.com']
 
     def pack():
@@ -41,27 +40,20 @@ fabfile 是控制 Fabric 的东西，其文件名为 :file:`fabfile.py` ，由 `
     def deploy():
         # figure out the package name and version
         dist = local('python setup.py --fullname', capture=True).strip()
-        filename = '%s.tar.gz' % dist
+        filename = f'{dist}.tar.gz'
 
         # upload the package to the temporary folder on the server
-        put('dist/%s' % filename, '/tmp/%s' % filename)
+        put(f'dist/{filename}', f'/tmp/{filename}')
 
         # install the package in the application's virtualenv with pip
-        run('/var/www/yourapplication/env/bin/pip install /tmp/%s' % filename)
+        run(f'/var/www/yourapplication/env/bin/pip install /tmp/{filename}')
 
         # remove the uploaded package
-        run('rm -r /tmp/%s' % filename)
+        run(f'rm -r /tmp/{filename}')
 
         # touch the .wsgi file to trigger a reload in mod_wsgi
         run('touch /var/www/yourapplication.wsgi')
 
-上例中的注释详细，应当是容易理解的。以下是 fabric 提供的最常用命令的简要说
-明：
-
--   `run` - 在远程服务器上执行一个命令
--   `local` - 在本地机器上执行一个命令
--   `put` - 上传文件到远程服务器上
--   `cd` - 在服务器端改变目录。必须与 `with` 语句联合使用。
 
 运行 Fabfile
 ----------------
@@ -93,12 +85,12 @@ fabfile 是控制 Fabric 的东西，其文件名为 :file:`fabfile.py` ，由 `
 2.  上传一个新的 :file:`application.wsgi` 文件和应用配置文件（如
     :file:`application.cfg` ）到服务器上。
 
-3.  创建一个新的用于 ``yourapplication`` 的 Apache 配置并激活它。要确保激
-    活 ``.wsgi`` 文件变动监视，这样在 touch 的时候可以自动重载应用。（更多
-    信息参见 :ref:`mod_wsgi-deployment` ）
+3.  创建一个新的用于 ``yourapplication`` 的 Apache 配置并激活它。要确保
+    激活 ``.wsgi`` 文件变动监视，这样在 touch 的时候可以自动重载应用。
+    参见 :doc:`/deploying/mod_wsgi` 。
 
-现在的问题是： :file:`application.wsgi` 和 :file:`application.cfg` 文件从
-哪里来？
+现在的问题是： :file:`application.wsgi` 和 :file:`application.cfg` 文件
+从哪里来？
 
 WSGI 文件
 -------------
@@ -116,7 +108,7 @@ WSGI 文件必须导入应用，并且还必须设置一个环境变量用于告
     app.config.from_object('yourapplication.default_config')
     app.config.from_envvar('YOURAPPLICATION_CONFIG')
 
-这个方法在 :ref:`config` 一节已作了详细的介绍。
+这个方法在 :doc:`/config` 一节已作了详细的介绍。
 
 配置文件
 ----------------------
@@ -149,14 +141,14 @@ Fabric 现在会连接所有服务器并运行 fabfile 中的所有命令。首�
 
 在前文的基础上，还有更多的方法可以全部署工作更加轻松：
 
--   创建一个初始化新服务器的 `bootstrap` 命令。它可以初始化一个新的 virtual
-    环境、正确设置 apache 等等。
+-   创建一个初始化新服务器的 `bootstrap` 命令。它可以初始化一个新的
+    virtual 环境、正确设置 apache 等等。
 -   把配置文件放入一个独立的版本库中，把活动配置的符号链接放在适当的地方。
--   还可以把应用代码放在一个版本库中，在服务器上检出最新版本后安装。这样你可以
-    方便的回滚到老版本。
+-   还可以把应用代码放在一个版本库中，在服务器上检出最新版本后安装。这
+    样你可以方便的回滚到老版本。
 -   挂接测试功能，方便部署到外部服务器进行测试。
 
-使用 Fabric 是一件有趣的事情。你会发现在电脑上打出 ``fab deploy`` 是非常神奇的。
-你可以看到你的应用被部署到一个又一个服务器上。
+使用 Fabric 是一件有趣的事情。你会发现在电脑上打出 ``fab deploy`` 是非常
+神奇的。你可以看到你的应用被部署到一个又一个服务器上。
 
 .. _Fabric: https://www.fabfile.org/

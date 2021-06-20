@@ -47,14 +47,14 @@ Flask 中的每个视图都是一个装饰器，它可以被注入额外的功�
 缓存装饰器
 -----------------
 
-假设有一个视图函数需要消耗昂贵的计算成本，因此你需要在一定时间内缓存这个视
-图的计算结果。这种情况下装饰器是一个好的选择。我们假设你像
-:ref:`caching-pattern` 方案中一样设置了缓存。
+假设有一个视图函数需要消耗昂贵的计算成本，因此你需要在一定时间内缓存这
+个视图的计算结果。这种情况下装饰器是一个好的选择。我们假设你像
+:doc:`caching` 方案中一样设置了缓存。
 
-下面是一个示例缓存函数。它根据一个特定的前缀（实际上是一个格式字符串）和请
-求的当前路径生成缓存键。注意，我们先使用了一个函数来创建装饰器，这个装饰器
-用于装饰函数。听起来拗口吧，确实有一点复杂，但是下面的示例代码还是很容易读
-懂的。
+下面是一个示例缓存函数。它根据一个特定的前缀（实际上是一个格式字符串）
+和请求的当前路径生成缓存键。注意，我们先使用了一个函数来创建装饰器，这
+个装饰器用于装饰函数。听起来拗口吧，确实有一点复杂，但是下面的示例代码
+还是很容易读懂的。
 
 被装饰代码按如下步骤工作
 
@@ -67,11 +67,11 @@ Flask 中的每个视图都是一个装饰器，它可以被注入额外的功�
     from functools import wraps
     from flask import request
 
-    def cached(timeout=5 * 60, key='view/%s'):
+    def cached(timeout=5 * 60, key='view/{}'):
         def decorator(f):
             @wraps(f)
             def decorated_function(*args, **kwargs):
-                cache_key = key % request.path
+                cache_key = key.format(request.path)
                 rv = cache.get(cache_key)
                 if rv is not None:
                     return rv
@@ -81,8 +81,8 @@ Flask 中的每个视图都是一个装饰器，它可以被注入额外的功�
             return decorated_function
         return decorator
 
-注意，以上代码假设存在一个可用的实例化的 `cache` 对象，更多信息参见
-:ref:`caching-pattern` 方案。
+注意，以上代码假设存在一个可用的实例化的 ``cache`` 对象，更多信息参见
+:doc:`caching` 方案。
 
 
 模板装饰器
@@ -123,8 +123,7 @@ Flask 中的每个视图都是一个装饰器，它可以被注入额外的功�
             def decorated_function(*args, **kwargs):
                 template_name = template
                 if template_name is None:
-                    template_name = request.endpoint \
-                        .replace('.', '/') + '.html'
+                    template_name = f"{request.endpoint.replace('.', '/')}.html"
                 ctx = f(*args, **kwargs)
                 if ctx is None:
                     ctx = {}

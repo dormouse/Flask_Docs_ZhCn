@@ -1,5 +1,3 @@
-.. _distribute-deployment:
-
 使用 Setuptools 部署
 =========================
 
@@ -14,29 +12,27 @@
   他包挂接，用以扩展包。
 - **安装管理**: :command:`pip` 可以为你安装其他库。
 
-如果你从 Python.org 安装了 Python 2 (>=2.7.9) 或者 Python 3 (>=3.4) ，那么
-已经安装好了 pip 和 setuptools 。否则需要自行安装它们。
-
 Flask 本身，以及其他所有在 PyPI 中可以找到的库要么是用 setuptools 分发的，
 要么是用 distutils 分发的。
 
 在这里我们假设你的应用名称是 :file:`yourapplication.py` ，且没有使用模块，
-而是一个 :ref:`包 <larger-applications>` 。关于如何把模块转换为包的信息参
-见 :ref:`larger-applications` 方案。
+而是一个包。如果您还没有把应用转换成一个包，那么参阅 :doc:`packages` ，
+学习一下如何把模块转换为包。
 
 可用的 setuptools 部署是进行复杂开发的第一步，它将使发布工作更加自动化。如
-果你想要完全自动化处理，请同时阅读 :ref:`fabric-deployment` 一节。
+果你想要完全自动化处理，请同时阅读 :doc:`fabric` 一节。
+
 
 基础设置脚本
 ------------------
 
-因为 Flask 依赖 setuptools ，所以安装好了 Flask ，就表示 setuptools 也已经
-安装好了。
+因为 Flask 依赖 setuptools ，所以安装好了 Flask ，就表示 setuptools 也
+已经安装好了。
 
-标准声明: :ref:`最好使用 virtualenv <virtualenv>` 。
+标准免责声明: :ref:`使用一个 virtualenv <install-create-env>` 。
 
-你的设置代码应用放在 :file:`setup.py` 文件中，这个文件应当位于应用旁边。这
-个文件名只是一个约定，但是最好不要改变，因为大家都会去找这个文件。
+您的设置代码应用放在 :file:`setup.py` 文件中，这个文件应当位于应用旁
+边。这个文件名只是一个约定，但是最好不要改变，因为大家都会去找这个文件。
 
 Flask 应用的基础 :file:`setup.py` 文件示例如下::
 

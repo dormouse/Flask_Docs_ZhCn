@@ -1,5 +1,3 @@
-.. _message-flashing-pattern:
-
 消息闪现
 ================
 
@@ -95,7 +93,7 @@
 
 使用 :func:`~flask.flash` 函数可以指定消息的类别::
 
-    flash(u'Invalid password provided', 'error')
+    flash('Invalid password provided', 'error')
 
 模板中的 :func:`~flask.get_flashed_messages` 函数也应当返回类别，显示消息的循环
 也要略作改变：

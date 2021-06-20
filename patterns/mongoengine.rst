@@ -1,10 +1,8 @@
-.. mongokit-pattern:
-
 通过 MongoEngine 使用 MongoDB
 =============================
 
-使用一个 MongoDB 之类的文档型数据库来代替关系 SQL 数据是很常见的。本方案演示
-如何使用文档映射库 `MongoEngine`_ 来集成 MongoDB 。
+使用一个 MongoDB 之类的文档型数据库来代替关系 SQL 数据是很常见的。本方
+案演示如何使用文档映射库 `MongoEngine`_ 来集成 MongoDB 。
 
 先准备好一个运行中的 MongoDB 服务和 `Flask-MongoEngine`_ ::
 
@@ -45,8 +43,8 @@
         director = me.StringField()
         actors = me.ListField()
 
-如果文档包含嵌套的字段，那么使用 ``EmbeddedDocument`` 来定义嵌套的文档，并
-在父文档中使用 ``EmbeddedDocumentField`` 声明相应的字段::
+如果文档包含嵌套的字段，那么使用 ``EmbeddedDocument`` 来定义嵌套的文
+档，并在父文档中使用 ``EmbeddedDocumentField`` 声明相应的字段::
 
     class Imdb(me.EmbeddedDocument):
         imdb_id = me.StringField()

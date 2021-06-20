@@ -1,5 +1,3 @@
-.. _logging:
-
 日志
 =======
 
@@ -22,16 +20,19 @@ Flask 使用标准 Python :mod:`logging` 。所有与 Flask 相关的消息都�
             app.logger.info('%s failed to log in', user.username)
             abort(401)
 
+如果您没有配置日志， Python 的默认日志级别一般是“ warning ”。低于配置
+的日志级别的日志是不可见的。
+
 
 基本配置
 -------------------
 
-当想要为项目配置日志时，应当在程序启动时尽早进行配置。
-如果完了，那么 :meth:`app.logger <flask.Flask.logger>` 就会成为缺省记录器。
-如果有可能的话，应当在创建应用对象之前配置日志。
+当想要为项目配置日志时，应当在程序启动时尽早进行配置。如果晚了，那么
+:meth:`app.logger <flask.Flask.logger>` 就会成为缺省记录器。如果有可能
+的话，应当在创建应用对象之前配置日志。
 
-这个例子使用 :func:`~logging.config.dictConfig` 来创建一个类似于 Flask 缺
-省配置的日志记录配置::
+这个例子使用 :func:`~logging.config.dictConfig` 来创建一个类似于 Flask
+缺省配置的日志记录配置::
 
     from logging.config import dictConfig
 

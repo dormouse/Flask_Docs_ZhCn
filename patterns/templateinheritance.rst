@@ -1,5 +1,3 @@
-.. _template-inheritance:
-
 模板继承
 ========
 

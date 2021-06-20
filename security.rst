@@ -4,7 +4,7 @@
 Web 应用常常会面对各种各样的安全问题，因此要把所有问题都解决是很难的。
 Flask 尝试为你解决许多安全问题，但是更多的还是只能靠你自己。
 
-.. _xss:
+.. _security-xss:
 
 跨站脚本攻击（ XSS ）
 ----------------------
@@ -82,7 +82,7 @@ CSRF 是什么以及在理论上如何避免这个问题。
 为什么 Flask 没有替你做这件事？因为这应该是表单验证框架做的事，而 Flask 不
 包括表单验证。
 
-.. _json-security:
+.. _security-json:
 
 JSON 安全
 ---------
@@ -192,8 +192,8 @@ Set-Cookie 选项
 对于会话 cookie 来说，如果
 :attr:`session.permanent <flask.session.permanent>` 被设置了，那么
 :data:`PERMANENT_SESSION_LIFETIME` 会被用于设置有效期。
-Flask 的缺省 cookie 实现会验证加密签名不会超过这个值。降低这个值有助于缓解
-重播攻击，可以在稍后发送被拦截的 cookie 。 ::
+Flask 的缺省 cookie 实现会验证加密签名不会超过这个值。降低这个值有助于
+缓解重播攻击，可以在稍后发送被拦截的 cookie 。 ::
 
     app.config.update(
         PERMANENT_SESSION_LIFETIME=600
@@ -207,8 +207,8 @@ Flask 的缺省 cookie 实现会验证加密签名不会超过这个值。降低
         session.permanent = True
         ...
 
-Use :class:`itsdangerous.TimedSerializer` to sign and validate other cookie
-values (or any values that need secure signatures).
+使用 :class:`itsdangerous.TimedSerializer` 来签名和验证其他 cookie 值（
+或者其他任何需要安全签名的值）。
 
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
@@ -226,3 +226,26 @@ HTTP Public Key Pinning (HPKP)
 
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning
 
+
+复制/粘贴到终端
+----------------------
+
+隐藏字符，例如退格字符（ ``\b`` 、 ``^H`` ）可以
+导致文本的 HTML 渲染结果与
+`粘贴到终端 <https://security.stackexchange.com/q/39118>`__ 的结果不
+同。
+
+例如， ``import y\bose\bm\bi\bt\be\b`` 在 HTML 中渲染为
+``import yosemite`` ，但是当粘贴到终端时，因为退格字符的作用，会变成
+``import os`` 。
+
+如果您预计用户会从您的站点复制和粘贴不受信任的代码，例如从技术博客上的
+用户评论中复制代码，那么请考虑增加额外的过滤，例如替换所有 ``\b`` 字符。
+
+.. code-block:: python
+
+    body = body.replace("\b", "")
+
+大多数现代终端会在粘贴时警告并删除隐藏字符，所以这不是绝对必需的。同时
+也会存在无法过滤的其他方式的危险命令。根据您网站的用途不同，一般最好显
+示关于代码复制的警告。

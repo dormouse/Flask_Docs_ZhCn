@@ -46,4 +46,4 @@
         files = request.files
         # At this point the hash is fully constructed.
         checksum = hash.hexdigest()
-        return 'Hash was: %s' % checksum
+        return f"Hash was: {checksum}"

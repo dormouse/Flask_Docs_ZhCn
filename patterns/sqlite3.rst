@@ -1,5 +1,3 @@
-.. _sqlite3:
-
 使用 SQLite 3
 =========================
 
@@ -56,7 +54,6 @@
     with app.app_context():
         # now you can use get_db()
 
-.. _easy-querying:
 
 简化查询
 -------------

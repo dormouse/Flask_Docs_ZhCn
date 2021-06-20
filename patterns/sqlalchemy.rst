@@ -1,11 +1,9 @@
-.. _sqlalchemy-pattern:
-
 使用 SQLAlchemy
 ==========================
 
-许多人喜欢使用 `SQLAlchemy`_ 来访问数据库。建议在你的 Flask 应用中使用包来
-代替模块，并把模型放入一个独立的模块中（参见 :ref:`larger-applications` ）。
-虽然这不是必须的，但是很有用。
+许多人喜欢使用 `SQLAlchemy`_ 来访问数据库。建议在你的 Flask 应用中使用
+包来代替模块，并把模型放入一个独立的模块中（参见 :doc:`packages` ）。虽
+然这不是必须的，但是很有用。
 
 有四种 SQLAlchemy 的常用方法，下面一一道来：
 
@@ -35,7 +33,7 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
     from sqlalchemy.orm import scoped_session, sessionmaker
     from sqlalchemy.ext.declarative import declarative_base
 
-    engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
+    engine = create_engine('sqlite:////tmp/test.db')
     db_session = scoped_session(sessionmaker(autocommit=False,
                                              autoflush=False,
                                              bind=engine)) 
@@ -78,7 +76,7 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
             self.email = email
 
         def __repr__(self):
-            return '<User %r>' % (self.name)
+            return f'<User {self.name!r}>'
 
 可以使用 `init_db` 函数来创建数据库：
 
@@ -96,13 +94,12 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
 查询很简单：
 
 >>> User.query.all()
-[<User u'admin'>]
+[<User 'admin'>]
 >>> User.query.filter(User.name == 'admin').first()
-<User u'admin'>
+<User 'admin'>
 
 .. _SQLAlchemy: https://www.sqlalchemy.org/
-.. _declarative:
-   https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/
+.. _declarative: https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/
 
 人工对象关系映射
 --------------------------------
@@ -116,7 +113,7 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
     from sqlalchemy import create_engine, MetaData
     from sqlalchemy.orm import scoped_session, sessionmaker
 
-    engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
+    engine = create_engine('sqlite:////tmp/test.db')
     metadata = MetaData()
     db_session = scoped_session(sessionmaker(autocommit=False,
                                              autoflush=False,
@@ -147,7 +144,7 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
             self.email = email
 
         def __repr__(self):
-            return '<User %r>' % (self.name)
+            return f'<User {self.name!r}>'
 
     users = Table('users', metadata,
         Column('id', Integer, primary_key=True),
@@ -166,7 +163,7 @@ SQL 抽象层
 
     from sqlalchemy import create_engine, MetaData, Table
 
-    engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
+    engine = create_engine('sqlite:////tmp/test.db')
     metadata = MetaData(bind=engine)
 
 然后你要么像前文中一样在代码中声明表，要么自动载入它们::
@@ -185,19 +182,19 @@ SQLAlchemy 会自动提交。
 可以直接使用引擎或连接来查询数据库：
 
 >>> users.select(users.c.id == 1).execute().first()
-(1, u'admin', u'admin@localhost')
+(1, 'admin', u'admin@localhost')
 
 查询结果也是类字典元组：
 
 >>> r = users.select(users.c.id == 1).execute().first()
 >>> r['name']
-u'admin'
+'admin'
 
 你也可以把 SQL 语句作为字符串传递给
 :meth:`~sqlalchemy.engine.base.Connection.execute` 方法：
 
 >>> engine.execute('select * from users where id = :1', [1]).first()
-(1, u'admin', u'admin@localhost')
+(1, 'admin', u'admin@localhost')
 
 关于 SQLAlchemy 的更多信息请移步其
 `官方网站 <https://www.sqlalchemy.org/>`_ 。

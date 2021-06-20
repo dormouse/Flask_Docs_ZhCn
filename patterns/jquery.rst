@@ -52,23 +52,8 @@ jQuery 的网站后，访问你的网站时，页面可能会更快地载入，�
 .. sourcecode:: html+jinja
 
    <script type=text/javascript>
-     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+     $SCRIPT_ROOT = {{ request.script_root|tojson }};
    </script>
-
-在 Flask 0.10 版本以前版本中，使用 ``|safe`` 是有必要的，是为了使 Jinja 不
-要转义 JSON 编码的字符串。通常这样做不是必须的，但是在 ``script`` 内部我们
-需要这么做。
-
-.. admonition:: 进一步说明
-
-   在 HTML 中， `script` 标记是用于声明 `CDATA` 的，也就是说声明的内
-   容不会被解析。``<script>`` 与 ``</script>`` 之间的内容都会被作为脚
-   本处理。这也意味着在 script 标记之间不会存在任何 ``</`` 。在这里
-   ``|tojson`` 会正确处理问题，并为你转义斜杠（
-   ``{{ "</script>"|tojson|safe }}`` 会被渲染为 ``"<\/script>"`` ）。
-
-   在 Flask 0.10 版本中更进了一步，把所有 HTML 标记都用 unicode 转义
-   了，这样使 Flask 自动把 HTML 转换为安全标记。
 
 
 JSON 视图函数

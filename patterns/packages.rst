@@ -1,6 +1,4 @@
-.. _larger-applications:
-
-大型应用
+大型应用作为一个包
 ===================
 
 假设有一个简单的应用结构如下::
@@ -15,9 +13,8 @@
             login.html
             ...
 
-这个结构对于小应用来说没有问题，但是对于大应用来说就不好了，应当用包来代替
-模块。
-:ref:`教程项目 <tutorial>` 就使用了包方案，参见
+这个结构对于小应用来说没有问题，但是对于大应用来说应当用包来代替模块。
+:doc:`/tutorial/index` 就使用了包方案，参见
 :gh:`示例代码 <examples/tutorial>` 。
 
 
@@ -58,13 +55,51 @@
         ],
     )
 
-为了运行应用，需要导出一个环境变量，告诉 Flask 应用实例的位置::
+为了运行应用，需要导出一个环境变量，告诉 Flask 应用实例的位置：
 
-    $ export FLASK_APP=yourapplication
+.. tabs::
 
-如果位于项目文件夹之外，请确保提供绝对路径。同样可以这样打开开发功能::
+   .. group-tab:: Bash
 
-    $ export FLASK_ENV=development
+      .. code-block:: text
+
+         $ export FLASK_APP=yourapplication
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_APP=yourapplication
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_APP = "yourapplication"
+
+
+如果位于项目文件夹之外，请确保提供绝对路径。同样可以这样打开开发功能：
+
+.. tabs::
+
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+         $ export FLASK_ENV=development
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_ENV=development
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_ENV = "development"
+
 
 为了安装并运行应用，需要执行以下命令::
 
@@ -118,7 +153,7 @@
    们在文件底部才这样做。
 
    但是这种方式还是有些问题，因为没有办法使用装饰器。要找到解决问题的
-   灵感请参阅 :ref:`becomingbig` 一节。
+   灵感请参阅 :doc:`/becomingbig` 一节。
 
 .. _working-with-modules:
 
@@ -126,5 +161,5 @@
 -----------------------
 
 对于大型应用推荐把应用分隔为小块，每个小块使用蓝图辅助执行。关于这个主题的
-介绍请参阅 :ref:`blueprints` 一节 。
+介绍请参阅 :doc:`/blueprints` 一节 。
 
