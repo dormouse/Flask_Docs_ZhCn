@@ -115,21 +115,31 @@
 时候会重启服务器。在学习本教程的过程中，你可以一直让它保持运行，只需要刷新
 页面就可以了。
 
-在 Linux and Mac 下：
+.. tabs::
 
-.. code-block:: none
+   .. group-tab:: Bash
 
-    $ export FLASK_APP=flaskr
-    $ export FLASK_ENV=development
-    $ flask run
+      .. code-block:: text
 
-在 Windows 下，使用 ``set`` 代替 ``export`` ：
+         $ export FLASK_APP=flaskr
+         $ export FLASK_ENV=development
+         $ flask run
 
-.. code-block:: none
+   .. group-tab:: CMD
 
-    > set FLASK_APP=flaskr
-    > set FLASK_ENV=development
-    > flask run
+      .. code-block:: text
+
+         > set FLASK_APP=flaskr
+         > set FLASK_ENV=development
+         > flask run
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_APP = "flaskr"
+         > $env:FLASK_ENV = "development"
+         > flask run
 
 可以看到类似如下输出内容：
 

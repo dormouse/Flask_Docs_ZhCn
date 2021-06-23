@@ -1,16 +1,13 @@
-.. _templates:
-
-
 模板
 =========
 
-Flask 使用 Jinja2 作为默认模板引擎。你完全可以使用其它模板引擎。但是不管你
-使用哪种模板引擎，都必须安装 Jinja2 。因为使用 Jinja2 可以让 Flask 使用更多
-依赖于这个模板引擎的扩展。
+Flask 使用 Jinja2 作为默认模板引擎。你完全可以使用其它模板引擎。但是不
+管你使用哪种模板引擎，都必须安装 Jinja2 。因为使用 Jinja2 可以让 Flask
+使用更多依赖于这个模板引擎的扩展。
 
-本文只是简单介绍如何在 Flask 中使用 Jinja2 。如果要详细了解这个模板引擎的
-语法，请查阅
-`Jinja2 模板官方文档 <http://jinja.pocoo.org/docs/templates/>`_ 。
+本文只是简单介绍如何在 Flask 中使用 Jinja2 。如果要详细了解这个模板引擎
+的语法，请查阅
+`Jinja2 模板官方文档 <https://jinja.palletsprojects.com/templates/>`_ 。
 
 
 Jinja 设置
@@ -86,47 +83,19 @@ Jinja 设置
 
       {% from '_helpers.html' import my_macro with context %}
 
-标准过滤器
-----------------
-
-在 Flask 中的模板中添加了以下 Jinja2 本身没有的过滤器：
-
-.. function:: tojson
-   :noindex:
-
-   这个函数可以把对象转换为 JSON 格式。如果你要动态生成 JavaScript ，那么
-   这个函数非常有用。
-
-
-   .. sourcecode:: html+jinja
-
-       <script type=text/javascript>
-           doSomethingWith({{ user.username|tojson }});
-       </script>
-
-   在一个 *单引号* HTML 属性中使用 `|tojson` 的输出也是安全的：
-
-   .. sourcecode:: html+jinja
-
-       <button onclick='doSomethingWith({{ user.username|tojson }})'>
-           Click me
-       </button>
-
-   请注意，在 0.10 版本之前的 Flask 中，如果在 ``script`` 里面使用
-   ``| tojson`` 的输出，请确保用 ``| safe`` 禁用转义。
-   在 Flask 0.10 及更高版本中，这会自动发生。
 
 控制自动转义
 ------------------------
 
-自动转义是指自动对特殊字符进行转义。特殊字符是指 HTML （ 或 XML 和 XHTML ）
-中的 ``&`` 、 ``>`` 、 ``<`` 、 ``"`` 和 ``'`` 。因为这些特殊字符代表了特
-殊的意思，所以如果要在文本中使用它们就必须把它们替换为“实体”。如果不转义
-，那么用户就无法使用这些字符，而且还会带来安全问题。（参见 :ref:`xss` ）
+自动转义是指自动对特殊字符进行转义。特殊字符是指 HTML （ 或 XML 和
+XHTML ）中的 ``&`` 、 ``>`` 、 ``<`` 、 ``"`` 和 ``'`` 。因为这些特殊字
+符代表了特殊的意思，所以如果要在文本中使用它们就必须把它们替换为“实
+体”。如果不转义，那么用户就无法使用这些字符，而且还会带来安全问题。（
+参见 :ref:`security-xss` ）
 
-有时候，如需要直接把 HTML 植入页面的时候，可能会需要在模板中关闭自动转义功
-能。这个可以直接植入的 HTML 一般来自安全的来源，例如一个把标记语言转换为
-HTML 的 转换器。
+有时候，如需要直接把 HTML 植入页面的时候，可能会需要在模板中关闭自动转
+义功能。这个可以直接植入的 HTML 一般来自安全的来源，例如一个把标记语言
+转换为 HTML 的转换器。
 
 有三种方法可以控制自动转义：
 
@@ -193,8 +162,8 @@ HTML 的 转换器。
 
     @app.context_processor
     def utility_processor():
-        def format_price(amount, currency=u'€'):
-            return u'{0:.2f}{1}'.format(amount, currency)
+        def format_price(amount, currency="€"):
+            return f"{amount:.2f}{currency}"
         return dict(format_price=format_price)
 
 上例中的环境处理器把 `format_price` 函数传递给了所有模板::

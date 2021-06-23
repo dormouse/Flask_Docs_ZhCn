@@ -17,40 +17,80 @@ Flask 提供了一个 ``run`` 命令，该命令用来以开发服务器运行�
 通过命令行使用开发服务器
 ------------------------
 
-强烈推荐开发时使用 :command:`flask` 命令行脚本（ :ref:`cli` ），因为有强大
-的重载功能，提供了超好的重载体验。基本用法如下::
+推荐使用 ``flask run`` 命令行脚本运行开发服务器。这需要设置
+``FLASK_APP`` 环境变量指向您的应用，且设置 ``FLASK_ENV=development`` ，
+以用于启用开发模式。
 
-    $ export FLASK_APP=my_application
-    $ export FLASK_ENV=development
-    $ flask run
+.. tabs::
 
-这样做开始了开发环境（包括交互调试器和重载器），并在
-*http://localhost:5000/* 提供服务。
+   .. group-tab:: Bash
 
-通过使用不同 ``run`` 参数可以控制服务器的单独功能。例如禁用重载器::
+      .. code-block:: text
 
-    $ flask run --no-reload
+         $ export FLASK_APP=hello
+         $ export FLASK_ENV=development
+         $ flask run
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_APP=hello
+         > set FLASK_ENV=development
+         > flask run
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_APP = "hello"
+         > $env:FLASK_ENV = "development"
+         > flask run
+
+这样就启动了开发环境，包括交互调试器和重载器，并在
+http://localhost:5000/ 提供服务。使用 ``flask run --help`` 命令可以查看
+可用的选项， :doc:`/cli` 提供了关于配置和使用 CLI 的详细介绍。
 
 .. note::
 
-    在 Flask 1.0 版之前， :envvar:`FLASK_ENV` 环境不可用。开启调试模式
-    需要使用 ``FLASK_DEBUG=1`` 。这样做还是有用的，但是建议如前文所述
-    使用设置开发环境变量来实现。
+    Flask 1.0 版之前， ``FLASK_ENV`` 环境变量是不可用的，您需要导出
+    ``FLASK_DEBUG=1`` 来开启调试模式。这样做仍能控制调试模式的开关，
+    但是推荐使用前述的方法。
+
+
+延迟加载或热加载
+~~~~~~~~~~~~~~~~~~~~~
+
+当重加载器使用 ``flask run`` 命令时，服务器将持续运行。哪怕您在代码中引
+入了语法错误或其他初始化错误。访问网站时会交互式调试器中显示错误，而不
+是使服务器崩溃。此功能称为“延迟加载”。
+
+如果在调用 ``flask run`` 时已经存在语法错误，它将立即失败并显示回溯，而
+不是等到网站被访问。 这是为了使错误最初更明显同时仍然允许服务器在重新加
+载时处理错误。
+
+要覆盖此行为并始终立即失败，即使在重新加载时，应当传递
+``--eager-loading`` 参数。要始终保持服务器运行，即使在最初的调用中，传
+递 ``--lazy-loading`` 参数。 
+
 
 通过代码使用开发服务器
 ------------------------
 
-另一种方法是通过 :meth:`Flask.run` 方法启动应用，这样立即运行一个本地服务
-器，与使用 :command:`flask` 脚本效果相同。
+另一种方法是在 Python 中通过 :meth:`Flask.run` 方法启动应用。这个方法接
+受的参数与 CLI 的相似。主要的不同是重新加载时如果有错误，服务器会崩溃。
 
-示例::
+``debug=True`` 参数可以开启调试器和重载器，但是要开启开发模式仍需要设置
+``FLASK_ENV=development`` 环境变量。
 
-    if __name__ == '__main__':
-        app.run()
+应当把调用放在 main 代码块中，否则当以后在生产环境中导入和运行应用时会
+产生干扰。
 
-通常情况下这样做不错，但是对于开发就不行了。正是基于这个原因自 Flask 0.11
-版开始推荐使用 :command:`flask` 方法。这是因为重载的工作机制有一些奇怪的副
-作用（如执行某些代码两次，有时会在没有消息的情况下崩溃，或者在某个语法或导
-入错误发生时宕机）。
+.. code-block:: python
 
-然而，它仍然是一个调用非自动重装应用程序的非常有效的方法。
+    if __name__ == "__main__":
+        app.run(debug=True)
+
+.. code-block:: text
+
+    $ python hello.py

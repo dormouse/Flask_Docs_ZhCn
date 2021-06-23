@@ -96,7 +96,7 @@ SQL 文件来插入数据。
     def runner(app):
         return app.test_cli_runner()
 
-:func:`tempfile.mkstemp` 创建并打开一个临时文件，返回该文件对象和路径。
+:func:`tempfile.mkstemp` 创建并打开一个临时文件，返回该文件描述符和路径。
 ``DATABASE`` 路径被重载，这样它会指向临时路径，而不是实例文件夹。设置好
 路径之后，数据库表被创建，然后插入数据。测试结束后，临时文件会被关闭并
 删除。
@@ -268,13 +268,13 @@ Pytest 通过匹配固件函数名称和测试函数的参数名称来使用固�
 一个 ``200 OK`` :attr:`~Response.status_code` 。如果渲染失败，
 Flask 会返回一个 ``500 Internal Server Error`` 代码。
 
-当注册视图重定向到登录视图时， :attr:`~Response.headers` 会有一个包含登录
-URL 的 ``Location`` 头部。
+当注册视图重定向到登录视图时， :attr:`~Response.headers` 会有一个包含登
+录 URL 的 ``Location`` 头部。
 
-:attr:`~Response.data` 以字节方式包含响应的身体。如果想要检测渲染页面中的
-某个值，请 ``data`` 中检测。字节值只能与字节值作比较，如果想比较 Unicode
-文本，请使用
-:meth:`get_data(as_text=True) <werkzeug.wrappers.BaseResponse.get_data>`
+:attr:`~Response.data` 以字节方式包含响应的身体。如果想要检测渲染页面中
+的某个值，请在 ``data`` 中检测。字节值只能与字节值作比较，如果想比较文
+本，请使用
+:meth:`get_data(as_text=True) <werkzeug.wrappers.Response.get_data>` 。
 
 ``pytest.mark.parametrize`` 告诉 Pytest 以不同的参数运行同一个测试。
 这里用于测试不同的非法输入和出错信息，避免重复写三次相同的代码。

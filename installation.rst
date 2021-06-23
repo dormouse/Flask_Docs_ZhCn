@@ -52,10 +52,8 @@ Python 版本
 虚拟环境可以为每一个项目安装独立的 Python 库，这样就可以隔离不同项目之
 间的 Python 库，也可以隔离项目与操作系统之间的 Python 库。
 
-Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。如果你使用的是较新的
-Python 版本，那么请接着阅读本文下面的内容。
+Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。
 
-如果你使用 Python 2 ，请首先参阅 :ref:`install-install-virtualenv` 。
 
 .. _install-create-env:
 

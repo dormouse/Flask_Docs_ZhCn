@@ -1,5 +1,3 @@
-.. _testing:
-
 测试 Flask 应用
 ==========================
 
@@ -22,8 +20,12 @@ Flask 提供的测试渠道是使用 Werkzeug 的 :class:`~werkzeug.test.Client`
 应用
 ----
 
-首先，我们需要一个用来测试的应用。我们将使用 :ref:`tutorial` 中的应用。如果
-你还没有这个应用，可以下载 :gh:`示例代码 <examples/tutorial>` 。
+首先，我们需要一个用来测试的应用。我们将使用 :doc:`tutorial/index` 中的
+应用。如果你还没有这个应用，可以从
+:gh:`the examples <examples/tutorial>` 下载。
+
+为了能够正确地导入 ``flaskr`` 模块，我们需要在 ``tutorial`` 文件夹中运
+行 ``pip install -e`` 。
 
 测试骨架
 --------------------
@@ -40,7 +42,7 @@ pytest 自动发现。
 
     import pytest
 
-    from flaskr import flaskr
+    from flaskr import create_app
 
 
     @pytest.fixture
@@ -100,12 +102,12 @@ pytest 自动发现。
         rv = client.get('/')
         assert b'No entries here so far' in rv.data
 
-注意，我们的调试函数都是以 `test` 开头的。这样 `pytest`_ 就会自动识别这些是
-用于测试的函数并运行它们。
+注意，我们的调试函数都是以 `test` 开头的。这样 `pytest`_ 就会自动识别这
+些是用于测试的函数并运行它们。
 
-通过使用 ``client.get`` ，可以向应用的指定 URL 发送 HTTP ``GET`` 请求，其返
-回的是一个 :class:`~flask.Flask.response_class` 对象。我们可以使用
-:attr:`~werkzeug.wrappers.BaseResponse.data` 属性来检查应用的返回值（字符串
+通过使用 ``client.get`` ，可以向应用的指定 URL 发送 HTTP ``GET`` 请求，
+其返回的是一个 :class:`~flask.Flask.response_class` 对象。我们可以使用
+:attr:`~werkzeug.wrappers.Response.data` 属性来检查应用的返回值（字符串
 类型）。在本例中，我们检查输出是否包含 ``'No entries here so far'`` 。
 
 再次运行测试，会看到通过了一个测试::
@@ -145,16 +147,19 @@ pytest 自动发现。
     def test_login_logout(client):
         """Make sure login and logout works."""
 
-        rv = login(client, flaskr.app.config['USERNAME'], flaskr.app.config['PASSWORD'])
+        username = flaskr.app.config["USERNAME"]
+        password = flaskr.app.config["PASSWORD"]
+
+        rv = login(client, username, password)
         assert b'You were logged in' in rv.data
 
         rv = logout(client)
         assert b'You were logged out' in rv.data
 
-        rv = login(client, flaskr.app.config['USERNAME'] + 'x', flaskr.app.config['PASSWORD'])
+        rv = login(client, f"{username}x", password)
         assert b'Invalid username' in rv.data
 
-        rv = login(client, flaskr.app.config['USERNAME'], flaskr.app.config['PASSWORD'] + 'x')
+        rv = login(client, username, f'{password}x')
         assert b'Invalid password' in rv.data
 
 测试添加消息
@@ -210,7 +215,7 @@ pytest 自动发现。
 所有其他与环境绑定的对象也可以这样使用。
 
 如果要使用不同的配置来测试应用，而且没有什么好的测试方法，那么可以考虑使用
-应用工厂（参见 :ref:`app-factories` ）。
+应用工厂（参见 :doc:`patterns/appfactories` ）。
 
 注意，在测试请求环境中
 :meth:`~flask.Flask.before_request` 和 :meth:`~flask.Flask.after_request`
@@ -282,7 +287,8 @@ pytest 自动发现。
         with app.test_client() as c:
             resp = c.get('/users/me')
             data = json.loads(resp.data)
-            self.assert_equal(data['username'], my_user.username)
+            assert data['username'] == my_user.username
+
 
 保持环境
 --------

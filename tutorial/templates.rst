@@ -24,7 +24,7 @@ Jinja 看上去并且运行地很像 Python 。 Jinja 语句与模板中的静�
 Python 不同，代码块使用分界符分隔，而不是使用缩进分隔。因为代码块内的
 静态文本可以会改变缩进。
 
-.. _Jinja: http://jinja.pocoo.org/docs/templates/
+.. _Jinja: https://jinja.palletsprojects.com/templates/
 .. _HTML: https://developer.mozilla.org/docs/Web/HTML
 
 

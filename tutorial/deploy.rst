@@ -25,7 +25,8 @@
     $ python setup.py bdist_wheel
 
 构建的文件为 ``dist/flaskr-1.0.0-py3-none-any.whl`` 。文件名由项目名称、版
-本号和一些关于项目安装要求的标记组成。
+本号和一些关于项目安装要求的标记组成，形如：
+{project name}-{version}-{python tag}-{abi tag}-{platform tag} 。
 
 复制这个文件到另一台机器， :ref:`创建一个新的虚拟环境 <install-create-env>`
 ，然后用 ``pip`` 安装这个文件。
@@ -39,10 +40,28 @@ Pip 会安装项目和相关依赖。
 既然这是一个不同的机器，那么需要再次运行 ``init-db`` 命令，在实例文件夹中
 创建数据库。
 
-.. code-block:: none
+.. tabs::
 
-    $ export FLASK_APP=flaskr
-    $ flask init-db
+   .. group-tab:: Bash
+
+      .. code-block:: text
+
+         $ export FLASK_APP=flaskr
+         $ flask init-db
+
+   .. group-tab:: CMD
+
+      .. code-block:: text
+
+         > set FLASK_APP=flaskr
+         > flask init-db
+
+   .. group-tab:: Powershell
+
+      .. code-block:: text
+
+         > $env:FLASK_APP = "flaskr"
+         > flask init-db
 
 当 Flask 探测到它已被安装（不在编辑模式下），它会与前文不同，使用
 ``venv/var/flaskr-instance`` 作为实例文件夹。

@@ -1,5 +1,3 @@
-.. _tutorial:
-
 教程
 ========
 
@@ -33,20 +31,21 @@
 
 .. _官方教程: https://docs.python.org/3/tutorial/
 
-本教程的目的是提供一个良好的起点，因此不会涵盖 Flask 的所有内容。如果想了解
-Flask 能够做什么，可以通过 :ref:`quickstart` 作一个大概的了解，想深入了解的
-话那就只有仔细阅读所有文档了。本教程只会涉及 Flask 和 Python 。在实际项目中
-可以通过使用 :ref:`extensions` 或者其他的库，达到事半功倍的效果。
+本教程不会涵盖 Flask 的所有内容，其目的是提供一个良好的起点。如果想了解
+Flask 能够做什么，可以通过 :doc:`/quickstart` 作一个大概的了解，想深入
+了解的话那就只有仔细阅读所有文档了。本教程只会涉及 Flask 和 Python 。在
+实际项目中可以通过使用 :doc:`/extensions` 或者其他的库，达到事半功倍的
+效果。
 
 .. image:: flaskr_login.png
     :align: center
     :class: screenshot
     :alt: screenshot of login page
 
-Flask 是非常灵活的，不需要使用任何特定的项目或者代码布局。但是对于初学者，
-使用结构化的方法是有益无害的，亦即本教程会有一点样板的意思。本教程可以让
-初学者避免一些常见的陷阱，并且完成后的应用可以方便的扩展。一旦熟悉了
-Flask 之后就可以跳出这个结构，充分享受 Flask 的灵活性。
+Flask 是非常灵活的，不需要使用任何特定的项目或者代码布局。但是对于初学
+者，使用结构化的方法是有益无害的，亦即本教程会有一点样板的意思。本教程
+可以让初学者避免一些常见的陷阱，并且完成后的应用可以方便的扩展。一旦熟
+悉了 Flask 之后就可以跳出这个结构，充分享受 Flask 的灵活性。
 
 .. image:: flaskr_edit.png
     :align: center
@@ -54,6 +53,7 @@ Flask 之后就可以跳出这个结构，充分享受 Flask 的灵活性。
     :alt: screenshot of login page
 
 如果在学习教程过程中需要比较项目代码与最终结果的差异，那么可以在
-:gh:`Flask 官方资源库的示例 <examples/tutorial>` 中找到完成的教程项目代码。
+:gh:`Flask 官方资源库的示例 <examples/tutorial>` 中找到完成的教程项目代
+码。
 
 下面请阅读 :doc:`layout` 。

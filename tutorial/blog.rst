@@ -115,7 +115,7 @@
 ``loop.last`` 是一个 `Jinja for 循环`_ 内部可用的特殊变量，它用于在每个
 博客帖子后面显示一条线来分隔帖子，最后一个帖子除外。
 
-.. _Jinja for 循环: http://jinja.pocoo.org/docs/templates/#for
+.. _Jinja for 循环: https://jinja.palletsprojects.com/templates/#for
 
 
 创建
@@ -194,7 +194,7 @@
         ).fetchone()
 
         if post is None:
-            abort(404, "Post id {0} doesn't exist.".format(id))
+            abort(404, f"Post id {id} doesn't exist.")
 
         if check_author and post['author_id'] != g.user['id']:
             abort(403)

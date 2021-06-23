@@ -119,13 +119,13 @@ Flaskr 会把用户数据储存在 ``user`` 表中，把博客内容储存在 ``
         init_db()
         click.echo('Initialized the database.')
 
-:meth:`open_resource() <Flask.open_resource>` 打开一个文件，该文件名是相对于
-``flaskr`` 包的。这样就不需要考虑以后应用具体部署在哪个位置。 ``get_db``
-返回一个数据库连接，用于执行文件中的命令。
+:meth:`open_resource() <Flask.open_resource>` 打开一个文件，该文件名是
+相对于 ``flaskr`` 包的。这样就不需要考虑以后应用具体部署在哪个位置。
+``get_db`` 返回一个数据库连接，用于执行文件中的命令。
 
 :func:`click.command` 定义一个名为 ``init-db`` 命令行，它调用
 ``init_db`` 函数，并为用户显示一个成功的消息。
-更多关于如何写命令行的内容请参阅 ref:`cli` 。
+更多关于如何写命令行的内容请参阅 doc:`/cli` 。
 
 
 在应用中注册
@@ -172,9 +172,9 @@ Flask 在返回响应后进行清理的时候调用此函数。
 
 .. note::
 
-    如果你还在运行着前一页的服务器，那么现在要么停止该服务器，要么在新的
-    终端中运行这个命令。如果是新的终端请记住在进行项目文件夹并激活环境，
-    参见 :ref:`install-activate-env` 。同时还要像前一页所述设置
+    如果你还在运行着前一页的服务器，那么现在要么停止该服务器，要么在新
+    的终端中运行这个命令。如果是新的终端请记住在进行项目文件夹并激活环
+    境，参见 :doc:`/installation` 。同时还要像前一页所述设置
     ``FLASK_APP`` 和 ``FLASK_ENV`` 。
 
 运行 ``init-db`` 命令：
@@ -184,7 +184,7 @@ Flask 在返回响应后进行清理的时候调用此函数。
     $ flask init-db
     Initialized the database.
 
-现在会有一个 ``flaskr.sqlite`` 文件出现在项目所在文件夹的 ``instance`` 文件夹
-中。
+现在会有一个 ``flaskr.sqlite`` 文件出现在项目所在文件夹的 ``instance``
+文件夹中。
 
 下面请阅读 :doc:`views` 。

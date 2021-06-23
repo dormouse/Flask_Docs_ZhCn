@@ -84,7 +84,7 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
             elif db.execute(
                 'SELECT id FROM user WHERE username = ?', (username,)
             ).fetchone() is not None:
-                error = 'User {} is already registered.'.format(username)
+                error = f"User {username} is already registered."
 
             if error is None:
                 db.execute(

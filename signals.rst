@@ -1,5 +1,3 @@
-.. _signals:
-
 信号
 =======
 
@@ -137,7 +135,7 @@ Flask 自身有许多信号，其他扩展可能还会带来更多信号。请�
 信号与 Flask 的请求环境
 -----------------------------------
 
-信号在接收时，完全支持 :ref:`request-context` 。在
+信号在接收时，完全支持 :doc:`reqcontext` 。在
 :data:`~flask.request_started` 和 :data:`~flask.request_finished` 本地环境变量
 始终可用。因此你可以依赖 :class:`flask.g` 及其他本地环境变量。
 请注意在 :ref:`signals-sending` 中所述的限制和
@@ -154,7 +152,7 @@ Blinker 1.1 版本中你还可以通过使用新的
 
     @template_rendered.connect_via(app)
     def when_template_rendered(sender, template, context, **extra):
-        print 'Template %s is rendered with %s' % (template.name, context)
+        print f'Template {template.name} is rendered with {context}'
 
 
 核心信号
