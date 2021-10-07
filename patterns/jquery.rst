@@ -20,8 +20,7 @@ JSON 是一种非常轻巧的传输格式，非常类似于 Python 原语（数�
 
 .. sourcecode:: html
 
-   <script type=text/javascript src="{{
-     url_for('static', filename='jquery.js') }}"></script>
+   <script src="{{ url_for('static', filename='jquery.js') }}"></script>
 
 另一个方法是使用 Google 的 `AJAX 库 API
 <https://developers.google.com/speed/libraries/>`_ 来载入 jQuery：
@@ -51,7 +50,7 @@ jQuery 的网站后，访问你的网站时，页面可能会更快地载入，�
 
 .. sourcecode:: html+jinja
 
-   <script type=text/javascript>
+   <script>
      $SCRIPT_ROOT = {{ request.script_root|tojson }};
    </script>
 
@@ -95,7 +94,7 @@ HTML
 
 .. sourcecode:: html
 
-    <script type=text/javascript>
+    <script>
       $(function() {
         $('a#calculate').bind('click', function() {
           $.getJSON($SCRIPT_ROOT + '/_add_numbers', {

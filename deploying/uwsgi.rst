@@ -60,5 +60,5 @@ Python 版本相应地加上 ``--plugin python`` 或者 ``--plugin python3`` 。
 
 .. _nginx: https://nginx.org/
 .. _lighttpd: https://www.lighttpd.net/
-.. _cherokee: http://cherokee-project.com/
+.. _cherokee: https://cherokee-project.com/
 .. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/

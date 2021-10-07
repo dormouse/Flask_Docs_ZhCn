@@ -11,14 +11,15 @@
 跟踪器来提问。如果有关于 Flask 使用方面或者你自己代码的方面的问题，请使用下
 列途径之一提问：
 
--   Discord chat 上的 ``#get-help`` 频道：
+-   Discord chat 上的 ``#questions`` 频道：
     https://discord.gg/pallets
 -   邮件列表 flask@python.org 用于长期或者大型问题讨论。
 -   在 `Stack Overflow`_ 上提问。提问前请先使用以下方法在 Google 上搜索：
     ``site:stackoverflow.com flask {search term, exception message, etc.}``
+-   在我们的 `GitHub 讨论`_ 上提问。
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/flask?tab=Frequent
-
+.. _GitHub 讨论: https://github.com/pallets/flask/discussion
 
 报告问题
 ----------------
@@ -82,7 +83,7 @@
 
     .. code-block:: text
 
-        git remote add fork https://github.com/{username}/flask
+        $ git remote add fork https://github.com/{username}/flask
 
 -   创建一个 virtualenv 。
 

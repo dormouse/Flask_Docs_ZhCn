@@ -43,21 +43,21 @@ pytest 自动发现。
     import pytest
 
     from flaskr import create_app
+    from flaskr.db import init_db
 
 
     @pytest.fixture
     def client():
-        db_fd, flaskr.app.config['DATABASE'] = tempfile.mkstemp()
-        flaskr.app.config['TESTING'] = True
+        db_fd, db_path = tempfile.mkstemp()
+        app = create_app({'TESTING': True, 'DATABASE': db_path})
 
-        with flaskr.app.test_client() as client:
-            with flaskr.app.app_context():
-                flaskr.init_db()
+        with app.test_client() as client:
+            with app.app_context():
+                init_db()
             yield client
 
         os.close(db_fd)
-        os.unlink(flaskr.app.config['DATABASE'])
-
+        os.unlink(db_path)
 
 这个客户端固件会被每个独立的测试调用。它提供了一个简单的应用接口，用于向应
 用发送请求，还可以为我们追踪 cookie 。
@@ -204,13 +204,13 @@ pytest 自动发现。
 个环境中可以像在视图函数中一样操作 :class:`~flask.request` 、
 :class:`~flask.g` 和 :class:`~flask.session` 对象。示例::
 
-    import flask
+    from flask import Flask, request
 
-    app = flask.Flask(__name__)
+    app = Flask(__name__)
 
     with app.test_request_context('/?name=Peter'):
-        assert flask.request.path == '/'
-        assert flask.request.args['name'] == 'Peter'
+        assert request.path == '/'
+        assert request.args['name'] == 'Peter'
 
 所有其他与环境绑定的对象也可以这样使用。
 
@@ -224,7 +224,7 @@ pytest 自动发现。
 :meth:`~flask.Flask.before_request` 函数和正常情况下一样被调用，那么需要自
 己调用 :meth:`~flask.Flask.preprocess_request` ::
 
-    app = flask.Flask(__name__)
+    app = Flask(__name__)
 
     with app.test_request_context('/?name=Peter'):
         app.preprocess_request()
@@ -235,7 +235,7 @@ pytest 自动发现。
 如果想调用 :meth:`~flask.Flask.after_request` 函数，那么必须调用
 :meth:`~flask.Flask.process_response` ，并把响应对象传递给它::
 
-    app = flask.Flask(__name__)
+    app = Flask(__name__)
 
     with app.test_request_context('/?name=Peter'):
         resp = Response('...')
@@ -299,7 +299,7 @@ pytest 自动发现。
 情。在 Flask 0.4 之后可以在 ``with`` 语句中使用
 :meth:`~flask.Flask.test_client` 来实现::
 
-    app = flask.Flask(__name__)
+    app = Flask(__name__)
 
     with app.test_client() as c:
         rv = c.get('/?tequila=42')
@@ -319,7 +319,7 @@ pytest 自动发现。
 
     with app.test_client() as c:
         rv = c.get('/')
-        assert flask.session['foo'] == 42
+        assert session['foo'] == 42
 
 但是这个方法无法修改会话或在请求发出前访问会话。自 Flask 0.8 开始，我们提供了
 “会话处理”，用打开测试环境中会话和修改会话。最后会话被保存，准备好被客户端

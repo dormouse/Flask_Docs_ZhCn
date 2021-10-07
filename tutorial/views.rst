@@ -64,7 +64,7 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
 
 .. _HTML: https://developer.mozilla.org/docs/Web/HTML
 
-这里是视图代码，下一页会写生成 HTML 表单的模板。
+现在只是编写视图代码，在下一页会编写生成 HTML 表单的模板。
 
 .. code-block:: python
     :caption: ``flaskr/auth.py``
@@ -81,18 +81,18 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
                 error = 'Username is required.'
             elif not password:
                 error = 'Password is required.'
-            elif db.execute(
-                'SELECT id FROM user WHERE username = ?', (username,)
-            ).fetchone() is not None:
-                error = f"User {username} is already registered."
 
             if error is None:
-                db.execute(
-                    'INSERT INTO user (username, password) VALUES (?, ?)',
-                    (username, generate_password_hash(password))
-                )
-                db.commit()
-                return redirect(url_for('auth.login'))
+                try:
+                    db.execute(
+                        "INSERT INTO user (username, password) VALUES (?, ?)",
+                        (username, generate_password_hash(password)),
+                    )
+                    db.commit()
+                except db.IntegrityError:
+                    error = f"User {username} is already registered."
+                else:
+                    return redirect(url_for("auth.login"))
 
             flash(error)
 
@@ -114,20 +114,19 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
 
 #.  验证 ``username`` 和 ``password`` 不为空。
 
-#.  通过查询数据库，检查是否有查询结果返回来验证 ``username`` 是否已被注册。
-    :meth:`db.execute <sqlite3.Connection.execute>` 使用了带有 ``?`` 占位符
-    的 SQL 查询语句。占位符可以代替后面的元组参数中相应的值。使用占位符的
-    好处是会自动帮你转义输入值，以抵御 *SQL 注入攻击* 。
+#.  如果验证成功，就把新用户的数据插入数据库。
 
-    :meth:`~sqlite3.Cursor.fetchone` 根据查询返回一个记录行。
-    如果查询没有结果，则返回 ``None`` 。后面还用到
-    :meth:`~sqlite3.Cursor.fetchall` ，它返回包括所有结果的列表。
+    -   :meth:`db.execute <sqlite3.Connection.execute>` 使用了带有 ``?``
+        占位符的 SQL 查询语句。占位符可以代替后面的元组参数中相应的值。使
+        用占位符的好处是会自动帮你转义输入值，以抵御 *SQL 注入攻击* 。
+        
+    -   因为安全原因，不能把密码明文储存在数据库中。而是应当使用
+        :func:`~werkzeug.security.generate_password_hash` 生成安全的哈希值，
+        再把哈希值储存到数据库中。因为查询修改了数据，所以要使用
+        meth:`db.commit() <sqlite3.Connection.commit>` 保存修改。
 
-#.  如果验证成功，那么在数据库中插入新用户数据。为了安全原因，不能把密码明文
-    储存在数据库中。相代替的，使用
-    :func:`~werkzeug.security.generate_password_hash` 生成安全的哈希值并储存
-    到数据库中。查询修改了数据库是的数据后使用
-    meth:`db.commit() <sqlite3.Connection.commit>` 保存修改。
+    -   如果用户名已存在，会产生一个 :exc:`sqlite3.IntegrityError` 错误，
+        应当将该错误作为一个验证错误显示给用户。
 
 #.  用户数据保存后将转到登录页面。
     :func:`url_for` 根据登录视图的名称生成相应的 URL 。与写固定的 URL 相比，
@@ -179,6 +178,10 @@ Flaskr 有两个蓝图，一个用于认证功能，另一个用于博客帖子�
 与 ``register`` 有以下不同之处：
 
 #.  首先需要查询用户并存放在变量中，以备后用。
+
+    :meth:`~sqlite3.Cursor.fetchone` 根据查询返回一个记录行。
+    如果查询没有结果，则返回 ``None`` 。后面还用到
+    :meth:`~sqlite3.Cursor.fetchall` ，它返回包括所有结果的列表。
 
 #.  :func:`~werkzeug.security.check_password_hash` 以相同的方式哈希提交的
     密码并安全的比较哈希值。如果匹配成功，那么密码就是正确的。

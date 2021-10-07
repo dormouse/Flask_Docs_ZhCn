@@ -5,10 +5,11 @@
 
 .. versionadded:: 2.0
 
-如果在安装 Flask 时使用了额外的 ``async`` （ 即使用
-``pip install flask[async]`` 安装），那么路由、出错处理器、请求前、请求后
-和拆卸函数都可以是协和函数。这样，视图可以使用
-``async def`` 定义，并使用 ``await`` 。
+如果在安装 Flask 时使用了额外的 ``async`` （ 即用
+``pip install flask[async]`` 命令安装），那么路由、出错处理器、请求前、请
+求后和拆卸函数都可以是协程函数。这样，视图可以使用 ``async def`` 定义，并
+使用 ``await`` 。 ``pip install flask[async]`` 命令会用到
+``contextvars.ContextVar`` ， 因此需要 Python 3.7 以上版本。
 
 .. code-block:: python
 
@@ -16,6 +17,11 @@
     async def get_data():
         data = await async_db_query(...)
         return jsonify(data)
+
+可插入基类视图也支持以协程方式运行的处理器。这同样适用于
+:meth:`~flask.views.View.dispatch_request` 方法，该方法从
+:class:`flask.views.View` 类继承而来。 所有视图中的 HTTP 方法处理器
+从 :class:`flask.views.MethodView` 类继承而来一样。
 
 .. admonition:: 在 Windows 的 Python 3.8 下使用 ``async`` 
 

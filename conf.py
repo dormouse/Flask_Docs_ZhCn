@@ -10,8 +10,8 @@ from pallets_sphinx_themes import ProjectLink
 project = "Flask"
 copyright = "2010 Pallets"
 author = "Pallets"
-release = "2.0.1"
-version = "2.0.1"
+release = "2.0.2"
+version = "2.0.2"
 
 # General --------------------------------------------------------------
 language = 'zh_CN'
@@ -53,7 +53,11 @@ html_context = {
         ProjectLink("官网", "https://palletsprojects.com/p/flask/"),
         ProjectLink("Twitter", "https://twitter.com/PalletsTeam"),
         ProjectLink("聊天", "https://discord.gg/pallets"),
-    ]
+        ProjectLink("翻译源代码", "https://github.com/dormouse/Flask_Docs_ZhCn"),
+        ProjectLink("翻译问题反馈", "https://github.com/dormouse/Flask_Docs_ZhCn/issues"),
+        ProjectLink("联系翻译作者", "dormouse.young@gmail.com"),
+        ProjectLink("翻译版权声明：CC BY-NC-SA 4.0", "https://creativecommons.org/licenses/by-nc-sa/4.0/"),
+    ],
 }
 html_sidebars = {
     "index": ["project.html", "localtoc.html", "searchbox.html", "ethicalads.html"],
@@ -63,12 +67,12 @@ singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.ht
 html_static_path = ["_static"]
 html_favicon = "_static/flask-icon.png"
 html_logo = "_static/flask-icon.png"
-html_title = "Flask 中文文档 (2.0.1)"
+html_title = "Flask 中文文档 (2.0.2)"
 html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------
 
-latex_documents = [(master_doc, "Flask-2.0.1.tex", html_title, author, "manual")]
+latex_documents = [(master_doc, "Flask-2.0.2.tex", html_title, author, "manual")]
 
 # Local Extensions -----------------------------------------------------
 

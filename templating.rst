@@ -30,7 +30,7 @@ Jinja 设置
 .. data:: config
    :noindex:
 
-   当前配置对象（ :data:`flask.config` ）
+   当前配置对象（ :data:`flask.Flask.config` ）
 
    .. versionadded:: 0.6
 

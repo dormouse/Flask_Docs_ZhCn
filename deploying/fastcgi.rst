@@ -221,5 +221,5 @@ nginx 和其他服务器不会载入 FastCGI 应用，你必须自己载入。
 
 .. _nginx: https://nginx.org/
 .. _lighttpd: https://www.lighttpd.net/
-.. _cherokee: http://cherokee-project.com/
+.. _cherokee: https://cherokee-project.com
 .. _flup: https://pypi.org/project/flup/

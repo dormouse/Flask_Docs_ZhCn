@@ -1,8 +1,7 @@
-flask==2.0.1
+flask==2.0.2
+
+Pallets-Sphinx-Themes
 Sphinx
 sphinx-issues
-sphinx-tabs
 sphinxcontrib-log-cabinet
-pallets-sphinx-themes
-packaging
-
+sphinx-tabs

@@ -101,7 +101,7 @@ Django 的通用视图。可插拨视图的主要用途是用可定制的、可�
 
 对于 REST 式的 API 来说，为每种 HTTP 方法提供相对应的不同函数显得尤为有用。使用
 :class:`flask.views.MethodView` 可以轻易做到这点。在这个类中，每个 HTTP 方法
-都映射到一个同名函数（函数名称为小写字母）::
+都映射到一个同名的类方法（名称为小写字母）::
 
     from flask.views import MethodView
 

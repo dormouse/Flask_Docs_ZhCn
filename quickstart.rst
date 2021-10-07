@@ -404,9 +404,10 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果您的�
       <h1>Hello, World!</h1>
     {% endif %}
 
-在模板内部可以和访问 :func:`~flask.get_flashed_messages` 函数一样访问
-:class:`~flask.request` 、 :class:`~flask.session` 和
-:class:`~flask.g` [#]_ 对象。
+在模板内部可以像使用 :func:`~flask.url_for` 和
+:func:`~flask.get_flashed_messages` 函数一样访问
+:data:`~flask.Flask.config` 、 :class:`~flask.request`
+、 :class:`~flask.session` 和 :class:`~flask.g` [#]_ 对象。
 
 模板在继承使用的情况下尤其有用。其工作原理参见
 :doc:`patterns/templateinheritance` 。简单的说，模板继承可以使每个页面
@@ -559,7 +560,7 @@ Bad Request 错误页面。因此，多数情况下您不必处理这个问题�
     def upload_file():
         if request.method == 'POST':
             file = request.files['the_file']
-            file.save(f"/var/www/uploads/{secure_filename(f.filename)}")
+            file.save(f"/var/www/uploads/{secure_filename(file.filename)}")
         ...
 
 更好的例子参见 :doc:`patterns/fileuploads` 。

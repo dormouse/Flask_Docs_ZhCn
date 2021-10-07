@@ -14,7 +14,7 @@
    使用这个扩展可以更好的使用表单和 Flask 。您可以从 `PyPI
    <https://pypi.org/project/Flask-WTF/>`_ 获得这个扩展。
 
-.. _Flask-WTF: https://flask-wtf.readthedocs.io/en/stable/
+.. _Flask-WTF: https://flask-wtf.readthedocs.io/
 
 表单
 ---------

@@ -243,7 +243,7 @@ Pytest 通过匹配固件函数名称和测试函数的参数名称来使用固�
 
         with app.app_context():
             assert get_db().execute(
-                "select * from user where username = 'a'",
+                "SELECT * FROM user WHERE username = 'a'",
             ).fetchone() is not None
 
 

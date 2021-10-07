@@ -40,7 +40,7 @@ Flask 能够做什么，可以通过 :doc:`/quickstart` 作一个大概的了解
 .. image:: flaskr_login.png
     :align: center
     :class: screenshot
-    :alt: screenshot of login page
+    :alt: screenshot of edit page
 
 Flask 是非常灵活的，不需要使用任何特定的项目或者代码布局。但是对于初学
 者，使用结构化的方法是有益无害的，亦即本教程会有一点样板的意思。本教程

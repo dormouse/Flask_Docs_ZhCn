@@ -1,5 +1,31 @@
 .. currentmodule:: flask
 
+Version 2.0.2
+-------------
+
+Released 2021-10-04
+
+-   Fix type annotation for ``teardown_*`` methods. :issue:`4093`
+-   Fix type annotation for ``before_request`` and ``before_app_request``
+    decorators. :issue:`4104`
+-   Fixed the issue where typing requires template global
+    decorators to accept functions with no arguments. :issue:`4098`
+-   Support View and MethodView instances with async handlers. :issue:`4112`
+-   Enhance typing of ``app.errorhandler`` decorator. :issue:`4095`
+-   Fix registering a blueprint twice with differing names. :issue:`4124`
+-   Fix the type of ``static_folder`` to accept ``pathlib.Path``.
+    :issue:`4150`
+-   ``jsonify`` handles ``decimal.Decimal`` by encoding to ``str``.
+    :issue:`4157`
+-   Correctly handle raising deferred errors in CLI lazy loading.
+    :issue:`4096`
+-   The CLI loader handles ``**kwargs`` in a ``create_app`` function.
+    :issue:`4170`
+-   Fix the order of ``before_request`` and other callbacks that trigger
+    before the view returns. They are called from the app down to the
+    closest nested blueprint. :issue:`4229`
+
+
 Version 2.0.1
 -------------
 
