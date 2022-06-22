@@ -168,9 +168,9 @@ thing, like it does for :class:`request` and :class:`session`.
     :attr:`Flask.app_ctx_globals_class`, which defaults to
     :class:`ctx._AppCtxGlobals`.
 
-    This is a good place to store resources during a request. During
-    testing, you can use the :ref:`faking-resources` pattern to
-    pre-configure such resources.
+    This is a good place to store resources during a request. For
+    example, a ``before_request`` function could load a user object from
+    a session id, then set ``g.user`` to be used in the view function.
 
     This is a proxy. See :ref:`notes-on-proxies` for more information.
 
@@ -217,8 +217,6 @@ Useful Functions and Classes
 .. autofunction:: send_file
 
 .. autofunction:: send_from_directory
-
-.. autofunction:: safe_join
 
 .. autofunction:: escape
 
@@ -288,6 +286,10 @@ Template Rendering
 .. autofunction:: render_template
 
 .. autofunction:: render_template_string
+
+.. autofunction:: stream_template
+
+.. autofunction:: stream_template_string
 
 .. autofunction:: get_template_attribute
 

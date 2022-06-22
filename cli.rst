@@ -25,6 +25,13 @@
          $ export FLASK_APP=hello
          $ flask run
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP hello
+         $ flask run
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -94,6 +101,11 @@
     服务器。开发服务器只是为了提供方便，但是不够安全、稳定和高效。有关
     如何在生产中运行服务器，请参阅 :doc:`/deploying/index` 。
 
+如果另一个程序已经占用了 5000 端口，那么当你尝试打开服务时会看到
+``OSError: [Errno 98]`` 或者 ``OSError: [WinError 10013]`` 错误。
+如何处理这个问题，参见 :ref:`address-already-in-use` 。
+
+
 打开一个 Shell
 ------------------------
 
@@ -101,10 +113,9 @@
 交互 Python shell 。这样，一个应用情境被激活，应用实例会被导入。::
 
     $ flask shell
-    Python 3.6.2 (default, Jul 20 2017, 03:52:27)
-    [GCC 7.1.1 20170630] on linux
-    App: example
-    Instance: /home/user/Projects/hello/instance
+    Python 3.10.0 (default, Oct 27 2021, 06:59:51) [GCC 11.1.0] on linux
+    App: example [production]
+    Instance: /home/david/Projects/pallets/flask/instanc
     >>>
 
 使用 :meth:`~Flask.shell_context_processor` 添加其他自动导入。
@@ -129,6 +140,20 @@ Flask 和扩展可能基于环境不同而改变行为。
       .. code-block:: text
 
          $ export FLASK_ENV=development
+         $ flask run
+          * Serving Flask app "hello"
+          * Environment: development
+          * Debug mode: on
+          * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+          * Restarting with inotify reloader
+          * Debugger is active!
+          * Debugger PIN: 223-456-919
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
          $ flask run
           * Serving Flask app "hello"
           * Environment: development
@@ -173,7 +198,7 @@ Flask 和扩展可能基于环境不同而改变行为。
 当使用开发模式时，您的 Python 代码或者导入模块发生变动时会触发重启器。
 如果使用 ``--extra-files`` 参数或者设置 ``FLASK_RUN_EXTRA_FILES``
 环境变量，那么重启器可以监视额外的文件。多重路径使用 ``:`` 分隔，
-Windows 下使用 ``;`` 。
+Windows 下使用 ``;`` 分隔。
 
 .. tabs::
 
@@ -184,6 +209,17 @@ Windows 下使用 ``;`` 。
           $ flask run --extra-files file1:dirA/file2:dirB/
           # or
           $ export FLASK_RUN_EXTRA_FILES=file1:dirA/file2:dirB/
+          $ flask run
+           * Running on http://127.0.0.1:8000/
+           * Detected change in '/path/to/file1', reloading
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+          $ flask run --extra-files file1:dirA/file2:dirB/
+          # or
+          $ set -x FLASK_RUN_EXTRA_FILES file1 dirA/file2 dirB/
           $ flask run
            * Running on http://127.0.0.1:8000/
            * Detected change in '/path/to/file1', reloading
@@ -209,6 +245,14 @@ Windows 下使用 ``;`` 。
           > flask run
            * Running on http://127.0.0.1:8000/
            * Detected change in '/path/to/file1', reloading
+
+
+让重启器忽略文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+重启器可以忽略文件，方法是通过 ``--exclude-patterns`` 参数使用
+:mod:`fnmatch` 模式。也可以使用 ``FLASK_RUN_EXCLUDE_PATTERNS`` 环境变量。
+多模式使用 ``:`` 分隔， Windows 系统下使用 ``;`` 分隔。
 
 
 调试模式
@@ -262,6 +306,14 @@ Click 被配置为根据环境变量为命令选项载入缺省值。变量使�
          $ flask run
           * Running on http://127.0.0.1:8000/
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_RUN_PORT 8000
+         $ flask run
+          * Running on http://127.0.0.1:8000/
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -306,6 +358,13 @@ python-dotenv 没有安装到情况下这个设置也是有效的。这个设置
          $ export FLASK_SKIP_DOTENV=1
          $ flask run
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_SKIP_DOTENV 1
+         $ flask run
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -334,6 +393,12 @@ python-dotenv 没有安装到情况下这个设置也是有效的。这个设置
       Unix Bash, :file:`venv/bin/activate`::
 
           $ export FLASK_APP=hello
+ 
+   .. group-tab:: Fish
+
+      Fish, :file:`venv/bin/activate.fish`::
+
+          $ set -x FLASK_APP hello
 
    .. group-tab:: CMD
 

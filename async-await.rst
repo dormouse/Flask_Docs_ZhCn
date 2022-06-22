@@ -8,8 +8,7 @@
 如果在安装 Flask 时使用了额外的 ``async`` （ 即用
 ``pip install flask[async]`` 命令安装），那么路由、出错处理器、请求前、请
 求后和拆卸函数都可以是协程函数。这样，视图可以使用 ``async def`` 定义，并
-使用 ``await`` 。 ``pip install flask[async]`` 命令会用到
-``contextvars.ContextVar`` ， 因此需要 Python 3.7 以上版本。
+使用 ``await`` 。
 
 .. code-block:: python
 
@@ -28,6 +27,11 @@
     Python 3.8 的 Windows 版异步处理是有问题的。如果您遇到类似
     ``ValueError: set_wakeup_fd only works in main thread`` 的问题，请升级
     到 Python 3.9 。
+
+.. admonition:: 通过 greenlet 使用 ``async``
+
+    当使用 gevent 或 eventlet 为应用程序提供服务或动态修补时，
+    greenlet>=1.0 是必需的。 使用 PyPy 时，PyPy>=7.3.7 是必需的。
 
 
 性能

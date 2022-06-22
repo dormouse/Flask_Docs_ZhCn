@@ -1,5 +1,161 @@
 .. currentmodule:: flask
 
+Version 2.2.0
+-------------
+
+Unreleased
+
+-   Add new customization points to the ``Flask`` app object for many
+    previously global behaviors.
+
+    -   ``flask.url_for`` will call ``app.url_for``. :issue:`4568`
+    -   ``flask.abort`` will call ``app.aborter``.
+        ``Flask.aborter_class`` and ``Flask.make_aborter`` can be used
+        to customize this aborter. :issue:`4567`
+    -   ``flask.redirect`` will call ``app.redirect``. :issue:`4569`
+
+-   Refactor ``register_error_handler`` to consolidate error checking.
+    Rewrite some error messages to be more consistent. :issue:`4559`
+-   Use Blueprint decorators and functions intended for setup after
+    registering the blueprint will show a warning. In the next version,
+    this will become an error just like the application setup methods.
+    :issue:`4571`
+-   ``before_first_request`` is deprecated. Run setup code when creating
+    the application instead. :issue:`4605`
+-   Added the ``View.init_every_request`` class attribute. If a view
+    subclass sets this to ``False``, the view will not create a new
+    instance on every request. :issue:`2520`.
+-   A ``flask.cli.FlaskGroup`` Click group can be nested as a
+    sub-command in a custom CLI. :issue:`3263`
+-   Add ``--app``, ``--env``, and ``--debug`` options to the ``flask``
+    CLI, instead of requiring that they are set through environment
+    variables. :issue:`2836`
+-   Add ``--env-file`` option to the ``flask`` CLI. This allows
+    specifying a dotenv file to load in addition to ``.env`` and
+    ``.flaskenv``. :issue:`3108`
+-   It is no longer required to decorate custom CLI commands on
+    ``app.cli`` or ``blueprint.cli`` with ``@with_appcontext``, an app
+    context will already be active at that point. :issue:`2410`
+-   ``SessionInterface.get_expiration_time`` uses a timezone-aware
+    value. :pr:`4645`
+-   View functions can return generators directly instead of wrapping
+    them in a ``Response``. :pr:`4629`
+-   Add ``stream_template`` and ``stream_template_string`` functions to
+    render a template as a stream of pieces. :pr:`4629`
+
+
+Version 2.1.3
+-------------
+
+Unreleased
+
+-   Inline some optional imports that are only used for certain CLI
+    commands. :pr:`4606`
+-   Relax type annotation for ``after_request`` functions. :issue:`4600`
+-   ``instance_path`` for namespace packages uses the path closest to
+    the imported submodule. :issue:`4600`
+
+
+Version 2.1.2
+-------------
+
+Released 2022-04-28
+
+-   Fix type annotation for ``json.loads``, it accepts str or bytes.
+    :issue:`4519`
+-   The ``--cert`` and ``--key`` options on ``flask run`` can be given
+    in either order. :issue:`4459`
+
+
+Version 2.1.1
+-------------
+
+Released on 2022-03-30
+
+-   Set the minimum required version of importlib_metadata to 3.6.0,
+    which is required on Python < 3.10. :issue:`4502`
+
+
+Version 2.1.0
+-------------
+
+Released 2022-03-28
+
+-   Drop support for Python 3.6. :pr:`4335`
+-   Update Click dependency to >= 8.0. :pr:`4008`
+-   Remove previously deprecated code. :pr:`4337`
+
+    -   The CLI does not pass ``script_info`` to app factory functions.
+    -   ``config.from_json`` is replaced by
+        ``config.from_file(name, load=json.load)``.
+    -   ``json`` functions no longer take an ``encoding`` parameter.
+    -   ``safe_join`` is removed, use ``werkzeug.utils.safe_join``
+        instead.
+    -   ``total_seconds`` is removed, use ``timedelta.total_seconds``
+        instead.
+    -   The same blueprint cannot be registered with the same name. Use
+        ``name=`` when registering to specify a unique name.
+    -   The test client's ``as_tuple`` parameter is removed. Use
+        ``response.request.environ`` instead. :pr:`4417`
+
+-   Some parameters in ``send_file`` and ``send_from_directory`` were
+    renamed in 2.0. The deprecation period for the old names is extended
+    to 2.2. Be sure to test with deprecation warnings visible.
+
+    -   ``attachment_filename`` is renamed to ``download_name``.
+    -   ``cache_timeout`` is renamed to ``max_age``.
+    -   ``add_etags`` is renamed to ``etag``.
+    -   ``filename`` is renamed to ``path``.
+
+-   The ``RequestContext.g`` property is deprecated. Use ``g`` directly
+    or ``AppContext.g`` instead. :issue:`3898`
+-   ``copy_current_request_context`` can decorate async functions.
+    :pr:`4303`
+-   The CLI uses ``importlib.metadata`` instead of ``setuptools`` to
+    load command entry points. :issue:`4419`
+-   Overriding ``FlaskClient.open`` will not cause an error on redirect.
+    :issue:`3396`
+-   Add an ``--exclude-patterns`` option to the ``flask run`` CLI
+    command to specify patterns that will be ignored by the reloader.
+    :issue:`4188`
+-   When using lazy loading (the default with the debugger), the Click
+    context from the ``flask run`` command remains available in the
+    loader thread. :issue:`4460`
+-   Deleting the session cookie uses the ``httponly`` flag.
+    :issue:`4485`
+-   Relax typing for ``errorhandler`` to allow the user to use more
+    precise types and decorate the same function multiple times.
+    :issue:`4095, 4295, 4297`
+-   Fix typing for ``__exit__`` methods for better compatibility with
+    ``ExitStack``. :issue:`4474`
+-   From Werkzeug, for redirect responses the ``Location`` header URL
+    will remain relative, and exclude the scheme and domain, by default.
+    :pr:`4496`
+-   Add ``Config.from_prefixed_env()`` to load config values from
+    environment variables that start with ``FLASK_`` or another prefix.
+    This parses values as JSON by default, and allows setting keys in
+    nested dicts. :pr:`4479`
+
+
+Version 2.0.3
+-------------
+
+Released 2022-02-14
+
+-   The test client's ``as_tuple`` parameter is deprecated and will be
+    removed in Werkzeug 2.1. It is now also deprecated in Flask, to be
+    removed in Flask 2.1, while remaining compatible with both in
+    2.0.x. Use ``response.request.environ`` instead. :pr:`4341`
+-   Fix type annotation for ``errorhandler`` decorator. :issue:`4295`
+-   Revert a change to the CLI that caused it to hide ``ImportError``
+    tracebacks when importing the application. :issue:`4307`
+-   ``app.json_encoder`` and ``json_decoder`` are only passed to
+    ``dumps`` and ``loads`` if they have custom behavior. This improves
+    performance, mainly on PyPy. :issue:`4349`
+-   Clearer error message when ``after_this_request`` is used outside a
+    request context. :issue:`4333`
+
+
 Version 2.0.2
 -------------
 
@@ -898,8 +1054,7 @@ Released 2011-09-29, codename Rakija
     earlier feedback when users forget to import view code ahead of
     time.
 -   Added the ability to register callbacks that are only triggered once
-    at the beginning of the first request.
-    (:meth:`Flask.before_first_request`)
+    at the beginning of the first request. (``before_first_request``)
 -   Malformed JSON data will now trigger a bad request HTTP exception
     instead of a value error which usually would result in a 500
     internal server error if not handled. This is a backwards
