@@ -273,8 +273,8 @@ flask_sqlite3.py
 6.  扩展的文档必须使用来自 `官方 Pallets 主题`_ 的 ``flask`` 主题。
     PyPI 的元数据或者自述文件中必须包含文档或者项目的链接。
 7.  为了获得最大的兼容性，扩展应当支持与 Flask 支持的同样版本的 Python 。
-    2020年推荐支持 3.6+ 版本的 Python 。请在 ``setup.py`` 中使用
-    ``python_requires=">= 3.6"`` 明确支持的 Python 版本。
+    2021年12月以后推荐支持 3.7+ 版本的 Python 。请在 ``setup.py`` 中使用
+    ``python_requires=">= 3.7"`` 以明确支持的 Python 版本。
 
 .. _PyPI: https://pypi.org/search/?c=Framework+%3A%3A+Flask
 .. _邮件列表: https://mail.python.org/mailman/listinfo/flask

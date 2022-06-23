@@ -47,6 +47,14 @@
          $ flask run
           * Running on http://127.0.0.1:5000/
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP hello
+         $ flask run
+          * Running on http://127.0.0.1:5000
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -72,7 +80,12 @@
 但是用于生产可能是不够的。关于部署的有关内容参见
 :doc:`deploying/index` 。
 
-现在在浏览器中打开 http://127.0.0.1:5000/ ，应该可以看到 Hello World! 字样。
+现在在浏览器中打开 http://127.0.0.1:5000/ ，应该可以看到 Hello World!
+字样。
+
+如果其他程序已经占用了 5000 端口，那么在尝试启动服务器时会看到
+``OSError: [Errno 98]`` 或者 ``OSError: [WinError 10013]`` ，
+如何解决这个问题请参阅 :ref:`address-already-in-use` 。
 
 .. _public-server:
 
@@ -140,6 +153,13 @@
       .. code-block:: text
 
          $ export FLASK_ENV=development
+         $ flask run
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
          $ flask run
 
    .. group-tab:: CMD
@@ -427,7 +447,7 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果您的�
     >>> Markup.escape('<blink>hacker</blink>')
     Markup('&lt;blink&gt;hacker&lt;/blink&gt;')
     >>> Markup('<em>Marked up</em> &raquo; HTML').striptags()
-    'Marked up \xbb HTML'
+    'Marked up » HTML'
 
 .. versionchanged:: 0.5
 
@@ -746,17 +766,18 @@ cookie ，但是如果没有密钥就无法修改它。
 
 .. admonition:: 如何生成一个好的密钥
 
-    生成随机数的关键在于一个好的随机种子，因此一个好的密钥应当有足够的随机性。
-    操作系统可以有多种方式基于密码随机生成器来生成随机数据。使用下面的命令
-    可以快捷的为 :attr:`Flask.secret_key` （ 或者 :data:`SECRET_KEY` ）生成值::
+    生成随机数的关键在于一个好的随机种子，因此一个好的密钥应当有足够
+    的随机性。操作系统可以有多种方式基于密码随机生成器来生成随机数据。
+    使用下面的命令可以快捷的为 :attr:`Flask.secret_key` （ 或者
+    :data:`SECRET_KEY` ）生成值::
 
-        $ python -c 'import os; print(os.urandom(16))'
-        b'_5#y2L"F4Q8z\n\xec]/'
+        $ python -c 'import secrets; print(secrets.token_hex())'
+        '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'
 
-基于 cookie 的会话的说明： Flask 会取出会话对象中的值，把值序列化后储存到
-cookie 中。在打开 cookie 的情况下，如果需要查找某个值，但是这个值在请求中
-没有持续储存的话，那么不会得到一个清晰的出错信息。请检查页面响应中的 cookie
-的大小是否与网络浏览器所支持的大小一致。
+基于 cookie 的会话的说明： Flask 会取出会话对象中的值，把值序列化后储
+存到 cookie 中。在打开 cookie 的情况下，如果需要查找某个值，但是这个
+值在请求中没有持续储存的话，那么不会得到一个清晰的出错信息。请检查页
+面响应中的 cookie 的大小是否与网络浏览器所支持的大小一致。
 
 除了缺省的客户端会话之外，还有许多 Flask 扩展支持服务端会话。
 
@@ -801,15 +822,17 @@ Flask 通过闪现系统来提供了一个易用的反馈方式。闪现系统�
 集成 WSGI 中间件
 ---------------------------
 
-如果想要在应用中添加一个 WSGI 中间件，那么可以用应用的 ``wsgi_app`` 属性
-来包装。例如，假设需要在 Nginx 后面使用
-:class:`~werkzeug.middleware.proxy_fix.ProxyFix` 中间件，那么可以这样做::
+如果想要在应用中添加一个 WSGI 中间件，那么可以用应用的 ``wsgi_app``
+属性来包装。例如，假设需要在 Nginx 后面使用
+:class:`~werkzeug.middleware.proxy_fix.ProxyFix` 中间件，那么可以这样
+做::
 
     from werkzeug.middleware.proxy_fix import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app)
  
-用 ``app.wsgi_app`` 来包装，而不用 ``app`` 包装，意味着 ``app`` 仍旧指向您
-的 Flask 应用，而不是指向中间件。这样可以继续直接使用和配置 ``app`` 。
+用 ``app.wsgi_app`` 来包装，而不用 ``app`` 包装，意味着 ``app`` 仍旧
+指向您的 Flask 应用，而不是指向中间件。这样可以继续直接使用和配置
+``app`` 。
 
 使用 Flask 扩展
 ----------------------

@@ -5,10 +5,7 @@
 Python 版本
 --------------
 
-我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.6 以上版本。
-
-如果要支持 ``async`` ，那么因为会用到 ``contextvars.ContextVar`` ，所以需要
-Python 3.7 以上版本。
+我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.7 以上版本。
 
 依赖
 ------------
@@ -41,6 +38,14 @@ Python 3.7 以上版本。
 .. _Blinker: https://pythonhosted.org/blinker/
 .. _python-dotenv: https://github.com/theskumar/python-dotenv#readme
 .. _watchdog: https://pythonhosted.org/watchdog/
+
+greenlet
+~~~~~~~~
+
+您可以选择使用 gevent 或者 eventlet 来服务您的应用。在这种情况下，
+greenlet>=1.0 是必须的。当使用 PyPy 时，  PyPy>=7.3.7 是必须的。
+
+上述版本是指支持的最小版本，应当尽量使用最新的版本。
 
 
 虚拟环境

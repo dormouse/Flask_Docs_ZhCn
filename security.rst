@@ -10,44 +10,45 @@ Flask 尝试为你解决许多安全问题，但是更多的还是只能靠你�
 ----------------------
 
 跨站脚本攻击是指在一个网站的环境中注入恶任意的 HTML （包括附带的
-JavaScript ）。要防防御这种攻击，开发者需要正确地转义文本，使其不能包含恶
-意的 HTML 标记。更多的相关信息请参维基百科上在文章： `跨站脚本
+JavaScript ）。要防防御这种攻击，开发者需要正确地转义文本，使其不能包
+含恶意的 HTML 标记。更多的相关信息请参维基百科上在文章： `跨站脚本
 <https://en.wikipedia.org/wiki/Cross-site_scripting>`_ 。
 
-在 Flask 中，除非显式指明不转义， Jinja2 会自动转义所有值。这样可以排除所
-有模板导致的 XSS 问题，但是其它地方仍需小心：
+在 Flask 中，除非显式指明不转义， Jinja2 会自动转义所有值。这样可以排
+除所有模板导致的 XSS 问题，但是其它地方仍需小心：
 
 -   不使用 Jinja2 生成 HTML 。
 -   在用户提交的数据上调用了 :class:`~flask.Markup` 。
 -   发送上传的 HTML ，永远不要这么做，使用
     ``Content-Disposition: attachment`` 头部来避免这个问题。
 -   发送上传的文本文件。一些浏览器基于文件开头几个字节来猜测文件的
-    content-type ，用户可以利用这个漏洞来欺骗浏览器，通过伪装文本文件来执
-    行 HTML 。
+    content-type ，用户可以利用这个漏洞来欺骗浏览器，通过伪装文本文件
+    来执行 HTML 。
 
-另一件非常重要的漏洞是不用引号包裹的属性值。虽然 Jinja2 可以通过转义 HTML
-来保护你免受 XSS 问题，但是仍无法避免一种情况：属性注入的 XSS 。为了免受这
-种攻击，必须确保在属性中使用 Jinja 表达式时，始终用单引号或双引号包裹:
+另一件非常重要的漏洞是不用引号包裹的属性值。虽然 Jinja2 可以通过转义
+HTML 来保护你免受 XSS 问题，但是仍无法避免一种情况：属性注入的 XSS 。
+为了免受这种攻击，必须确保在属性中使用 Jinja 表达式时，始终用单引号或
+双引号包裹:
 
 .. sourcecode:: html+jinja
 
    <input value="{{ value }}">
 
-为什么必须这么做？因为如果不这么做，攻击者可以轻易地注入自制的 JavaScript
-处理器。例如一个攻击者可以注入以下 HTML+JavaScript 代码：
+为什么必须这么做？因为如果不这么做，攻击者可以轻易地注入自制的
+JavaScript 处理器。例如一个攻击者可以注入以下 HTML+JavaScript 代码：
 
 .. sourcecode:: html
 
    onmouseover=alert(document.cookie)
 
-当用户鼠标停放在这个输入框上时，会在警告窗口里显示 cookie 信息。一个精明的
-攻击者可能还会执行其它的 JavaScript 代码，而不是把 cookie 显示给用户。结合
-CSS 注入，攻击者甚至可以把元素填满整个页面，这样用户把鼠标停放在页面上的任
-何地方都会触发攻击。
+当用户鼠标停放在这个输入框上时，会在警告窗口里显示 cookie 信息。一个
+精明的攻击者可能还会执行其它的 JavaScript 代码，而不是把 cookie 显示
+给用户。结合 CSS 注入，攻击者甚至可以把元素填满整个页面，这样用户把鼠
+标停放在页面上的任何地方都会触发攻击。
 
-有一类 XSS 问题 Jinja 的转义无法阻止。 ``a`` 标记的 ``href`` 属性可以包含
-一个 `javascript:` URI 。如果没有正确保护，那么当点击它时浏览器将执行其代
-码。
+有一类 XSS 问题 Jinja 的转义无法阻止。 ``a`` 标记的 ``href`` 属性可以
+包含一个 `javascript:` URI 。如果没有正确保护，那么当点击它时浏览器将
+执行其代码。
 
 .. sourcecode:: html
 
@@ -145,17 +146,6 @@ X-Frame-Options
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
 - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-
-X-XSS-Protection
-~~~~~~~~~~~~~~~~
-
-如果请求包含类似于 JavaScript 的东西且响应的内容包含相同的数据时，浏览器将
-尝试通过不加载页面来防止反射的 XSS 攻击。::
-
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-
-- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
-
 
 .. _security-cookie:
 

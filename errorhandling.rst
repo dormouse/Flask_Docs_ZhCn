@@ -459,7 +459,7 @@ Flask 使您能够注册 Werkzeug 提供的任意 HTTP 异常。但是，默认�
 
     @app.errorhandler(InvalidAPIUsage)
     def invalid_api_usage(e):
-        return jsonify(e.to_dict())
+        return jsonify(e.to_dict()), e.status_code
 
     # an API app route for getting user information
     # a correct request might be /api/user?user_id=420

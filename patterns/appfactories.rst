@@ -89,6 +89,13 @@
          $ export FLASK_APP=myapp
          $ flask run
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP myapp
+         $ flask run
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -113,6 +120,13 @@ Flask 会自动在 ``myapp`` 中探测工厂（ ``create_app`` 或者 ``make_app
       .. code-block:: text
 
          $ export FLASK_APP="myapp:create_app('dev')"
+         $ flask run
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP "myapp:create_app('dev')"
          $ flask run
 
    .. group-tab:: CMD

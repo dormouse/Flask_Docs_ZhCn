@@ -47,6 +47,13 @@
          $ export FLASK_ENV=development
          $ flask run
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
+         $ flask run
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -93,6 +100,13 @@
       .. code-block:: text
 
          $ export FLASK_ENV=development
+         $ flask run --no-debugger --no-reload
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
          $ flask run --no-debugger --no-reload
 
    .. group-tab:: CMD

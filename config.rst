@@ -31,7 +31,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     app.config.update(
         TESTING=True,
-        SECRET_KEY=b'_5#y2L"F4Q8z\n\xec]/'
+        SECRET_KEY='192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf
     )
 
 
@@ -63,6 +63,13 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
       .. code-block:: text
 
          $ export FLASK_ENV=development
+         $ flask run
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
          $ flask run
 
    .. group-tab:: CMD
@@ -159,9 +166,9 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     密钥应当是一个长的随机的 ``bytes`` 或者 ``str`` 。例如，复制下面的
     输出到你的配置中::
 
-        $ python -c 'import os; print(os.urandom(16))'
-        b'_5#y2L"F4Q8z\n\xec]/'
-
+        $ python -c 'import secrets; print(secrets.token_hex())'
+        '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'
+ 
     **当发贴提问或者提交代码时，不要泄露密钥。**
 
     缺省值： ``None``
@@ -401,6 +408,14 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
          $ flask run
           * Running on http://127.0.0.1:5000/
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x YOURAPPLICATION_SETTINGS /path/to/settings.cfg
+         $ flask run
+          * Running on http://127.0.0.1:5000/
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -423,7 +438,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 一个配置文件的例子::
 
     # Example configuration
-    SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
+    SECRET_KEY = '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf
 
 请确保尽早载入配置，以便于扩展在启动时可以访问相关配置。除了从文件载入配置外，
 配置对象还有其他方法可以载入配置，详见 :class:`~flask.Config` 对象的文档。
@@ -453,7 +468,8 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 --------------------------------------
 
 除了使用环境变量指向配置文件之外，你可能会发现直接从环境中控制配置值很有用
-（或必要）。
+（或者很有必要）。 Flask 可以使用 :meth:`~flask.Config.from_prefixed_env`
+来指定载入以特定前缀开头的所有环境变量。
 
 在启动服务器前，可以在终端中设置环境变量:
 
@@ -463,8 +479,17 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
       .. code-block:: text
 
-         $ export SECRET_KEY="5f352379324c22463451387a0aec5d2f"
-         $ export MAIL_ENABLED=false
+         $ export FLASK_SECRET_KEY="5f352379324c22463451387a0aec5d2f"
+         $ export FLASK_MAIL_ENABLED=false
+         $ flask run
+          * Running on http://127.0.0.1:5000/
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_SECRET_KEY "5f352379324c22463451387a0aec5d2f"
+         $ set -x FLASK_MAIL_ENABLED false
          $ flask run
           * Running on http://127.0.0.1:5000/
 
@@ -472,8 +497,8 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
       .. code-block:: text
 
-         > set SECRET_KEY="5f352379324c22463451387a0aec5d2f"
-         > set MAIL_ENABLED=false
+         > set FLASK_SECRET_KEY="5f352379324c22463451387a0aec5d2f"
+         > set FLASK_MAIL_ENABLED=false
          > flask run
           * Running on http://127.0.0.1:5000/
 
@@ -481,32 +506,48 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
       .. code-block:: text
 
-         > $env:SECRET_KEY = "5f352379324c22463451387a0aec5d2f"
-         > $env:MAIL_ENABLED = "false"
+         > $env:FLASK_SECRET_KEY = "5f352379324c22463451387a0aec5d2f"
+         > $env:FLASK_MAIL_ENABLED = "false"
          > flask run
-          * Running on http://127.0.0.1:5000/
+          * Running on http://127.0.0.1:5000
 
-尽管这种方法很简单易用，但重要的是要记住环境变量是字符串，它们不会自动反序
-列化为 Python 类型。
+这样变量就可以被载入了，使用时键名要去掉前缀。
 
-以下是使用环境变量的配置文件示例::
+.. code-block:: python
 
-    import os
+    app.config.from_prefixed_env()
+    app.config["SECRET_KEY"]  # Is "5f352379324c22463451387a0aec5d2f"
 
-    _mail_enabled = os.environ.get("MAIL_ENABLED", default="true")
-    MAIL_ENABLED = _mail_enabled.lower() in {"1", "t", "true"}
+缺省的前缀是 ``FLASK_`` 。前缀可以通过
+:meth:`~flask.Config.from_prefixed_env` 的 ``prefix`` 参数来变更。
 
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+变量在解析的时候会优先转换为更特殊的数据类型，如果无法转换为其他类型，
+那么最后会转换为字符串类型。变量解析缺省使用 :func:`json.loads` ，因此
+可以使用任何合法的 JSON 值，包括列表和字典。解析的行为是可以自定义的，
+通过 :meth:`~flask.Config.from_prefixed_env` 的 ``loads`` 参数可以自定义
+解析的行为。
 
-    if not SECRET_KEY:
-        raise ValueError("No SECRET_KEY set for Flask application")
+当使用缺省的 JSON 解析时，只有小写的 ``true`` 和 ``false`` 是合法的
+布尔值。请牢记，所有非空的字符在 Python 中都会被视为 ``True`` 。
 
+使用双下划线（ ``__`` ）可以设置嵌套的字典，如果嵌套字典的中间键不存
+在话会被初始化为空字典。
 
-请注意，除了空字符串之外的任何值都将被解释为 Python 中的布尔值 ``True`` ，
-如果环境显式设置值为 ``False`` ，则需要注意。
+.. code-block:: text
 
-确保尽早加载配置，以便扩展能够在启动时访问配置。除了从文件加载，配置对象还
-有其他方法可以加载。完整的参考参见 :class:`~flask.Config` 类文档。
+    $ export FLASK_MYAPI__credentials__username=user123
+
+.. code-block:: python
+
+    app.config["MYAPI"]["credentials"]["username"]  # Is "user123"
+
+在 Windows 系统下，环境变量总是大写的，因此上面的例子最终会变成
+``MYAPI__CREDENTIALS__USERNAME`` 。
+
+更多的配置载入功能，包括合并和 Windows 系统中小写变量名的支持等等功能，
+请尝试使用其他更专门的库，比如 Dynaconf_ 库。
+
+.. _Dynaconf: https://www.dynaconf.com
 
 
 配置的最佳实践
@@ -520,6 +561,8 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 2.  不要编写在导入时就访问配置的代码。如果你限制自己只能通过请求访问代码，
     那么就可以在以后按需重设配置对象。
+
+3.  确保尽早载入配置，这样扩展就可以在调用 ``init_app`` 时读取配置。
 
 
 .. _config-dev-prod:

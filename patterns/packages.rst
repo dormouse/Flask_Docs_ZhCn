@@ -65,6 +65,12 @@
 
          $ export FLASK_APP=yourapplication
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP yourapplication
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -87,6 +93,12 @@
       .. code-block:: text
 
          $ export FLASK_ENV=development
+
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_ENV development
 
    .. group-tab:: CMD
 
