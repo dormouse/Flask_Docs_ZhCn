@@ -152,7 +152,7 @@ Blinker 1.1 版本中你还可以通过使用新的
 
     @template_rendered.connect_via(app)
     def when_template_rendered(sender, template, context, **extra):
-        print f'Template {template.name} is rendered with {context}'
+        print(f'Template {template.name} is rendered with {context}')
 
 
 核心信号
