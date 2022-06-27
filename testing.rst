@@ -99,31 +99,30 @@ fixture 来创建和配置一个应用实例。您可以在 ``yield`` 前后添�
         response = client.get("/posts")
         assert b"<h2>Hello, World!</h2>" in response.data
 
+在查询字符串中设置参数（ URL 中 ``?`` 后面的内容）的方法是传递一个
+``query_string={"key": "value", ...}`` 字典 。设置请求头部的方法是传
+递一个 ``headers={}`` 字典。
 
-Pass a dict ``query_string={"key": "value", ...}`` to set arguments in
-the query string (after the ``?`` in the URL). Pass a dict
-``headers={}`` to set request headers.
-
-To send a request body in a POST or PUT request, pass a value to
-``data``. If raw bytes are passed, that exact body is used. Usually,
-you'll pass a dict to set form data.
+在一个 POST 或者 PUT 请求中发送一个请求正文的方法是把值传递给
+``data`` 。如果传递的是原始字节，那么就会原封不动地作为请求正文。但
+是，通常的做法是传递一个字典，设置表单数据。
 
 
-Form Data
+表单数据
 ~~~~~~~~~
 
-To send form data, pass a dict to ``data``. The ``Content-Type`` header
-will be set to ``multipart/form-data`` or
-``application/x-www-form-urlencoded`` automatically.
+把一个字典传递给 ``data`` ，可以设置表单数据。 ``Content-Type`` 头部
+会自动设置为 ``multipart/form-data`` 或者
+``application/x-www-form-urlencoded`` 。
 
-If a value is a file object opened for reading bytes (``"rb"`` mode), it
-will be treated as an uploaded file. To change the detected filename and
-content type, pass a ``(file, filename, content_type)`` tuple. File
-objects will be closed after making the request, so they do not need to
-use the usual ``with open() as f:`` pattern.
+如果值是一个以读取字节模式（ ``"rb"`` ）打开的文件对象，那么会被作为
+一个上传文件对待。其文件名和内容类型会被自动侦测，传递一个
+``(file, filename, content_type)`` 元组可以改变它们。
+文件对象会在生成请求后自动关闭，所以无需使用常见的
+``with open() as f:`` 模式。
 
-It can be useful to store files in a ``tests/resources`` folder, then
-use ``pathlib.Path`` to get files relative to the current test file.
+一个比较实用的技巧是把文件放在 ``tests/resources`` 文件夹中，然后使用
+``pathlib.Path`` 来获取其相对于当前测试文件的相对路径。
 
 .. code-block:: python
 
@@ -141,14 +140,14 @@ use ``pathlib.Path`` to get files relative to the current test file.
         assert response.status_code == 200
 
 
-JSON Data
+JSON 数据
 ~~~~~~~~~
 
-To send JSON data, pass an object to ``json``. The ``Content-Type``
-header will be set to ``application/json`` automatically.
+把一个对象传递给 ``json`` ，可以发送 JSON 数据，
+``Content-Type`` 头部会被自动设置为 ``application/json`` 。
 
-Similarly, if the response contains JSON data, the ``response.json``
-attribute will contain the deserialized object.
+同样，如果响应包含 JSON 数据，那么 ``response.json`` 属性将包含反序列
+化的对象。
 
 .. code-block:: python
 
@@ -168,18 +167,22 @@ attribute will contain the deserialized object.
         assert response.json["data"]["user"]["name"] == "Flask"
 
 
-Following Redirects
+追随重定向
 -------------------
-
-By default, the client does not make additional requests if the response
-is a redirect. By passing ``follow_redirects=True`` to a request method,
-the client will continue to make requests until a non-redirect response
-is returned.
 
 :attr:`TestResponse.history <werkzeug.test.TestResponse.history>` is
 a tuple of the responses that led up to the final response. Each
 response has a :attr:`~werkzeug.test.TestResponse.request` attribute
 which records the request that produced that response.
+
+默认情况下，如果响应是一个重定向，客户端不会发出额外的请求。如果将
+``follow_redirects=True`` 传递给请求方法，客户端将继续发出请求，直到
+返回一个非重定向响应。
+
+:attr:`TestResponse.history <werkzeug.test.TestResponse.history>`
+是一个记录了所有响应的元组。每个响应都有一个
+:attr:`~werkzeug.test.TestResponse.request` 属性，其记录了产生该响应
+的请求。
 
 .. code-block:: python
 
@@ -191,13 +194,12 @@ which records the request that produced that response.
         assert response.request.path == "/index"
 
 
-Accessing and Modifying the Session
------------------------------------
+访问和修改会话
+----------------------------------
 
-To access Flask's context variables, mainly
-:data:`~flask.session`, use the client in a ``with`` statement.
-The app and request context will remain active *after* making a request,
-until the ``with`` block ends.
+访问 Flask 的情境变量，主要是 :data:`~flask.session` ，可以在一个
+``with`` 语句中使用客户端。应用程序和请求情境在生成一个请求
+*之后* 会保持活动状态，直到 ``with`` 块结束。
 
 .. code-block:: python
 
@@ -211,11 +213,10 @@ until the ``with`` block ends.
 
         # session is no longer accessible
 
-If you want to access or set a value in the session *before* making a
-request, use the client's
-:meth:`~flask.testing.FlaskClient.session_transaction` method in a
-``with`` statement. It returns a session object, and will save the
-session once the block ends.
+如果要在生成请求 *之前* 访问和设置会话中的值，那么可以在一个 ``with``
+语句中使用客户端的
+:meth:`~flask.testing.FlaskClient.session_transaction` 方法。
+这样会返回一个会话对象，并且在块结束时会保存会话。
 
 .. code-block:: python
 
@@ -234,18 +235,17 @@ session once the block ends.
 
 .. _testing-cli:
 
-Running Commands with the CLI Runner
+使用 CLI 运行器运行命令
 ------------------------------------
 
-Flask provides :meth:`~flask.Flask.test_cli_runner` to create a
-:class:`~flask.testing.FlaskCliRunner`, which runs CLI commands in
-isolation and captures the output in a :class:`~click.testing.Result`
-object. Flask's runner extends :doc:`Click's runner <click:testing>`,
-see those docs for additional information.
+Flask 提供 :meth:`~flask.Flask.test_cli_runner` 方法用以创建
+:class:`~flask.testing.FlaskCliRunner` 类，它可以独立运行 CLI 命令，
+并在 :class:`~click.testing.Result` 对象中获取输出。
+Flask 的运行器扩展了 :doc:`Click 的运行器 <click:testing>` ，更多内容
+详见其文档。
 
-Use the runner's :meth:`~flask.testing.FlaskCliRunner.invoke` method to
-call commands in the same way they would be called with the ``flask``
-command from the command line.
+使用运行器的 :meth:`~flask.testing.FlaskCliRunner.invoke` 方法来
+调用命令的方式与在命令下使用 ``flask`` 命令调用的方式相同。
 
 .. code-block:: python
 
@@ -278,14 +278,26 @@ Use ``with app.app_context()`` to push an application context. For
 example, database extensions usually require an active app context to
 make queries.
 
+依赖于活动状态情境的测试
+--------------------------------------
+
+有些从视图或命令调用的函数，因为需要访问 ``request`` ` ``session``
+或者 ``current_app`` ，所有希望有一个活动的 
+:doc:`应用情境 </appcontext>` 或者 :doc:`请求情境 </reqcontext>` 。
+这时你可以直接创建并激活一个情境，而不是通过制作一个请求或调用命令来
+进行测试。
+
+使用 ``with app.app_context()`` 来推送应用情境。例如，数据库扩展通常
+需要一个活动的应用情境来进行查询。
+
 .. code-block:: python
 
     def test_db_post_model(app):
         with app.app_context():
             post = db.session.query(Post).get(1)
 
-Use ``with app.test_request_context()`` to push a request context. It
-takes the same arguments as the test client's request methods.
+使用 ``with app.test_request_context()`` 来推送请求情境。它的参数与
+测试客户端的请求方法一样。
 
 .. code-block:: python
 
@@ -302,6 +314,10 @@ Creating a test request context doesn't run any of the Flask dispatching
 code, so ``before_request`` functions are not called. If you need to
 call these, usually it's better to make a full request instead. However,
 it's possible to call them manually.
+
+创建一个测试请求情境不会运行任何 Flask 调度代码，所以不会调用
+``before_request`` 函数。如果你需要调用，那么通常最好使用一个完整请求。
+当然，手动调用也是可以的。
 
 .. code-block:: python
 

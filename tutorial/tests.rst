@@ -239,7 +239,7 @@ Pytest 通过匹配固件函数名称和测试函数的参数名称来使用固�
         response = client.post(
             '/auth/register', data={'username': 'a', 'password': 'a'}
         )
-        assert 'http://localhost/auth/login' == response.headers['Location']
+        assert response.headers["Location"] == "/auth/login"
 
         with app.app_context():
             assert get_db().execute(
@@ -288,7 +288,7 @@ Flask 会返回一个 ``500 Internal Server Error`` 代码。
     def test_login(client, auth):
         assert client.get('/auth/login').status_code == 200
         response = auth.login()
-        assert response.headers['Location'] == 'http://localhost/'
+        assert response.headers["Location"] == "/"
 
         with client:
             client.get('/')
@@ -369,7 +369,7 @@ Flask 会返回一个 ``500 Internal Server Error`` 代码。
     ))
     def test_login_required(client, path):
         response = client.post(path)
-        assert response.headers['Location'] == 'http://localhost/auth/login'
+        assert response.headers["Location"] == "/auth/login"
 
 
     def test_author_required(app, client, auth):
@@ -442,7 +442,7 @@ Flask 会返回一个 ``500 Internal Server Error`` 代码。
     def test_delete(client, auth, app):
         auth.login()
         response = client.post('/1/delete')
-        assert response.headers['Location'] == 'http://localhost/'
+        assert response.headers["Location"] == "/"
 
         with app.app_context():
             db = get_db()

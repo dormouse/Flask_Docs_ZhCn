@@ -51,29 +51,29 @@ Python 项目使用 *包* 来管理代码，把代码分为不同的模块，然
 
     /home/user/Projects/flask-tutorial
     ├── flaskr/
-    │   ├── __init__.py
-    │   ├── db.py
-    │   ├── schema.sql
-    │   ├── auth.py
-    │   ├── blog.py
-    │   ├── templates/
-    │   │   ├── base.html
-    │   │   ├── auth/
-    │   │   │   ├── login.html
-    │   │   │   └── register.html
-    │   │   └── blog/
-    │   │       ├── create.html
-    │   │       ├── index.html
-    │   │       └── update.html
-    │   └── static/
-    │       └── style.css
+    │   ├── __init__.py
+    │   ├── db.py
+    │   ├── schema.sql
+    │   ├── auth.py
+    │   ├── blog.py
+    │   ├── templates/
+    │   │   ├── base.html
+    │   │   ├── auth/
+    │   │   │   ├── login.html
+    │   │   │   └── register.html
+    │   │   └── blog/
+    │   │       ├── create.html
+    │   │       ├── index.html
+    │   │       └── update.html
+    │   └── static/
+    │       └── style.css
     ├── tests/
-    │   ├── conftest.py
-    │   ├── data.sql
-    │   ├── test_factory.py
-    │   ├── test_db.py
-    │   ├── test_auth.py
-    │   └── test_blog.py
+    │   ├── conftest.py
+    │   ├── data.sql
+    │   ├── test_factory.py
+    │   ├── test_db.py
+    │   ├── test_auth.py
+    │   └── test_blog.py
     ├── venv/
     ├── setup.py
     └── MANIFEST.in

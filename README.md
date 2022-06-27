@@ -7,9 +7,9 @@ Initiate and translated by Dormouse Young.
 
 ## 版本
 
-现在正在翻译的是 Flask 2.0.2 的文档。
+现在正在翻译的是 Flask 2.1.2 的文档。
 
-Flask 2.0.2 docs are being translating now.
+Flask 2.1.2 docs are being translating now.
 
 ## 版权
 
@@ -41,8 +41,3 @@ conda activate flask_doc
 pip install -r requirements.txt
 make html
 ```
-
-### PDF 文档
-
-参见 https://dormouse.github.io/zh_cn/2013/rst-sphinx-pdf/
-

@@ -10,8 +10,8 @@ from pallets_sphinx_themes import ProjectLink
 project = "Flask"
 copyright = "2010 Pallets"
 author = "Pallets"
-release = "2.0.2"
-version = "2.0.2"
+release = "2.1.2"
+version = "2.1.2"
 
 # General --------------------------------------------------------------
 language = 'zh_CN'
@@ -67,7 +67,7 @@ singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.ht
 html_static_path = ["_static"]
 html_favicon = "_static/flask-icon.png"
 html_logo = "_static/flask-icon.png"
-html_title = "Flask 中文文档 (2.0.2)"
+html_title = "Flask 中文文档 (2.1.2)"
 html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------

@@ -126,6 +126,14 @@
          $ export FLASK_ENV=development
          $ flask run
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP flaskr
+         $ set -x FLASK_ENV development
+         $ flask run
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -156,5 +164,9 @@
 
 在浏览器中访问 http://127.0.0.1:5000/hello ，就可以看到 "Hello, World!"
 信息。恭喜你， Flask 网络应用成功运行了！
+
+如果其他应用程序已经占用了 5000 端口，那么在启动服务的时候会看到
+``OSError: [Errno 98]`` 或者 ``OSError: [WinError 10013]`` 出错信息。
+如何处理这个问题，请参阅 :ref:`address-already-in-use` 。
 
 下面请阅读 :doc:`database` 。

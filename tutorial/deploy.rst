@@ -49,6 +49,13 @@ Pip 会安装项目和相关依赖。
          $ export FLASK_APP=flaskr
          $ flask init-db
 
+   .. group-tab:: Fish
+
+      .. code-block:: text
+
+         $ set -x FLASK_APP flaskr
+         $ flask init-db
+
    .. group-tab:: CMD
 
       .. code-block:: text
@@ -78,9 +85,9 @@ cookie ，或者其他任何使用密钥的东西。
 
 .. code-block:: none
 
-    $ python -c 'import os; print(os.urandom(16))'
+    $ python -c 'import secrets; print(secrets.token_hex())
 
-    b'_5#y2L"F4Q8z\n\xec]/'
+    '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf
 
 在实例文件夹创建一个 ``config.py`` 文件。工厂会读取这个文件，如果该文件存
 在的话。提制生成的值到该文件中。
@@ -88,7 +95,7 @@ cookie ，或者其他任何使用密钥的东西。
 .. code-block:: python
     :caption: ``venv/var/flaskr-instance/config.py``
 
-    SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
+    SECRET_KEY = '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'
 
 其他必须的配置也可以写入该文件中。 Flaskr 只需要 ``SECRET_KEY`` 即可。
 
