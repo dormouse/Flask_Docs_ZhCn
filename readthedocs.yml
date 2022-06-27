@@ -9,4 +9,6 @@ python:
     - method: pip
       path: .
 sphinx:
+  configuration: conf.py
   fail_on_warning: true
+formats: all
