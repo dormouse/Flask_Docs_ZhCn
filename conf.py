@@ -10,8 +10,9 @@ from pallets_sphinx_themes import ProjectLink
 project = "Flask"
 copyright = "2010 Pallets"
 author = "Pallets"
-release = "2.1.2"
-version = "2.1.2"
+# release = "2.1.2"
+# version = "2.1.2"
+release, version = get_version("Flask")
 
 # General --------------------------------------------------------------
 language = 'zh_CN'
@@ -39,10 +40,10 @@ intersphinx_mapping = {
 issues_github_path = "pallets/flask"
 
 # HTML -----------------------------------------------------------------
-html_theme = 'flask'
-html_theme_path = ["./pallets_sphinx_themes"]
+# html_theme = 'flask'
+# html_theme_path = ["./pallets_sphinx_themes"]
 
-# html_theme = "flask"
+html_theme = "flask"
 html_theme_options = {"index_sidebar_logo": False}
 html_context = {
     "project_links": [
@@ -67,7 +68,9 @@ singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.ht
 html_static_path = ["_static"]
 html_favicon = "_static/flask-icon.png"
 html_logo = "_static/flask-icon.png"
-html_title = "Flask 中文文档 (2.1.2)"
+#html_title = "Flask 中文文档 (2.1.2)"
+html_title = f"Flask中文文档({version})"
+
 html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------
