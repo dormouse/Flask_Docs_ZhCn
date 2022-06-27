@@ -15,9 +15,9 @@ Flask 为应用的测试提供了许多工具，本文我们就来聊一聊如�
 
 .. _pytest: https://docs.pytest.org/
 
-:doc:`tutorial </tutorial/index>` 介绍了如何 100% 测试覆盖示例 Flaskr
+:doc:`教程 </tutorial/index>` 介绍了如何 100% 测试覆盖示例 Flaskr
 应用。关于特定测试的详细说明参见
-:doc:`the tutorial on tests </tutorial/tests>` 。
+:doc:`教程中的测试一节 </tutorial/tests>` 。
 
 
 识别测试
@@ -264,20 +264,6 @@ Flask 的运行器扩展了 :doc:`Click 的运行器 <click:testing>` ，更多�
         assert "Flask" in result.output
 
 
-Tests that depend on an Active Context
---------------------------------------
-
-You may have functions that are called from views or commands, that
-expect an active :doc:`application context </appcontext>` or
-:doc:`request context  </reqcontext>` because they access ``request``,
-``session``, or ``current_app``. Rather than testing them by making a
-request or invoking the command, you can create and activate a context
-directly.
-
-Use ``with app.app_context()`` to push an application context. For
-example, database extensions usually require an active app context to
-make queries.
-
 依赖于活动状态情境的测试
 --------------------------------------
 
@@ -309,11 +295,6 @@ make queries.
             messages = validate_edit_user()
 
         assert messages["name"][0] == "Name cannot be empty."
-
-Creating a test request context doesn't run any of the Flask dispatching
-code, so ``before_request`` functions are not called. If you need to
-call these, usually it's better to make a full request instead. However,
-it's possible to call them manually.
 
 创建一个测试请求情境不会运行任何 Flask 调度代码，所以不会调用
 ``before_request`` 函数。如果你需要调用，那么通常最好使用一个完整请求。
