@@ -3,9 +3,9 @@
 命令行接口
 ======================
 
-在虚拟环境中安装 Flask 时会同时安装 ``flask`` 脚本，这是一个 `Click`_ 命令
-行接口。在终端中执行该脚本可以操作内建的、扩展的和应用定义的命令。关于命令
-的更多信息和选择可以通过使用 ``--help`` 参数查看。
+在虚拟环境中安装 Flask 时会同时安装 ``flask`` 脚本，这是一个 `Click`_
+命令行接口。在终端中执行该脚本可以操作内建的、扩展的和应用定义的命令。
+关于命令的更多信息和选择可以通过使用 ``--help`` 参数查看。
 
 .. _Click: https://click.palletsprojects.com/
 
@@ -13,40 +13,11 @@
 探索应用
 ---------------------
 
-``flask`` 命令由 Flask 安装，而不是你的应用。为了可以使用，它必须被告知可
-以在哪里找到你的应用。 ``FLASK_APP`` 环境变量用于定义如何载入应用。
+``flask`` 命令由 Flask 安装，而不是你的应用。为了可以正常使用，它必须
+被告知可以在哪里找到你的应用。 ``flask`` 命令的 ``--app`` 参数用于指
+定如何载入应用。
 
-.. tabs::
-
-   .. group-tab:: Bash
-
-      .. code-block:: text
-
-         $ export FLASK_APP=hello
-         $ flask run
-
-   .. group-tab:: Fish
-
-      .. code-block:: text
-
-         $ set -x FLASK_APP hello
-         $ flask run
-
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_APP=hello
-         > flask run
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_APP = "hello"
-         > flask run
-
-虽然 ``FLASK_APP`` 支持多种选项来定义应用，但多数情况下应该很简单。以下是
+虽然 ``--app`` 支持多种选项来定义应用，但多数情况下应该很简单。以下是
 典型值：
 
 (空)
@@ -54,30 +25,30 @@
     自动探测一个应用（ ``app`` 或者 ``application`` ）或者工厂（
     ``create_app`` 或者 ``make_app`` ）。
 
-``FLASK_APP=hello``
+``--app hello``
     给定的名称被导入，自动探测一个应用（ ``app`` 或者 ``application`` ）
     或者工厂（ ``create_app`` 或者 ``make_app`` ）。
 
 ----
 
-``FLASK_APP`` 分三个部分：一是一个可选路径，用于设置当前工作文件夹；二是一
+``--app`` 分三个部分：一是一个可选路径，用于设置当前工作文件夹；二是一
 个 Python 文件或者带点的导入路径；三是一个可选的实例或工厂的变量名称。如果
 名称是工厂，则可以选择在后面的括号中加上参数。以下演示说明：
 
-``FLASK_APP=src/hello``
+``--app src/hello``
     设置当前工作文件夹为 ``src`` 然后导入 ``hello`` 。
 
-``FLASK_APP=hello.web``
+``--app hello.web``
     导入路径 ``hello.web`` 。
 
-``FLASK_APP=hello:app2``
+``--app hello:app2``
     使用 ``hello`` 中的 ``app2`` Flask 实例。
 
-``FLASK_APP="hello:create_app('dev')"``
+``--app 'hello:create_app("dev")'``
     调用 ``hello`` 中的 ``create_app`` 工厂，把 ``'dev'`` 作为参数。
 
-如果没有设置 ``FLASK_APP`` ，命令会查找 :file:`wsgi.py` 文件或者
-:file:`app.py` 文件并尝试探测一个应用实例或者工厂。
+如果没有设置 ``--app`` ，命令会尝试导入“ app ”或者“ wsgi ”（可以是
+一个“ .py ”文件或者包）并尝试探测一个应用实例或者工厂。
 
 根据给定的导入，命令会寻找一个名为 ``app`` 或者 ``application`` 的应用
 实例。如果找不到会继续寻找任意应用实例。如果找不到任何实例，会接着寻找
@@ -93,7 +64,7 @@
 :func:`run <cli.run_command>` 命令可以启动开发服务器，它在大多数情况下
 替代 :meth:`Flask.run` 方法。::
 
-    $ flask run
+    $ flask --app hello run
      * Serving Flask app "hello"
      * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 
@@ -104,6 +75,49 @@
 如果另一个程序已经占用了 5000 端口，那么当你尝试打开服务时会看到
 ``OSError: [Errno 98]`` 或者 ``OSError: [WinError 10013]`` 错误。
 如何处理这个问题，参见 :ref:`address-already-in-use` 。
+
+
+调试模式
+~~~~~~~~
+
+在调试模式下， ``flask run`` 命令会默认启用交互调试器和重载器，以方便
+发现错误并进行调试。使用 ``--debug`` 选项可以启用调试模式。
+
+.. code-block:: console
+
+     $ flask --app hello run --debug
+      * Serving Flask app "hello"
+      * Debug mode: on
+      * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+      * Restarting with inotify reloader
+      * Debugger is active!
+      * Debugger PIN: 223-456-919
+
+``--debug`` 选项也可以在任何命令中被传递给顶层的 ``flask`` 命令。以下
+两个命令是等价的。
+
+.. code-block:: console
+
+    $ flask --app hello --debug run
+    $ flask --app hello run --debug
+
+
+使用重载器监视文件、排除文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+在调试模式下，当你的 Python 代码或者导入的模块发生变动时会触发重载器。
+使用 ``--extra-files`` 参数可以添加额外的文件，多个文件路径使用
+``:`` 分隔，在 Windwos 下使用 ``;`` 分隔。
+
+.. code-block:: text
+
+    $ flask run --extra-files file1:dirA/file2:dirB/
+     * Running on http://127.0.0.1:8000/
+     * Detected change in '/path/to/file1', reloading
+
+重载器也可以排除监视文件，使用 ``--exclude-patterns`` 可以排除文件，
+这个参数使用 :mod:`fnmatch` 模式。，多个文件路径使用 ``:`` 分隔，在
+Windwos 下使用 ``;`` 分隔。
 
 
 打开一个 Shell

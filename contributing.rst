@@ -13,10 +13,9 @@
 
 -   Discord chat 上的 ``#questions`` 频道：
     https://discord.gg/pallets
--   邮件列表 flask@python.org 用于长期或者大型问题讨论。
 -   在 `Stack Overflow`_ 上提问。提问前请先使用以下方法在 Google 上搜索：
     ``site:stackoverflow.com flask {search term, exception message, etc.}``
--   在我们的 `GitHub 讨论`_ 上提问。
+-   长期或者大型问题讨论，请在我们的 `GitHub 讨论`_ 上提问。
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/flask?tab=Frequent
 .. _GitHub 讨论: https://github.com/pallets/flask/discussion
@@ -87,21 +86,19 @@
 
 -   创建一个 virtualenv 。
 
-    .. tabs::
+    - Linux/macOS
 
-       .. group-tab:: Linux/macOS
+      .. code-block:: text
 
-          .. code-block:: text
+         $ python3 -m venv env
+         $ . env/bin/activate
 
-             $ python3 -m venv env
-             $ . env/bin/activate
+    - Windows
 
-       .. group-tab:: Windows
+      .. code-block:: text
 
-          .. code-block:: text
-
-             > py -3 -m venv env
-             > env\Scripts\activate
+         > py -3 -m venv env
+         > env\Scripts\activate
 
 -   升级 pip 和 setuptools 。
 
@@ -158,7 +155,7 @@
 
         $ git push --set-upstream fork your-branch-name
 
-.. _随时提交: https://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
+.. _随时提交: https://afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes
 .. _创建一个拉取请求: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
 
 

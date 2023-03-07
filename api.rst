@@ -3,7 +3,7 @@ API
 
 .. module:: flask
 
-This part of the documentation covers all the interfaces of Flask.  For
+This part of the documentation covers all the interfaces of Flask. For
 parts where Flask depends on external libraries, we document the most
 important right here and provide links to the canonical documentation.
 
@@ -34,12 +34,12 @@ Incoming Request Data
 .. attribute:: request
 
    To access incoming request data, you can use the global `request`
-   object.  Flask parses incoming request data for you and gives you
-   access to it through that global object.  Internally Flask makes
+   object. Flask parses incoming request data for you and gives you
+   access to it through that global object. Internally Flask makes
    sure that you always get the correct data for the active thread if you
    are in a multithreaded environment.
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+   This is a proxy. See :ref:`notes-on-proxies` for more information.
 
    The request object is an instance of a :class:`~flask.Request`.
 
@@ -69,7 +69,7 @@ To access the current session you can use the :class:`session` object:
    The session object works pretty much like an ordinary dict, with the
    difference that it keeps track of modifications.
 
-   This is a proxy.  See :ref:`notes-on-proxies` for more information.
+   This is a proxy. See :ref:`notes-on-proxies` for more information.
 
    The following attributes are interesting:
 
@@ -79,10 +79,10 @@ To access the current session you can use the :class:`session` object:
 
    .. attribute:: modified
 
-      ``True`` if the session object detected a modification.  Be advised
+      ``True`` if the session object detected a modification. Be advised
       that modifications on mutable structures are not picked up
       automatically, in that situation you have to explicitly set the
-      attribute to ``True`` yourself.  Here an example::
+      attribute to ``True`` yourself. Here an example::
 
           # this change is not picked up because a mutable object (here
           # a list) is changed.
@@ -93,8 +93,8 @@ To access the current session you can use the :class:`session` object:
    .. attribute:: permanent
 
       If set to ``True`` the session lives for
-      :attr:`~flask.Flask.permanent_session_lifetime` seconds.  The
-      default is 31 days.  If set to ``False`` (which is the default) the
+      :attr:`~flask.Flask.permanent_session_lifetime` seconds. The
+      default is 31 days. If set to ``False`` (which is the default) the
       session will be deleted when the user closes the browser.
 
 
@@ -125,10 +125,9 @@ implementation that Flask is using.
 
 .. admonition:: Notice
 
-   The ``PERMANENT_SESSION_LIFETIME`` config key can also be an integer
-   starting with Flask 0.8.  Either catch this down yourself or use
-   the :attr:`~flask.Flask.permanent_session_lifetime` attribute on the
-   app which converts the result to an integer automatically.
+    The :data:`PERMANENT_SESSION_LIFETIME` config can be an integer or ``timedelta``.
+    The :attr:`~flask.Flask.permanent_session_lifetime` attribute is always a
+    ``timedelta``.
 
 
 Test Client
@@ -156,9 +155,9 @@ Application Globals
 
 To share data that is valid for one request only from one function to
 another, a global variable is not good enough because it would break in
-threaded environments.  Flask provides you with a special object that
+threaded environments. Flask provides you with a special object that
 ensures it is only valid for the active request and that will return
-different values for each request.  In a nutshell: it does the right
+different values for each request. In a nutshell: it does the right
 thing, like it does for :class:`request` and :class:`session`.
 
 .. data:: g
@@ -236,26 +235,20 @@ JSON Support
 
 .. module:: flask.json
 
-Flask uses the built-in :mod:`json` module for handling JSON. It will
-use the current blueprint's or application's JSON encoder and decoder
-for easier customization. By default it handles some extra data types:
+Flask uses Python's built-in :mod:`json` module for handling JSON by
+default. The JSON implementation can be changed by assigning a different
+provider to :attr:`flask.Flask.json_provider_class` or
+:attr:`flask.Flask.json`. The functions provided by ``flask.json`` will
+use methods on ``app.json`` if an app context is active.
 
--   :class:`datetime.datetime` and :class:`datetime.date` are serialized
-    to :rfc:`822` strings. This is the same as the HTTP date format.
--   :class:`uuid.UUID` is serialized to a string.
--   :class:`dataclasses.dataclass` is passed to
-    :func:`dataclasses.asdict`.
--   :class:`~markupsafe.Markup` (or any object with a ``__html__``
-    method) will call the ``__html__`` method to get a string.
-
-Jinja's ``|tojson`` filter is configured to use Flask's :func:`dumps`
-function. The filter marks the output with ``|safe`` automatically. Use
-the filter to render data inside ``<script>`` tags.
+Jinja's ``|tojson`` filter is configured to use the app's JSON provider.
+The filter marks the output with ``|safe``. Use it to render data inside
+HTML ``<script>`` tags.
 
 .. sourcecode:: html+jinja
 
     <script>
-        const names = {{ names|tosjon }};
+        const names = {{ names|tojson }};
         renderChart(names, {{ axis_data|tojson }});
     </script>
 
@@ -268,6 +261,14 @@ the filter to render data inside ``<script>`` tags.
 .. autofunction:: loads
 
 .. autofunction:: load
+
+.. autoclass:: flask.json.provider.JSONProvider
+    :members:
+    :member-order: bysource
+
+.. autoclass:: flask.json.provider.DefaultJSONProvider
+    :members:
+    :member-order: bysource
 
 .. autoclass:: JSONEncoder
    :members:
@@ -311,56 +312,28 @@ Useful Internals
 .. autoclass:: flask.ctx.RequestContext
    :members:
 
-.. data:: _request_ctx_stack
+.. data:: flask.globals.request_ctx
 
-    The internal :class:`~werkzeug.local.LocalStack` that holds
-    :class:`~flask.ctx.RequestContext` instances. Typically, the
-    :data:`request` and :data:`session` proxies should be accessed
-    instead of the stack. It may be useful to access the stack in
-    extension code.
+    The current :class:`~flask.ctx.RequestContext`. If a request context
+    is not active, accessing attributes on this proxy will raise a
+    ``RuntimeError``.
 
-    The following attributes are always present on each layer of the
-    stack:
-
-    `app`
-      the active Flask application.
-
-    `url_adapter`
-      the URL adapter that was used to match the request.
-
-    `request`
-      the current request object.
-
-    `session`
-      the active session object.
-
-    `g`
-      an object with all the attributes of the :data:`flask.g` object.
-
-    `flashes`
-      an internal cache for the flashed messages.
-
-    Example usage::
-
-        from flask import _request_ctx_stack
-
-        def get_session():
-            ctx = _request_ctx_stack.top
-            if ctx is not None:
-                return ctx.session
+    This is an internal object that is essential to how Flask handles
+    requests. Accessing this should not be needed in most cases. Most
+    likely you want :data:`request` and :data:`session` instead.
 
 .. autoclass:: flask.ctx.AppContext
    :members:
 
-.. data:: _app_ctx_stack
+.. data:: flask.globals.app_ctx
 
-    The internal :class:`~werkzeug.local.LocalStack` that holds
-    :class:`~flask.ctx.AppContext` instances. Typically, the
-    :data:`current_app` and :data:`g` proxies should be accessed instead
-    of the stack. Extensions can access the contexts on the stack as a
-    namespace to store data.
+    The current :class:`~flask.ctx.AppContext`. If an app context is not
+    active, accessing attributes on this proxy will raise a
+    ``RuntimeError``.
 
-    .. versionadded:: 0.9
+    This is an internal object that is essential to how Flask handles
+    requests. Accessing this should not be needed in most cases. Most
+    likely you want :data:`current_app` and :data:`g` instead.
 
 .. autoclass:: flask.blueprints.BlueprintSetupState
    :members:
@@ -374,14 +347,14 @@ Signals
 
 .. data:: signals.signals_available
 
-   ``True`` if the signaling system is available.  This is the case
+   ``True`` if the signaling system is available. This is the case
    when `blinker`_ is installed.
 
 The following signals exist in Flask:
 
 .. data:: template_rendered
 
-   This signal is sent when a template was successfully rendered.  The
+   This signal is sent when a template was successfully rendered. The
    signal is invoked with the instance of the template as `template`
    and the context as dictionary (named `context`).
 
@@ -415,7 +388,7 @@ The following signals exist in Flask:
 .. data:: request_started
 
    This signal is sent when the request context is set up, before
-   any request processing happens.  Because the request context is already
+   any request processing happens. Because the request context is already
    bound, the subscriber can access the request with the standard global
    proxies such as :class:`~flask.request`.
 
@@ -435,7 +408,7 @@ The following signals exist in Flask:
    Example subscriber::
 
         def log_response(sender, response, **extra):
-            sender.logger.debug('Request context is about to close down.  '
+            sender.logger.debug('Request context is about to close down. '
                                 'Response: %s', response)
 
         from flask import request_finished
@@ -472,8 +445,8 @@ The following signals exist in Flask:
 
 .. data:: request_tearing_down
 
-   This signal is sent when the request is tearing down.  This is always
-   called, even if an exception is caused.  Currently functions listening
+   This signal is sent when the request is tearing down. This is always
+   called, even if an exception is caused. Currently functions listening
    to this signal are called after the regular teardown handlers, but this
    is not something you can rely on.
 
@@ -491,8 +464,8 @@ The following signals exist in Flask:
 
 .. data:: appcontext_tearing_down
 
-   This signal is sent when the app context is tearing down.  This is always
-   called, even if an exception is caused.  Currently functions listening
+   This signal is sent when the app context is tearing down. This is always
+   called, even if an exception is caused. Currently functions listening
    to this signal are called after the regular teardown handlers, but this
    is not something you can rely on.
 
@@ -509,9 +482,9 @@ The following signals exist in Flask:
 
 .. data:: appcontext_pushed
 
-   This signal is sent when an application context is pushed.  The sender
-   is the application.  This is usually useful for unittests in order to
-   temporarily hook in information.  For instance it can be used to
+   This signal is sent when an application context is pushed. The sender
+   is the application. This is usually useful for unittests in order to
+   temporarily hook in information. For instance it can be used to
    set a resource early onto the `g` object.
 
    Example usage::
@@ -538,8 +511,8 @@ The following signals exist in Flask:
 
 .. data:: appcontext_popped
 
-   This signal is sent when an application context is popped.  The sender
-   is the application.  This usually falls in line with the
+   This signal is sent when an application context is popped. The sender
+   is the application. This usually falls in line with the
    :data:`appcontext_tearing_down` signal.
 
    .. versionadded:: 0.10
@@ -547,7 +520,7 @@ The following signals exist in Flask:
 
 .. data:: message_flashed
 
-   This signal is sent when the application is flashing a message.  The
+   This signal is sent when the application is flashing a message. The
    messages is sent as `message` keyword argument and the category as
    `category`.
 
@@ -565,7 +538,7 @@ The following signals exist in Flask:
 .. class:: signals.Namespace
 
    An alias for :class:`blinker.base.Namespace` if blinker is available,
-   otherwise a dummy class that creates fake signals.  This class is
+   otherwise a dummy class that creates fake signals. This class is
    available for Flask extensions that want to provide the same fallback
    system as Flask itself.
 
@@ -606,7 +579,7 @@ Generally there are three ways to define rules for the routing system:
     which is exposed as :attr:`flask.Flask.url_map`.
 
 Variable parts in the route can be specified with angular brackets
-(``/user/<username>``).  By default a variable part in the URL accepts any
+(``/user/<username>``). By default a variable part in the URL accepts any
 string without a slash however a different converter can be specified as
 well by using ``<converter:name>``.
 
@@ -640,7 +613,7 @@ Here are some examples::
         pass
 
 An important detail to keep in mind is how Flask deals with trailing
-slashes.  The idea is to keep each URL unique so the following rules
+slashes. The idea is to keep each URL unique so the following rules
 apply:
 
 1. If a rule ends with a slash and is requested without a slash by the
@@ -649,11 +622,11 @@ apply:
 2. If a rule does not end with a trailing slash and the user requests the
    page with a trailing slash, a 404 not found is raised.
 
-This is consistent with how web servers deal with static files.  This
+This is consistent with how web servers deal with static files. This
 also makes it possible to use relative link targets safely.
 
-You can also define multiple rules for the same function.  They have to be
-unique however.  Defaults can also be specified.  Here for example is a
+You can also define multiple rules for the same function. They have to be
+unique however. Defaults can also be specified. Here for example is a
 definition for a URL that accepts an optional page::
 
     @app.route('/users/', defaults={'page': 1})
@@ -676,33 +649,33 @@ can't preserve form data. ::
       pass
 
 Here are the parameters that :meth:`~flask.Flask.route` and
-:meth:`~flask.Flask.add_url_rule` accept.  The only difference is that
+:meth:`~flask.Flask.add_url_rule` accept. The only difference is that
 with the route parameter the view function is defined with the decorator
 instead of the `view_func` parameter.
 
 =============== ==========================================================
 `rule`          the URL rule as string
-`endpoint`      the endpoint for the registered URL rule.  Flask itself
+`endpoint`      the endpoint for the registered URL rule. Flask itself
                 assumes that the name of the view function is the name
                 of the endpoint if not explicitly stated.
 `view_func`     the function to call when serving a request to the
-                provided endpoint.  If this is not provided one can
+                provided endpoint. If this is not provided one can
                 specify the function later by storing it in the
                 :attr:`~flask.Flask.view_functions` dictionary with the
                 endpoint as key.
-`defaults`      A dictionary with defaults for this rule.  See the
+`defaults`      A dictionary with defaults for this rule. See the
                 example above for how defaults work.
 `subdomain`     specifies the rule for the subdomain in case subdomain
-                matching is in use.  If not specified the default
+                matching is in use. If not specified the default
                 subdomain is assumed.
 `**options`     the options to be forwarded to the underlying
-                :class:`~werkzeug.routing.Rule` object.  A change to
-                Werkzeug is handling of method options.  methods is a list
+                :class:`~werkzeug.routing.Rule` object. A change to
+                Werkzeug is handling of method options. methods is a list
                 of methods this rule should be limited to (``GET``, ``POST``
-                etc.).  By default a rule just listens for ``GET`` (and
-                implicitly ``HEAD``).  Starting with Flask 0.6, ``OPTIONS`` is
+                etc.). By default a rule just listens for ``GET`` (and
+                implicitly ``HEAD``). Starting with Flask 0.6, ``OPTIONS`` is
                 implicitly added and handled by the standard request
-                handling.  They have to be specified as keyword arguments.
+                handling. They have to be specified as keyword arguments.
 =============== ==========================================================
 
 
@@ -714,19 +687,19 @@ customize behavior the view function would normally not have control over.
 The following attributes can be provided optionally to either override
 some defaults to :meth:`~flask.Flask.add_url_rule` or general behavior:
 
--   `__name__`: The name of a function is by default used as endpoint.  If
-    endpoint is provided explicitly this value is used.  Additionally this
+-   `__name__`: The name of a function is by default used as endpoint. If
+    endpoint is provided explicitly this value is used. Additionally this
     will be prefixed with the name of the blueprint by default which
     cannot be customized from the function itself.
 
 -   `methods`: If methods are not provided when the URL rule is added,
     Flask will look on the view function object itself if a `methods`
-    attribute exists.  If it does, it will pull the information for the
+    attribute exists. If it does, it will pull the information for the
     methods from there.
 
 -   `provide_automatic_options`: if this attribute is set Flask will
     either force enable or disable the automatic implementation of the
-    HTTP ``OPTIONS`` response.  This can be useful when working with
+    HTTP ``OPTIONS`` response. This can be useful when working with
     decorators that want to customize the ``OPTIONS`` response on a per-view
     basis.
 
