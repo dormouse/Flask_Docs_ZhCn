@@ -34,43 +34,16 @@
     调试器允许执行来自浏览器的任意 Python 代码。虽然它由一个 pin 保护，
     但仍然存在巨大安全风险。不要在生产环境中运行开发服务器或调试器。
 
-把 ``FLASK_ENV`` 环境变更设置为 ``development`` ，运行开发服务器，即可
-开启调试器。这样， Flask 就处于调试模式下，一些错误处理的方式会被改变，
-并且调试器和重载器会开启。
+当开发服务器在调试模式下运行时调试器默认是开启的。
 
-.. tabs::
 
-   .. group-tab:: Bash
+.. code-block:: text
+ 
+    $ flask --app hello run --debug
+ 
 
-      .. code-block:: text
-
-         $ export FLASK_ENV=development
-         $ flask run
-
-   .. group-tab:: Fish
-
-      .. code-block:: text
-
-         $ set -x FLASK_ENV development
-         $ flask run
-
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_ENV=development
-         > flask run
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_ENV = "development"
-         > flask run
-
-``FLASK_ENV`` 只能被设置为环境变量。当以 Python 代码方式运行时，可以
-通过传递 ``debug=True`` 来开启调试模式，这是与前述方式基本等价的。调试
-模式可以由 ``FLASK_ENV`` 和 ``FLASK_DEBUG`` 环境变量分别控制。
+当以 Python 代码方式运行时，可以通过传递 ``debug=True`` 来开启调试模
+式，这是与前述方式基本等价的。
 
 .. code-block:: python
 
@@ -91,37 +64,9 @@
 当使用外部调试器时，应用程序应仍处于调试模式。如果产生干扰，那么可以
 禁用内置调试器和重新加载器。
 
-从命令行运行： 
-
-.. tabs::
-
-   .. group-tab:: Bash
-
-      .. code-block:: text
-
-         $ export FLASK_ENV=development
-         $ flask run --no-debugger --no-reload
-
-   .. group-tab:: Fish
-
-      .. code-block:: text
-
-         $ set -x FLASK_ENV development
-         $ flask run --no-debugger --no-reload
-
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_ENV=development
-         > flask run --no-debugger --no-reload
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_ENV = "development"
-         > flask run --no-debugger --no-reload
+.. code-block:: text
+ 
+    $ flask --app hello run --debug --no-debugger --no-reload
 
 从 Python 运行：
 

@@ -35,60 +35,21 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     )
 
 
-环境和调试特征
+调试模式
 ------------------------------
 
-:data:`ENV` 和 :data:`DEBUG` 配置值是特殊的，因为它们如果在应用设置完成之
-后改变，那么可以会有不同的行为表现。为了重可靠的设置环境和调试， Flask 使
-用环境变量。
+:data:`DEBUG` 是一个特殊的配置值，因为这个值如果在应用设置完成之
+后改变，那么可能表现出不同的行为。为了获得可靠的调试模式，应当在
+``flask`` 命令上使用 ``--debug`` 参数或者使用 ``flask run`` 命令。
+``flask run`` 命令默认在调试模式下使用交互调试器和重载器。
 
-环境用于为 Flask 、扩展和其他程序（如 Sentry ）指明 Flask 运行的情境是什么。
-环境由 :envvar:`FLASK_ENV` 环境变量控制，缺省值为 ``production`` 。
+.. code-block:: text
+ 
+    $ flask --app hello run --debug
 
-把 :envvar:`FLASK_ENV` 设置为 ``development`` 可以打开调试模式。
-在调试模式下， ``flask run`` 会缺省使用交互调试器和重载器。如果需要脱离
-环境，单独控制调试模式，请使用
-:envvar:`FLASK_DEBUG` 标示。
-
-.. versionchanged:: 1.0
-    Added :envvar:`FLASK_ENV` to control the environment separately
-    from debug mode. The development environment enables debug mode.
-
-为把 Flask 转换到开发环境并开启调试模式，设置 :envvar:`FLASK_ENV`:
-
-.. tabs::
-
-   .. group-tab:: Bash
-
-      .. code-block:: text
-
-         $ export FLASK_ENV=development
-         $ flask run
-
-   .. group-tab:: Fish
-
-      .. code-block:: text
-
-         $ set -x FLASK_ENV development
-         $ flask run
-
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_ENV=development
-         > flask run
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_ENV = "development"
-         > flask run
-
-建议使用上述环境变量。 尽管可以在你的配置中或者代码中设置 :data:`ENV` 和
-:data:`DEBUG` ，但是强烈不推荐这样做。因为它们不能被 ``flask`` 命令提前
-使用，并且一些系统或扩展可能会根据前面的值来配置自己。 
+推荐使用参数。尽管可以在你的配置中或者代码中设置 :data:`DEBUG` ，但是
+强烈不推荐这样做。因为它们不能被 ``flask run`` 命令提前使用，并且一些
+系统或扩展可能会根据前面的值来配置自己。 
 
 
 内置配置变量
@@ -98,29 +59,25 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: ENV
 
-    应用运行于什么环境。 Flask 和 扩展可以根据环境不同而行为不同，如打开或
-    关闭调试模式。 :attr:`~flask.Flask.env` 属性映射了这个配置键。本变量由
-    :envvar:`FLASK_ENV` 环境变量设置。如果本变量是在代码中设置的话，可能出
-    现意外。
-
-    **在生产环境中不要使用 development 。**
+    应用运行于什么环境。
+    :attr:`~flask.Flask.env` 属性映射了这个配置键。
 
     缺省值： ``'production'``
+
+    .. deprecated:: 2.2
+        会在 Flask 2.3 中移除。请使用 ``--debug`` 来代替。
 
     .. versionadded:: 1.0
 
 .. py:data:: DEBUG
 
-    是否开启调试模式。使用 ``flask run`` 启动开发服务器时，遇到未能处理的
-    异常时会显示一个交互调试器，并且当代码变动后服务器会重启。
-    :attr:`~flask.Flask.debug` 属性映射了这个配置键。当 :data:`ENV` 是
-    ``'development'`` 时，本变量会启用，并且会被 ``FLASK_DEBUG`` 环境变量
-    重载。如果本变量是在代码中设置的话，可能会出现意外。
+    是否开启调试模式。使用 ``flask run`` 启动开发服务器时，遇到未能处
+    理的异常时会显示一个交互调试器，并且当代码变动后服务器会重启。
+    :attr:`~flask.Flask.debug` 属性映射了这个配置键。这是由
+    ``FLASK_DEBUG`` 环境变量设置的，如果只是在代码中设置，那么可以会
+    出问题。
 
-    **在生产环境中不要开启调试模式。**
-
-    缺省值：当 :data:`ENV` 是 ``'development'`` 时，为 ``True`` ；否则为
-    ``False`` 。
+    缺省值： ``False``
 
 .. py:data:: TESTING
 
@@ -133,14 +90,6 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     异常会重新引发而不是被应用的错误处理器处理。在没有设置本变量的情况下，
     当 ``TESTING`` 或 ``DEBUG`` 开启时，本变量隐式地为真。
-
-    缺省值： ``None``
-
-.. py:data:: PRESERVE_CONTEXT_ON_EXCEPTION
-
-    当异常发生时，不要弹出请求情境。在没有设置该变量的情况下，如果
-    ``DEBUG`` 为真，则本变量为真。这样允许调试器错误请求数据。本变量通常不
-    需要直接设置。
 
     缺省值： ``None``
 
@@ -302,6 +251,9 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     缺省值： ``True``
 
+    .. deprecated:: 2.2
+        将会在 Flask 2.3 移除，以设置 ``app.json.ensure_ascii`` 代替。
+
 .. py:data:: JSON_SORT_KEYS
 
     按字母排序 JSON 对象的键。这对于缓存是有用的，因为不管 Python 的哈希种
@@ -310,18 +262,27 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     缺省值： ``True``
 
+    .. deprecated:: 2.2
+        将会在 Flask 2.3 移除，以设置 ``app.json.sort_keys`` 代替。
+
 .. py:data:: JSONIFY_PRETTYPRINT_REGULAR
 
-    ``jsonify`` 响应会输出新行、空格和缩进以便于阅读。在调试模式下总是启用
-    的。
+    :func:`~flask.jsonify``响应会输出新行、空格和缩进以便于阅读。在调
+    试模式下总是启用的。
 
     缺省值： ``False``
+
+    .. deprecated:: 2.2
+        将会在 Flask 2.3 移除，以设置 ``app.json.compact`` 代替。
 
 .. py:data:: JSONIFY_MIMETYPE
 
     ``jsonify`` 响应的媒体类型。
 
     缺省值： ``'application/json'``
+
+    .. deprecated:: 2.2
+        将会在 Flask 2.3 移除，以设置 ``app.json.mimetype`` 代替。
 
 .. py:data:: TEMPLATES_AUTO_RELOAD
 
@@ -380,15 +341,25 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     添加 :data:`MAX_COOKIE_SIZE` 来控制来自于 Werkzeug 警告。
 
+.. versionchanged:: 2.2
+    移除 ``PRESERVE_CONTEXT_ON_EXCEPTION``.
+
+.. versionchanged:: 2.2
+    ``JSON_AS_ASCII`` 、 ``JSON_SORT_KEYS`` 、
+    ``JSONIFY_MIMETYPE`` 和 ``JSONIFY_PRETTYPRINT_REGULAR`` 会在
+    Flask 2.3 中移除。默认的 ``app.json`` 提供器有相应的属性代替。
+
+.. versionchanged:: 2.2
+    ``ENV`` 会在 Flask 2.3 中移除。使用 ``--debug`` 代替。
+
 
 使用 Python 配置文件
 ----------------------
 
-如果把配置放在一个单独的文件中会更有用。理想情况下配置文件应当放在应用包
-之外。这样可以使用不同的工具进行打包与分发（ :doc:`/patterns/distribute`
-），而后修改配置文件也没有影响。
+如果把配置放在一个单独的文件中会更有用。理想情况下配置文件应当放在应
+用包之外。你针对不同的部署使用特定的配置。
 
-因此，常见用法如下::
+常见用法如下::
 
     app = Flask(__name__)
     app.config.from_object('yourapplication.default_settings')
@@ -648,8 +619,7 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 -   使用一个环境变量来切换不同的配置。这样就可以在 Python 解释器外进行切换，
     而根本不用改动代码，使开发和部署更方便，更快捷。如果你经常在不同的项目
     间切换，那么你甚至可以创建代码来激活 virtualenv 并导出开发配置。
--   在生产应用中使用 `fabric`_ 之类的工具，向服务器分别传送代码和配置。更
-    多细节参见 :doc:`/patterns/fabric` 方案。
+-   在生产应用中使用 `fabric`_ 之类的工具，向服务器分别传送代码和配置。
 
 .. _fabric: https://www.fabfile.org/
 

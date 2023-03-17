@@ -35,7 +35,7 @@ intersphinx_mapping = {
     "itsdangerous": ("https://itsdangerous.palletsprojects.com/", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/", None),
     "wtforms": ("https://wtforms.readthedocs.io/", None),
-    "blinker": ("https://pythonhosted.org/blinker/", None),
+    "blinker": ("https://blinker.readthedocs.io/", None),
 }
 issues_github_path = "pallets/flask"
 
@@ -75,7 +75,7 @@ html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------
 
-latex_documents = [(master_doc, "Flask-2.0.2.tex", html_title, author, "manual")]
+latex_documents = [(master_doc, f"Flask-{version}.tex", html_title, author, "manual")]
 
 # Local Extensions -----------------------------------------------------
 
