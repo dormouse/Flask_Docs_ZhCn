@@ -1,283 +1,261 @@
 Flask 扩展开发
 ==============
 
-Flask 作为一个微框架，不可避免地会使用第三方库。使用第三方库时，经常需要做
-一些重复工作。为了避免重复劳动， `PyPI`_ 提供了许多扩展。
+.. currentmodule:: flask
 
-如果你需要创建自己的扩展，那么本文可以帮助你让扩展立马上线运行。
+扩展是为 Flask 应用添加功能的额外的包。虽然 `PyPI`_ 已经包含了许多
+Flask 扩展，但是如果找不到合适的，那么可以创建自己的扩展，并发布以供
+他人使用。
 
-剖析一个扩展
------------------------
+本文将展示如何创建 Flask 扩展，以及一些常见模式和要求。由于扩展可以做
+任何事情，本文无法涵盖所有可能性。
 
-扩展都放在一个名如 ``flask_something`` 的包中。其中的“ something ”就是扩
-展所要连接的库的名称。例如假设你要为 Flask 添加 `simplexml` 库的支持，那么
-扩展的包名称就应该是 ``flask_simplexml`` 。
+了解扩展的最佳方法是查看其他扩展如何编写的，并与他人讨论。讨论地点为
+`Discord Chat`_ 或者 `GitHub Discussions`_ 。
 
-但是，真正扩展的名称（可读名称）应当形如“ Flask-SimpleXML ”。请确保名称
-中包含“ Flask ”，并且注意大小写。这样用户就可以在他们的 :file:`setup.py`
-文件中注册依赖。
-
-但是扩展具体是怎么样的呢？一个扩展必须保证可以同时在多个 Flask 应用中工
-作。这是必要条件，因为许多人为了进行单元测试，会使用类似
-:doc:`/patterns/appfactories` 模式来创建应用并且需要支持多套配置。因此，
-你的应用支持这种行为非常重要。
-
-最重要的是，扩展必须与一个 :file:`setup.py` 文件一起分发，并且在 PyPI 上注
-册。同时，用于开发的检出链接也应该能工作，以便于在 virtualenv 中安装开发版
-本，而不是手动下载库。
-
-Flask 扩展必须使用 BSD 或 MIT 或更自由的许可证来许可，这样才能被添加进
-Flask 扩展注册表。请记住， Flask 扩展注册表是比较稳健的，并且扩展在发布前
-会进行预审是否符合要求。
-
-“ Hello Flaskext! ”
----------------------
-
-好吧，让我们开展创建一个 Flask 扩展。这个扩展的用途是提供最基本的 SQLite3
-支持。
-
-首先创建如下结构的文件夹和文件::
-
-    flask-sqlite3/
-        flask_sqlite3.py
-        LICENSE
-        README
-
-以下是最重要的文件及其内容：
-
-setup.py
-````````
-
-接下来 :file:`setup.py` 是必需的，该文件用于安装你的 Flask 扩展。文件内容
-如下::
-
-    """
-    Flask-SQLite3
-    -------------
-
-    This is the description for that library
-    """
-    from setuptools import setup
+一个好的扩展应当共享共同的模式。只有在一开头就共享，才能有效地协作。
 
 
-    setup(
-        name='Flask-SQLite3',
-        version='1.0',
-        url='http://example.com/flask-sqlite3/',
-        license='BSD',
-        author='Your Name',
-        author_email='your-email@example.com',
-        description='Very short description',
-        long_description=__doc__,
-        py_modules=['flask_sqlite3'],
-        # if you would be using a package instead use packages instead
-        # of py_modules:
-        # packages=['flask_sqlite3'],
-        zip_safe=False,
-        include_package_data=True,
-        platforms='any',
-        install_requires=[
-            'Flask'
-        ],
-        classifiers=[
-            'Environment :: Web Environment',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: BSD License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-            'Topic :: Software Development :: Libraries :: Python Modules'
-        ]
-    )
+命名
+------
 
-代码相当多，但是你可以从现有的扩展中直接复制/粘贴，并修改相应的内容。
-
-flask_sqlite3.py
-````````````````
-
-这个文件是你的扩展的具体实现。但是一个扩展到底是怎么样的？最佳实践是什么？
-继续阅读吧。
-
-初始化扩展
-----------
-
-许多扩展会需要某种类型的初始化步骤。例如，假设一个应用像文档中建议的一样
-（ :doc:`/patterns/sqlite3` ）正在连接到 SQLite 。那么，扩展如何获知应用
-对象的名称？
-
-相当简单：你把名称传递给扩展。
-
-推荐两种初始化扩展的方式:
-
-初始化函数：
-
-    如果你的扩展名为 `helloworld` ，那么你可能有一个名为
-    ``init_helloworld(app[, extra_args])`` 的函数。该函数用来为应用初始化
-    扩展，它可以在处理器之前或之后。
-
-初始化类：
-
-    初始化类与初始化函数的工作方式大致相同，区别是类在以后可以进一步改动。
+Flask 扩展通常把 ``flask`` 作为前缀或后缀。如果它包裹了另一个库，那么
+在其名称中应当体现出被包裹库的名称。这样便于搜索，也可以明确扩展的功
+能。
 
 
-使用哪种方式取决于你。对于 SQLite 3 扩展，我们会使用基于类的方式，因为这样
-可以提供给用户一个用于打开和关闭数据库连接的对象。
+一般来说， Python 包建议是包索引中的安装名称和 ``import`` 语句中使用
+的名称应当是相关联的。导入名称为小写，单词之间用下划线（ ``_`` ）分
+隔。安装名称为小写或标题大小写，单词用短划线（ ``_`` ）分隔。如果它包
+裹了另一个库，首选使用与该库名称相同的大小写。
 
-当设计类时，重要的一点是使用它们在模块层易于复用。也就是说，对象本身在任何
-情况下不应存储任何应用的特定状态，而必须可以在不同的应用之间共享。
+下面是一些安装和导入名称示例：
 
-
-扩展的代码
-----------
-
-以下是 `flask_sqlite3.py` 的内容，可以复制/粘贴::
-
-    import sqlite3
-    from flask import current_app, _app_ctx_stack
+-   ``Flask-Name`` imported as ``flask_name``
+-   ``flask-name-lower`` imported as ``flask_name_lower``
+-   ``Flask-ComboName`` imported as ``flask_comboname``
+-   ``Name-Flask`` imported as ``name_flask``
 
 
-    class SQLite3(object):
+扩展类和初始化
+--------------------------------------
+
+任何扩展都需要为应用提供一个入口点来初始化扩展。最常见的模式是创建一
+个类，用于扩展的配置和行为。该类具有一个 ``init_app`` 方法，用于向指
+定的应用实例提供该扩展的实例。
+
+.. code-block:: python
+
+    class HelloExtension:
         def __init__(self, app=None):
-            self.app = app
             if app is not None:
                 self.init_app(app)
 
         def init_app(self, app):
-            app.config.setdefault('SQLITE3_DATABASE', ':memory:')
-            app.teardown_appcontext(self.teardown)
+            app.before_request(...)
 
-        def connect(self):
-            return sqlite3.connect(current_app.config['SQLITE3_DATABASE'])
+重要的是应用不要存储在扩展上，不要使用 ``self.app = app`` 。扩展直接
+访问应用的唯一一次是在 ``init_app`` 中，其他时候应使用
+:data: `current_app` 。
 
-        def teardown(self, exception):
-            ctx = _app_ctx_stack.top
-            if hasattr(ctx, 'sqlite3_db'):
-                ctx.sqlite3_db.close()
+这样做，扩展可以支持应用工厂模式，避免导入扩展实例时出现循环导入问题，
+并且便于使用不同配置进行测试。
 
-        @property
-        def connection(self):
-            ctx = _app_ctx_stack.top
-            if ctx is not None:
-                if not hasattr(ctx, 'sqlite3_db'):
-                    ctx.sqlite3_db = self.connect()
-                return ctx.sqlite3_db
+.. code-block:: python
+
+    hello = HelloExtension()
+
+    def create_app():
+        app = Flask(__name__)
+        hello.init_app(app)
+        return app
+
+上例中， ``hello`` 扩展实例独立于应用。这意味着用户项目中的其他模块可
+以执行 ``from project import hello`` ，并且可以在应用存在之前，在蓝图
+中使用该扩展。
+
+:attr:`Flask.extensions` 字典可用于存储应用扩展的引用或者其他状态。
+请注意，这是一个单一的命名空间，因此请使用一个不同于扩展的独立的名称，
+例如扩展的名称去掉” flask “前缀。
 
 
-那么这是这些代码的含义是什么:
+添加行为
+---------------
 
-1.  ``__init__`` 方法接收应用对象，该对象是可选的。如果提供了该对象，那么
-    就调用 ``init_app`` 。
-2.  ``init_app`` 方法使得 ``SQLite3`` 对象不需要应用对象就可以实例化。这个
-    方法支持工厂模式来创建应用。 ``init_app`` 会配置数据库。如果不提供
-    配置，默认配置为内存数据库。此外， ``init_app`` 方法附加了 ``teardown``
-    处理器。
-3.  接下来，我们定义了 ``connect`` 方法来打开一个数据库连接。
-4.  最后，我们添加一个 ``connection`` 属性，首次访问时打开数据库连接，并把
-    它存储在环境中。这也是处理资源的推荐方式：在资源第一次使用时获取资源，
-    即惰性获取。
+扩展可以通过多种方式添加行为。任何可用于 :class:`Flask` 对象的都可以
+在扩展的 ``init_app`` 方法中使用。
 
-    注意这里，我们把数据库连接通过 ``_app_ctx_stack.top`` 附加到应用环境的
-    栈顶。扩展应该使用上下文的栈顶来存储它们自己的信息，并使用足够复杂的
-    名称。
+一种常见的模式是使用 :meth:`~Flask.before_request` 来初始化每个请求开
+头的一些数据或连接，最后在 :meth:`~Flask.teardown_request` 中进行清理。
+这可以存储在 :data:`g` 中，下面将详细讨论。
 
-那么为什么我们决定在此使用基于类的方法？因为我们的扩展是这样使用的::
+更懒惰的做法是提供一个方法，用于初始化和缓存数据或连接。
+例如， ``ext.get_db`` 方法可以在首次调用时创建一个数据库连接。这样，
+不使用数据库的视图就不会创建数据库的连接。
 
-    from flask import Flask
-    from flask_sqlite3 import SQLite3
+除了在每个视图之前和之后执行某些操作外，扩展程序可能还想添加一些特定
+的视图。在这种情况下，您可以定义一个 :class:`Blueprint` ，然后在
+``init_app`` 中调用 :meth:`~Flask.register_blueprint` ，将蓝图添加到
+应用程序。
 
-    app = Flask(__name__)
-    app.config.from_pyfile('the-config.cfg')
-    db = SQLite3(app)
 
-你可以在视图中这样使用数据库::
+配置技术
+------------------------
 
-    @app.route('/')
-    def show_all():
-        cur = db.connection.cursor()
-        cur.execute(...)
+扩展的配置需要面对不同的层次和资源，所以需要仔细推敲。
 
-同样，如果在请求之外，可以通过压入应用情境的方法使用数据库::
+-   ``app.config`` 的值对应每个应用实例的配置。这个配置可以在每次部署
+    应用的时候初需变动。一个常见的例子是用于配置一个外部资源的 URL ，
+    比如一个数据库的 URL 。配置键应当以扩展名开头，这样就不会被其他扩
+    展干扰。
+-   ``__init__`` 参数对应每个扩展实例的配置。
+    此配置通常会影响扩展的使用方式，不会在每次部署时改变。
+-   实例属性和装饰器方法对应每个扩展实例的配置。
+    在扩展实例被创建之后，给 ``ext.value`` 赋值或使用
+    ``@ext.register`` 装饰器来注册一个函数更加合理。
+-   类属性对应全局配置。更改类似 ``Ext.connection_class`` 这样的类属
+    性可以不创建子类而改变缺省行为。这可以结合每个扩展的配置来覆盖默
+    认值。
+-   子类化和重写方法和属性。
+    使得扩展本身的 API 可以被重写，可以为高级定制提供一个非常强大的工
+    具。
 
-    with app.app_context():
-        cur = db.connection.cursor()
-        cur.execute(...)
+:class:`~flask.Flask` 对象本身使用所有这些技术。
 
-在 ``with`` 块的末尾，拆卸处理器会自动执行。
+你可以根据需求来决定什么配置适合你。
 
-另外， ``init_app`` 方法用于在创建应用时支持工厂模式::
+在应用程序设置阶段完成和服务器开始处理请求之后，不应改变配置。配置是
+全局的，对它的任何改变都不能保证对其他工作者可见。
 
-    db = SQLite3()
-    # Then later on.
-    app = create_app('the-config.cfg')
+
+请求期间的数据
+---------------------
+
+在编写 Flask 应用程序时， :data:`~flask.g` 对象被用来存储请求期间的信
+息。例如 :doc:`tutorial <tutorial/database>` 存储一个连接到 SQLite
+数据库的连接为 ``g.db`` 。扩展也可以使用这个，但要注意。由于 ``g`` 是
+一个单一的全局命名空间，扩展必须使用唯一的名称，以免与用户数据相冲突。
+例如，将扩展的名称作为前缀，或者作为命名空间。
+
+.. code-block:: python
+
+    # an internal prefix with the extension name
+    g._hello_user_id = 2
+
+    # or an internal prefix as a namespace
+    from types import SimpleNamespace
+    g._hello = SimpleNamespace()
+    g._hello.user_id = 2
+
+
+``g`` 中的数据在一个应用情境中持续存在。当一个请求情境被激活，或者一
+个 CLI 命令被执行时，一个应用情境被激活。如果你要关闭存储的东西，请使
+用 :meth:`~flask.Flask.teardown_appcontext` 来确保它在应用情境结束时
+被关闭。如果它只应当在一个请求期间有效，或者不会在请求之外的 CLI 中使
+用，请使用 :meth:`~flask.Flask.teardown_request` 。
+
+
+视图和模型
+----------------
+
+你的扩展视图可能想与数据库中的特定模型或与应用程序相连的其他扩展或数
+据进行交互。
+
+例如，让我们假设一个 ``Flask-SimpleBlog`` 扩展，它与 Flask-SQLAlchemy
+一起工作，提供了一个 ``Post`` 模型和一个和视图来写入和读取帖子。
+
+``Post`` 模型需要子类化 Flask-SQLAlchemy 的 ``db.Model`` 对象。但这只
+有在你创建了该扩展的实例后才可用。而不是在你的扩展定义其视图的时候。
+因此，如何编写视图才能在模型存在之前定义，访问模型？
+
+
+一种方法是使用 :doc:`views` 。在 ``__init__`` 中，创建模型，然后通过
+将模型传递给视图类的 :meth:`~views.View.as_view` 方法创建视图。
+
+.. code-block:: python
+
+    class PostAPI(MethodView):
+        def __init__(self, model):
+            self.model = model
+
+        def get(self, id):
+            post = self.model.query.get(id)
+            return jsonify(post.to_json())
+
+    class BlogExtension:
+        def __init__(self, db):
+            class Post(db.Model):
+                id = db.Column(primary_key=True)
+                title = db.Column(db.String, nullable=False)
+
+            self.post_model = Post
+
+        def init_app(self, app):
+            api_view = PostAPI.as_view(model=self.post_model)
+
+    db = SQLAlchemy()
+    blog = BlogExtension(db)
     db.init_app(app)
-
-记住已审核的 Flask 扩展必须支持用工厂模式来创建应用（下面会解释）。
-
-.. admonition:: ``init_app`` 的注意事项
-
-   如你所见， ``init_app`` 不分配 ``app`` 到 ``self`` 。这是故意的！基于
-   类的 Flask 扩展必须只在应用传递到构造函数时才在对象上存储应用。这告诉
-   扩展：我对使用多个应用没有兴趣。
-
-   当扩展需要找到当前应用，且没有一个指向当前应用的引用时，必须使用
-   :data:`~flask.current_app` 环境局部变量或用一种你可以显式传递应用的方法
-   更改 API 。
-    
-
-使用 _app_ctx_stack
---------------------
-
-在上面的例子中，在每个请求之前，一个 ``sqlite3_db`` 变量被分配到
-``_app_ctx_stack.top`` 。在一个视图函数中，这个变量可以使用 ``SQLite3``
-的属性 ``connection`` 来访问。在请求解散时， ``sqlite3_db`` 连接被关闭。
-通过使用这个模式，在请求持续的期间，可以访问 *相同* 的 sqlite3 数据库连接。
+    blog.init_app(app)
 
 
-学习借鉴
---------
+另一种技术是在扩展上使用一个属性，比如上面的 ``self.post_model`` 。将
+扩展添加到 ``init_app`` 中的 ``app.extensions`` 中， 然后从视图访问
+``current_app.extensions["simple_blog"].post_model`` 。
 
-本文只涉及了一些扩展开发的皮毛。如果想要深入，那么明智的选择是查看 `PyPI`_
-上现存的扩展。如果你感到迷失，还可以通过 `邮件列表`_ 和 `Discord 服务`_
-学习到优秀的 APIs 。尤其当你要开发一个全新的扩展时，建议先多看多问多听，
-这样不仅可以知道别人的需求，同时也避免闭门造车。
+你可能还想提供基类，以便用户可以提供自己的 ``Post`` 模型，以符合你的
+扩展所期望的 API 。这样他们可以实现 ``class Post(blog.BasePost)`` ，
+然后设置为 ``blog.post_model`` 。
 
-谨记：设计优秀的 API 是艰难的。因此请先在邮件列表里介绍你的项目，让其他
-开发者在 API 设计上助你一臂之力。
+如你所见，这可能会变得有点复杂。不幸的是，没有完美的解决方案，只有不
+同的策略和权衡，这取决于你的需求和定制化程度。幸运的是这种资源依赖性
+对于大多数的扩展并不常见。请记住，如果你在设计方面需要帮助，请在我们
+的 `Discord Chat`_ 或 `GitHub Discussions`_ 提问。
 
-最好的 Flask 扩展是那些共享 API 智慧的扩展，因此越早共享越有效。
 
-已审核的扩展
-------------
+推荐的扩展指南
+--------------------------------
 
-以前， Flask 有已审核的扩展的概念，主要是审核扩展的支持度和兼容性。但是随着
-时间的推移，已审核扩展的清单地维护变得越来越困难了。但是以下对于扩展的指南
-仍然有着重要的意义，可以帮助 Flask 生态系统保持一致和兼容。 
 
-0.  一个已审核的 Flask 扩展需要一个维护者。如果一个扩展作者想要放弃项目，
-    那么项目应该寻找一个新的维护者，包括移交完整的源码托管和 PyPI 访问。
-    如果找不到新的维护者，请赋予 Pallets 核心团队访问权限。
-1.  命名模式是 *Flask-ExtensionName* 或者 *ExtensionName-Flask* 。必须
-    提供一个名如 ``flask_extension_name`` 的包或者模块。
-2.  扩展必须使用 BSD 或者 MIT 许可协议，必须是开源的，属于公共领域的。
-3.  扩展的 API 必须具备以下特性:
-    
-    -   必须支持在同一个 Python 进程中运行的多个应用。每个应用实例的配置和
-        状态应当使用 ``current_app`` 储存，而不是 ``self.app`` 。
-    -   它必须支持使用工厂模式创建应用。使用 ``ext.init_app()`` 方案。
+Flask 以前有一个”认证的扩展“的概念，即
+在列出扩展之前， Flask维护者会评估其质量、支持和兼容性。
 
-4.  如果是以克隆方式获得扩展的话，那么扩展的依赖必须可以使用
+虽然这个列表随着时间的推移变得太难
+变得难以维护，但这些准则仍然适用于今天维护和开发的所有
+的扩展，因为它们有助于Flask
+生态系统保持一致和兼容。
+
+1.  一个扩展需要一个维护者。如果一个扩展的作者想要放弃一个项目那么应
+    该找到一个新的项目维护者，并移交仓库、文档、 PyPI 和所有其他服务
+    操作权限。 GitHub 上的 `Pallets-Eco`_ 组织允许社区在 Pallets 维护
+    者的监督下进行维护。
+2.  命名方式为 *Flask-ExtensionName* 或 *ExtensionName-Flask* 。必须
+    提供一个且仅一个名为 ``flask_extension_name`` 的软件包或模块。
+3.  扩展必须使用开源许可协议。 Python 网络生态系统倾向于使用 BSD 或者
+    MIT 协议。协议必须是开源的并且公开可用。
+4.  扩展的 API 必须具有以下特点：
+
+    - 它必须支持在同一个 Python 进程中运行的多个应用程序。
+      使用 ``current_app`` 而不是 ``self.app`` ，为每个应用实例存储
+      配置和状态。
+    - 必须能够使用工厂模式来创建应用。使用 ``ext.init_app()`` 模式。
+
+5.  从版本库的克隆中，一个扩展及其依赖关系必须可以在可编辑模式下用
     ``pip install -e .`` 安装。
-5.  必须带有一个可以通过 ``tox -e py`` 或者 ``pytest`` 调用的测试套件。如果
-    使用 ``tox`` ，那么测试依赖应当在一个 ``requirements.txt`` 文件中定义。
-    测试必须是 sdist 分发的一部分。
-6.  扩展的文档必须使用来自 `官方 Pallets 主题`_ 的 ``flask`` 主题。
-    PyPI 的元数据或者自述文件中必须包含文档或者项目的链接。
-7.  为了获得最大的兼容性，扩展应当支持与 Flask 支持的同样版本的 Python 。
-    2021年12月以后推荐支持 3.7+ 版本的 Python 。请在 ``setup.py`` 中使用
-    ``python_requires=">= 3.7"`` 以明确支持的 Python 版本。
+6.  必须提供可以用普通工具调用的测试，如 ``tox -e py`` 、
+    ``nox -s test`` 或 ``pytest`` 。如果不使用 ``tox`` ，那么应在需求
+    文件中指定测试的依赖性。测试必须是 sdist 发布的一部分。
+7.  文档或项目网站的链接必须出现在PyPI元数据或readme中。文档应该使用
+    来自 `Official Pallets Themes`_ 的 Flask 主题。
+8.  扩展的依赖不应该使用上界或假设任何特定的版本。应当使用下限来表示
+    最小的兼容性支持。例如 ``sqlalchemy>=1.4`` 。
+9.  使用 ``python_requires=">=version"`` 说明支持的 Python 版本。
+    2021年12月时， Flask 本身支持 Python >=3.7 ，这将随着时间的推移而
+    更新。
 
 .. _PyPI: https://pypi.org/search/?c=Framework+%3A%3A+Flask
-.. _邮件列表: https://mail.python.org/mailman/listinfo/flask
-.. _Discord 服务: https://discord.gg/pallets
-.. _官方 Pallets 主题: https://pypi.org/project/Pallets-Sphinx-Themes/
+.. _Discord Chat: https://discord.gg/pallets
+.. _GitHub Discussions: https://github.com/pallets/flask/discussions
+.. _Official Pallets Themes: https://pypi.org/project/Pallets-Sphinx-Themes/
+.. _Pallets-Eco: https://github.com/pallets-eco
 

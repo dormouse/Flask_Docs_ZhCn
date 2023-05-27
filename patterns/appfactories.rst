@@ -78,73 +78,25 @@
 使用应用
 ------------------
 
-使用 :command:`flask` 命令运行工厂应用：
+可以使用 :command:`flask` 命令运行一个应用：
 
-.. tabs::
+.. code-block:: text
 
-   .. group-tab:: Bash
+    $ flask --app hello run
 
-      .. code-block:: text
+如果在 ``hello`` 中有 ``create_app`` 或 ``make_app`` ，那么 Flask 会
+自动探测到工厂。可以像这样向工厂传递参数：
 
-         $ export FLASK_APP=myapp
-         $ flask run
+.. code-block:: text
 
-   .. group-tab:: Fish
+    $ flask --app hello:create_app(local_auth=True) run``
 
-      .. code-block:: text
+Then the ``create_app`` factory in ``myapp`` is called with the keyword
+argument ``local_auth=True``. See :doc:`/cli` for more detail.
 
-         $ set -x FLASK_APP myapp
-         $ flask run
 
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_APP=myapp
-         > flask run
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_APP = "myapp"
-         > flask run
-
-Flask 会自动在 ``myapp`` 中探测工厂（ ``create_app`` 或者 ``make_app`` ）。
-还可这样向工厂传递参数：
-
-.. tabs::
-
-   .. group-tab:: Bash
-
-      .. code-block:: text
-
-         $ export FLASK_APP="myapp:create_app('dev')"
-         $ flask run
-
-   .. group-tab:: Fish
-
-      .. code-block:: text
-
-         $ set -x FLASK_APP "myapp:create_app('dev')"
-         $ flask run
-
-   .. group-tab:: CMD
-
-      .. code-block:: text
-
-         > set FLASK_APP="myapp:create_app('dev')"
-         > flask run
-
-   .. group-tab:: Powershell
-
-      .. code-block:: text
-
-         > $env:FLASK_APP = "myapp:create_app('dev')"
-         > flask run
-
-这样， ``myapp`` 中的 ``create_app`` 工厂就会使用 ``'dev'`` 作为参数。更多
-细节参见 :doc:`/cli` 。
+这样， ``myapp`` 中的 ``create_app`` 工厂就会通过 ``local_auth=True``
+参数来调用。详见 :doc:`/cli` 。
 
 
 改进工厂

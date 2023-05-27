@@ -79,7 +79,7 @@ WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来
 
     from threading import Lock
 
-    class SubdomainDispatcher(object):
+    class SubdomainDispatcher:
 
         def __init__(self, domain, create_app):
             self.domain = domain
@@ -132,7 +132,7 @@ WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来
     from threading import Lock
     from werkzeug.wsgi import pop_path_info, peek_path_info
 
-    class PathDispatcher(object):
+    class PathDispatcher:
 
         def __init__(self, default_app, create_app):
             self.default_app = default_app

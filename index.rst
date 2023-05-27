@@ -27,14 +27,13 @@ Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的�
 用户指南
 --------
 
-这部分文档是比较松散的，首先介绍了 Flask 的一些背景材料，
-然后专注于一步一步地说明如何使用 Flask 进行 Web 开发。
+Flask 提供了配置和约定，以及合理的默认值，以开始使用。文档的这一部分
+解释了 Flask 框架的不同部分以及如何使用、定制和扩展。除了 Flask 本身，
+社区维护的扩展可以添加更多功能。
 
 .. toctree::
    :maxdepth: 2
 
-   foreword
-   advanced_foreword
    installation
    quickstart
    tutorial/index
@@ -46,6 +45,7 @@ Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的�
    config
    signals
    views
+   lifecycle
    appcontext
    reqcontext
    blueprints
@@ -54,8 +54,8 @@ Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的�
    server
    shell
    patterns/index
+   security
    deploying/index
-   becomingbig
    async-await
 
 
@@ -72,15 +72,12 @@ API 参考
 其他材料
 ----------------
 
-这部分文档包括：设计要点、法律信息和变动记录。
-
 .. toctree::
    :maxdepth: 2
 
    design
-   htmlfaq
-   security
    extensiondev
    contributing
    license
    changes
+
