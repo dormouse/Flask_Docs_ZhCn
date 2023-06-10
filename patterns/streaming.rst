@@ -17,7 +17,7 @@
         def generate():
             for row in iter_all_rows():
                 yield f"{','.join(row)}\n"
-        return app.response_class(generate(), mimetype='text/csv')
+        return generate(), {"Content-Type": "text/csv"}
 
 每个 ``yield`` 表达式被直接传送给浏览器。注意，有一些 WSGI 中间件可能会
 打断流内容，因此在使用分析器或者其他工具的调试环境中要小心一些。
@@ -25,51 +25,56 @@
 模板中的流内容
 ------------------------
 
-Jinja2 模板引擎也支持分片渲染模板。这个功能不是直接被 Flask 支持的，因
-为它太特殊了，但是你可以方便地自已来做::
+Jinja2 模板引擎支持逐片渲染模板，返回一个字符串的迭代器。
+Flask 提供
+:func:`~flask.stream_template` 和
+:func:`~flask.stream_template_string`
+函数方便使用。
 
-    def stream_template(template_name, **context):
-        app.update_template_context(context)
-        t = app.jinja_env.get_template(template_name)
-        rv = t.stream(context)
-        rv.enable_buffering(5)
-        return rv
+.. code-block:: python
 
-    @app.route('/my-large-page.html')
-    def render_large_template():
-        rows = iter_all_rows()
-        return app.response_class(stream_template('the_template.html',
-                                                  rows=rows))
+    from flask import stream_template
 
-上例的技巧是从 Jinja2 环境中获得应用的模板对象，并调用
-:meth:`~jinja2.Template.stream` 来代替
-:meth:`~jinja2.Template.render` ，返回一个流对象来代替一个字符串。由于
-我们绕过了 Flask 的模板渲染函数使用了模板对象本身，因此我们需要调用
-:meth:`~flask.Flask.update_template_context` ，以确保更新被渲染的内容。
-这样，模板遍历流内容。由于每次产生内容后，服务器都会把内容发送给客户
-端，因此可能需要缓存来保存内容。我们使用了
-``rv.enable_buffering(size)`` 来进行缓存。 ``5`` 是一个比较明智的缺省
-值。
+    @app.get("/timeline")
+    def timeline():
+        return stream_template("timeline.html")
+
+渲染流产生的部分倾向于与模板中的语句块相匹配。
+
 
 情境中的流内容
 ----------------------
 
-.. versionadded:: 0.9
+:data:`~flask.request` 在生成器运行时将不会被激活，因为此时视图已经返
+回。如果你试图访问 ``request`` ，你会得到一个 ``RuntimeError`` 。
 
-注意，当你生成流内容时，请求情境已经在函数执行时消失了。 Flask 0.9 为你
-提供了一点帮助，让你可以在生成器运行期间保持请求情境::
+如果你的生成器函数依赖于 ``request`` 中的数据，那么应当使用
+:func:`~flask.stream_with_context` 包装器。这将在生成器运行时
+保持请求情境的活性。
+
+.. code-block:: python
 
     from flask import stream_with_context, request
+    from markupsafe import escape
 
     @app.route('/stream')
     def streamed_response():
         def generate():
-            yield 'Hello '
-            yield request.args['name']
-            yield '!'
-        return app.response_class(stream_with_context(generate()))
+            yield '<p>Hello '
+            yield escape(request.args['name'])
+            yield '!</p>'
+        return stream_with_context(generate())
 
-如果没有使用 :func:`~flask.stream_with_context` 函数，那么就会引发
-:class:`RuntimeError` 错误。
+它也可以被用作装饰器。
 
+.. code-block:: python
 
+    @stream_with_context
+    def generate():
+        ...
+
+    return generate()
+
+如果一个请求激活，那么 :func:`~flask.stream_template` 和
+:func:`~flask.stream_template_string` 函数自动使用
+:func:`~flask.stream_with_context` 。
