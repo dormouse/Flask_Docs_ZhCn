@@ -122,6 +122,5 @@ Flask 还会自动推送应用情境。
 当应用情境被弹出时，应用将调用使用 :meth:`~Flask.teardown_appcontext`
 注册的函数。
 
-如果 :data:`~signals.signals_available` 为真，则发送以下信号：
-:data:`appcontext_pushed` 、 :data:`appcontext_tearing_down` 和
-:data:`appcontext_popped` 。
+以下信号将会被发送： :data:`appcontext_pushed` 、
+:data:`appcontext_tearing_down` 和 :data:`appcontext_popped` 。

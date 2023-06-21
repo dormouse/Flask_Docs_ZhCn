@@ -217,10 +217,6 @@ Useful Functions and Classes
 
 .. autofunction:: send_from_directory
 
-.. autofunction:: escape
-
-.. autoclass:: Markup
-   :members: escape, unescape, striptags
 
 Message Flashing
 ----------------
@@ -269,12 +265,6 @@ HTML ``<script>`` tags.
 .. autoclass:: flask.json.provider.DefaultJSONProvider
     :members:
     :member-order: bysource
-
-.. autoclass:: JSONEncoder
-   :members:
-
-.. autoclass:: JSONDecoder
-   :members:
 
 .. automodule:: flask.json.tag
 
@@ -343,14 +333,9 @@ Useful Internals
 Signals
 -------
 
-.. versionadded:: 0.6
+Signals are provided by the `Blinker`_ library. See :doc:`signals` for an introduction.
 
-.. data:: signals.signals_available
-
-   ``True`` if the signaling system is available. This is the case
-   when `blinker`_ is installed.
-
-The following signals exist in Flask:
+.. _blinker: https://blinker.readthedocs.io/
 
 .. data:: template_rendered
 
@@ -517,7 +502,6 @@ The following signals exist in Flask:
 
    .. versionadded:: 0.10
 
-
 .. data:: message_flashed
 
    This signal is sent when the application is flashing a message. The
@@ -535,22 +519,10 @@ The following signals exist in Flask:
 
    .. versionadded:: 0.10
 
-.. class:: signals.Namespace
+.. data:: signals.signals_available
 
-   An alias for :class:`blinker.base.Namespace` if blinker is available,
-   otherwise a dummy class that creates fake signals. This class is
-   available for Flask extensions that want to provide the same fallback
-   system as Flask itself.
-
-   .. method:: signal(name, doc=None)
-
-      Creates a new signal for this namespace if blinker is available,
-      otherwise returns a fake signal that has a send method that will
-      do nothing but will fail with a :exc:`RuntimeError` for all other
-      operations, including connecting.
-
-
-.. _blinker: https://pypi.org/project/blinker/
+    .. deprecated:: 2.3
+        Will be removed in Flask 2.4. Signals are always available
 
 
 Class-Based Views
