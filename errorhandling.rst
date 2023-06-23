@@ -55,19 +55,16 @@
 
 后续阅读：
 
-* Sentry 也支持从队列（ RQ 、 Celery ）中捕获错误。详见
-  `Python SDK 文档
-  <https://docs.sentry.io/platforms/python/>`_ 。
-* `Sentry 入门 <https://docs.sentry.io/quickstart/?platform=python>`_
-* `Flask-相关文档 <https://docs.sentry.io/platforms/python/flask/>`_
+-  Sentry 也支持从队列（ RQ 、 Celery ）中捕获错误。详见
+   `Python SDK 文档 <https://docs.sentry.io/platforms/python/>`__ 。
+-  `Flask-相关文档 <https://docs.sentry.io/platforms/python/flask/>`__
 
 .. _error-handlers:
 
 还可以看看：
 
 -   Sentry 也支持以类似的方式从队列（ RQ 、 Celery ）中捕获错误。详见
-    `Python SDK 文档
-    <https://docs.sentry.io/platforms/python/>`__ 。
+    `Python SDK 文档 <https://docs.sentry.io/platforms/python/>`__ 。
 -   `Sentry 入门 <https://docs.sentry.io/quickstart/?platform=python>`__
 -   `Flask-相关文档 <https://docs.sentry.io/platforms/python/guides/flask/>`__
 

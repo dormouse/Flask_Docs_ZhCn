@@ -27,8 +27,8 @@ uWSGI 有多种安装方式。最直接的方法是安装 ``pyuwsgi`` 包，它�
 .. code-block:: text
 
     $ cd hello-app
-    $ python -m venv venv
-    $ . venv/bin/activate
+    $ python -m venv .venv
+    $ . .venv/bin/activate
     $ pip install .  # install your application
     $ pip install pyuwsgi
 

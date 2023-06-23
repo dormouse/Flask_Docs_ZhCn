@@ -5,7 +5,8 @@
 Python 版本
 --------------
 
-我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.7 以上版本。
+我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.8 以上版本。
+
 
 依赖
 ------------
@@ -14,16 +15,20 @@ Python 版本
 
 * `Werkzeug`_ 用于实现 WSGI ，应用和服务之间的标准 Python 接口。
 * `Jinja`_ 用于渲染页面的模板语言。
-* `MarkupSafe`_ 与 Jinja 共用，在渲染页面时用于避免不可信的输入，防止注入攻击。
-* `ItsDangerous`_ 保证数据完整性的安全标志数据，用于保护 Flask 的 session cookie.
-* `Click`_ 是一个命令行应用的框架。用于提供 ``flask`` 命令，并允许添加自定义
-  管理命令。
+* `MarkupSafe`_ 与 Jinja 共用，在渲染页面时用于避免不可信的输入，防止注
+  入攻击。
+* `ItsDangerous`_ 保证数据完整性的安全标志数据，用于保护 Flask 的
+  session cookie.
+* `Click`_ 是一个命令行应用的框架。用于提供 ``flask`` 命令，并允许添加
+  自定义管理命令。
+* `Blinker`_ 提供对于 :doc:`signals` 的支持。
 
 .. _Werkzeug: https://palletsprojects.com/p/werkzeug/
 .. _Jinja: https://palletsprojects.com/p/jinja/
 .. _MarkupSafe: https://palletsprojects.com/p/markupsafe/
 .. _ItsDangerous: https://palletsprojects.com/p/itsdangerous/
 .. _Click: https://palletsprojects.com/p/click/
+.. _Blinker: https://blinker.readthedocs.io/
 
 
 可选依赖
@@ -31,11 +36,9 @@ Python 版本
 
 以下配套软件不会被自动安装。如果安装了，那么 Flask 会检测到这些软件。
 
-* `Blinker`_ 为 :doc:`signals` 提供支持。
 * `python-dotenv`_ 当运行 ``flask`` 命令时为 :ref:`dotenv` 提供支持。
 * `Watchdog`_ 为开发服务器提供快速高效的重载。
 
-.. _Blinker: https://pythonhosted.org/blinker/
 .. _python-dotenv: https://github.com/theskumar/python-dotenv#readme
 .. _watchdog: https://pythonhosted.org/watchdog/
 
@@ -67,8 +70,8 @@ Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。
 创建一个虚拟环境
 ~~~~~~~~~~~~~~~~~~~~~
 
-创建一个项目文件夹，然后创建一个虚拟环境。创建完成后项目文件夹中会有一个
-:file:`venv` 文件夹：
+创建一个项目文件夹，然后创建一个虚拟环境。创建完成后项目文件夹中会有一
+个 :file:`.venv` 文件夹：
 
 .. tabs::
 
@@ -78,7 +81,7 @@ Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。
 
          $ mkdir myproject
          $ cd myproject
-         $ python3 -m venv venv
+         $ python3 -m venv .venv
 
    .. group-tab:: Windows
 
@@ -86,7 +89,7 @@ Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。
 
          > mkdir myproject
          > cd myproject
-         > py -3 -m venv venv
+         > py -3 -m venv .venv
 
 
 .. _install-activate-env:
@@ -102,13 +105,13 @@ Python 内置了用于创建虚拟环境的 :mod:`venv` 模块。
 
       .. code-block:: text
 
-         $ . venv/bin/activate
+         $ . .venv/bin/activate
 
    .. group-tab:: Windows
 
       .. code-block:: text
 
-         > venv\Scripts\activate
+         > .venv\Scripts\activate
 
 激活后，你的终端提示符会显示虚拟环境的名称。
 

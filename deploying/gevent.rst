@@ -31,8 +31,8 @@ gevent  提供一个 WSGI 服务器，这个服务器可以同进处理多个连
 .. code-block:: text
 
     $ cd hello-app
-    $ python -m venv venv
-    $ . venv/bin/activate
+    $ python -m venv .venv
+    $ . .venv/bin/activate
     $ pip install .  # install your application
     $ pip install gevent
 

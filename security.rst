@@ -17,8 +17,8 @@ JavaScript ）。要防防御这种攻击，开发者需要正确地转义文本
 在 Flask 中，除非显式指明不转义， Jinja2 会自动转义所有值。这样可以排
 除所有模板导致的 XSS 问题，但是其它地方仍需小心：
 
--   不使用 Jinja2 生成 HTML 。
--   在用户提交的数据上调用了 :class:`~flask.Markup` 。
+-   没有使用 Jinja2 生成 HTML 。
+-   在用户提交的数据上调用了 :class:`~markupsafe.Markup` 。
 -   发送上传的 HTML ，永远不要这么做，使用
     ``Content-Disposition: attachment`` 头部来避免这个问题。
 -   发送上传的文本文件。一些浏览器基于文件开头几个字节来猜测文件的

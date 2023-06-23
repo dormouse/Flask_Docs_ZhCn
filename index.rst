@@ -3,10 +3,8 @@
 欢迎来到 Flask 的世界
 =====================
 
-.. image:: _static/flask-logo.png
-    :alt: Flask: web development, one drop at a time
+.. image:: _static/flask-horizontal.png
     :align: center
-    :target: https://palletsprojects.com/p/flask/
 
 欢迎阅读 Flask 的文档。推荐您先从《 :doc:`installation` 》入手，然后阅
 读《 :doc:`quickstart` 》。更详细一些的《 :doc:`tutorial/index` 》介绍
@@ -14,14 +12,12 @@
 中介绍了一些常用的解决方案。其余的文档详细介绍了 Flask 的每一个组件。
 《 :doc:`api` 》提供了最详细的参考。
 
-Flask 依赖 `Jinja`_ 模板引擎和 `Werkzeug`_ WSGI 套件。这两个库的文档请
-移步：
+Flask 依赖 `Werkzeug`_ WSGI 套件、 `Jinja`_ 模板引擎和 `Click`_ CLI 套
+件。查找信息时请不要忘了查阅它们的文档。
 
-- `Jinja 文档 <https://jinja.palletsprojects.com/>`_
-- `Werkzeug 文档 <https://werkzeug.palletsprojects.com/>`_
-
-.. _Jinja: https://www.palletsprojects.com/p/jinja/
-.. _Werkzeug: https://www.palletsprojects.com/p/werkzeug/
+.. _Werkzeug: https://werkzeug.palletsprojects.com
+.. _Jinja: https://jinja.palletsprojects.com
+.. _Click: https://click.palletsprojects.com
 
 
 用户指南

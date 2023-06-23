@@ -31,8 +31,8 @@ eventlet 提供一个 WSGI 服务器，这个服务器可以同进处理多个�
 .. code-block:: text
 
     $ cd hello-app
-    $ python -m venv venv
-    $ . venv/bin/activate
+    $ python -m venv .venv
+    $ . .venv/bin/activate
     $ pip install .  # install your application
     $ pip install eventlet
 
@@ -51,7 +51,7 @@ eventlet 提供一个 WSGI 服务器，这个服务器可以同进处理多个�
     from hello import create_app
 
     app = create_app()
-    wsgi.server(eventlet.listen(("127.0.0.1", 8000), app)
+    wsgi.server(eventlet.listen(("127.0.0.1", 8000)), app)
 
 .. code-block:: text
 

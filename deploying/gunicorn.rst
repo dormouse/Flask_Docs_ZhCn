@@ -27,8 +27,8 @@ Gunicorn 很容易安装，因为不需要额外的依赖或编译。在 Windows
 .. code-block:: text
 
     $ cd hello-app
-    $ python -m venv venv
-    $ . venv/bin/activate
+    $ python -m venv .venv
+    $ . .venv/bin/activate
     $ pip install .  # install your application
     $ pip install gunicorn
 

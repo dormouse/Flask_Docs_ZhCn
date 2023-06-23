@@ -89,11 +89,7 @@
 
 .. code-block:: text
 
-    $ flask --app hello:create_app(local_auth=True) run``
-
-Then the ``create_app`` factory in ``myapp`` is called with the keyword
-argument ``local_auth=True``. See :doc:`/cli` for more detail.
-
+    $ flask --app hello:create_app(local_auth=True) run
 
 这样， ``myapp`` 中的 ``create_app`` 工厂就会通过 ``local_auth=True``
 参数来调用。详见 :doc:`/cli` 。

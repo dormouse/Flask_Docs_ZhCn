@@ -22,9 +22,9 @@
 ---------------
 
 要把上例中的小应用装换为大型应用只要在现有应用中创建一个新的
-:file:`yourapplication` 文件夹，并把所有东西都移动到这个文件夹内。然后把
-:file:`yourapplication.py` 更名为 :file:`__init__.py` 。（请首先删除所有
-``.pyc`` 文件，否则基本上会出问题）
+:file:`yourapplication` 文件夹，并把所有东西都移动到这个文件夹内。然后
+把 :file:`yourapplication.py` 更名为 :file:`__init__.py` 。（请首先删除
+所有 ``.pyc`` 文件，否则基本上会出问题）
 
 修改完后应该如下例::
 
@@ -42,18 +42,19 @@
 但是现在如何运行应用呢？原本的 ``python yourapplication/__init__.py``
 无法运行了。因为 Python 不希望包内的模块成为启动文件。但是这不是一个
 大问题，只要在 :file:`yourapplication` 文件夹旁添加一个
-:file:`setup.py` 文件就可以了，其内容如下::
+:file:`pyproject.toml` 文件就可以了，其内容如下：
 
-    from setuptools import setup
+.. code-block:: toml
+ 
+    [project]
+    name = "yourapplication"
+    dependencies = [
+        "flask",
+    ]
 
-    setup(
-        name='yourapplication',
-        packages=['yourapplication'],
-        include_package_data=True,
-        install_requires=[
-            'flask',
-        ],
-    )
+    [build-system]
+    requires = ["setuptools"]
+    build-backend = "setuptools.build_meta"
 
 安装你的应用，使其可导入：
 
@@ -68,11 +69,11 @@ Flask 到哪里去找应用实例：
 
     $ flask --app yourapplication run
 
+我们从中学到了什么？现在我们来重构一下应用以适应多模块。只要记住以下几
+点：
 
-我们从中学到了什么？现在我们来重构一下应用以适应多模块。只要记住以下几点：
-
-1. `Flask` 应用对象必须位于 :file:`__init__.py` 文件中。这样每个模块就可以
-   安全地导入了，且  `__name__` 变量会解析到正确的包。
+1. `Flask` 应用对象必须位于 :file:`__init__.py` 文件中。这样每个模块就
+   可以安全地导入了，且  `__name__` 变量会解析到正确的包。
 2. 所有视图函数（在顶端有 :meth:`~flask.Flask.route` 的）必须在
    :file:`__init__.py` 文件中被导入。不是导入对象本身，而是导入视图模块。
    请 **在应用对象创建之后** 导入视图对象。
@@ -95,7 +96,7 @@ Flask 到哪里去找应用实例：
 最终全部内容如下::
 
     /yourapplication
-        setup.py
+        pyproject.toml
         /yourapplication
             __init__.py
             views.py
@@ -119,6 +120,5 @@ Flask 到哪里去找应用实例：
 使用蓝图
 -----------------------
 
-对于大型应用推荐把应用分隔为小块，每个小块使用蓝图辅助执行。关于这个主题的
-介绍请参阅 :doc:`/blueprints` 一节 。
-
+对于大型应用推荐把应用分隔为小块，每个小块使用蓝图辅助执行。关于这个主
+题的介绍请参阅 :doc:`/blueprints` 一节 。
