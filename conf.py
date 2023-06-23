@@ -51,8 +51,6 @@ html_context = {
         ProjectLink("PyPI 发行", "https://pypi.org/project/Flask/"),
         ProjectLink("源代码", "https://github.com/pallets/flask/"),
         ProjectLink("问题追踪", "https://github.com/pallets/flask/issues/"),
-        ProjectLink("官网", "https://palletsprojects.com/p/flask/"),
-        ProjectLink("Twitter", "https://twitter.com/PalletsTeam"),
         ProjectLink("聊天", "https://discord.gg/pallets"),
         ProjectLink("翻译源代码", "https://github.com/dormouse/Flask_Docs_ZhCn"),
         ProjectLink("翻译问题反馈", "https://github.com/dormouse/Flask_Docs_ZhCn/issues"),
@@ -66,11 +64,9 @@ html_sidebars = {
 }
 singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.html"]}
 html_static_path = ["_static"]
-html_favicon = "_static/flask-icon.png"
-html_logo = "_static/flask-icon.png"
-#html_title = "Flask 中文文档 (2.1.2)"
+html_favicon = "_static/shortcut-icon.png"
+html_logo = "_static/flask-vertical.png"
 html_title = f"Flask中文文档({version})"
-
 html_show_sourcelink = False
 
 # LaTeX ----------------------------------------------------------------
