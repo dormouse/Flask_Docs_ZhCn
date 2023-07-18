@@ -237,7 +237,7 @@ patch （编辑）和删除的方法给一个给定的模型。一个 ``GroupAPI
         init_every_request = False
 
         def __init__(self, model):
-            self.model
+            self.model = model
             self.validator = generate_validator(model)
 
         def _get_item(self, id):
