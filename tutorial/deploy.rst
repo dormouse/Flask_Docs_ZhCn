@@ -11,20 +11,13 @@
 构建和安装
 -----------------
 
-当需要把应用部署到其他地方时，需要构建一个发行文件。当前 Python 的标
-准发行文件是 *wheel* 格式的，扩展名为 ``.whl`` 。先确保已经安装好
-wheel 库：
+当需要把应用部署到其他地方时，需要构建一个 *wheel* （ ``.whl`` ）文件。
+构建工作需要安装和使用 ``build`` 工具。
 
 .. code-block:: none
 
-    $ pip install wheel
-
-用 Python 运行 ``setup.py`` 会得到一个命令行工具，以使用构建相关命令。
-``bdist_wheel`` 命令会构建一个 wheel 发行文件。
-
-.. code-block:: none
-
-    $ python setup.py bdist_wheel
+    $ pip install build
+    $ python -m build --wheel
 
 构建的文件为 ``dist/flaskr-1.0.0-py3-none-any.whl`` 。文件名由项目名
 称、版本号和一些关于项目安装要求的标记组成，形如：
@@ -48,7 +41,7 @@ Pip 会安装项目和相关依赖。
         $ flask --app flaskr init-db
 
 当 Flask 探测到它已被安装（不在编辑模式下），它会与前文不同，使用
-``venv/var/flaskr-instance`` 作为实例文件夹。
+``.venv/var/flaskr-instance`` 作为实例文件夹。
 
 
 配置密钥
@@ -70,7 +63,7 @@ Pip 会安装项目和相关依赖。
 件存在的话。提制生成的值到该文件中。
 
 .. code-block:: python
-    :caption: ``venv/var/flaskr-instance/config.py``
+    :caption: ``.venv/var/flaskr-instance/config.py``
 
     SECRET_KEY = '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'
 
