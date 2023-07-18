@@ -191,6 +191,7 @@ URL变量
 然后检查 ``request.method == "POST"`` 来决定做什么。设置
 :attr:`View.methods` 等同于将方法列表传递给 ``add_url_rule`` 或
 ``route`` 。
+
 .. code-block:: python
 
     class MyView(View):

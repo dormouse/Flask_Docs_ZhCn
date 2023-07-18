@@ -127,7 +127,7 @@ PyCharm 打开。
 
         $ pre-commit install --install-hooks
 
-.. _GitHub 账号: https://github.com/join
+.. _GitHub 账户: https://github.com/join
 .. _最新版的 git: https://git-scm.com/downloads
 .. _username: https://docs.github.com/en/github/using-git/setting-your-username-in-git
 .. _email: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/setting-your-commit-email-address
