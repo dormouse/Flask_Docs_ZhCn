@@ -376,8 +376,8 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. code-block:: python
 
-    import toml
-    app.config.from_file("config.toml", load=toml.load)
+    import tomllib
+    app.config.from_file("config.toml", load=tomllib.load, text=False)
 
 或者从 JSON 文件加载：
 

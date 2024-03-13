@@ -1,10 +1,59 @@
 更新日志
 ========
 
+
+Version 3.0.2
+-------------
+
+Released 2024-02-03
+
+-   Correct type for ``jinja_loader`` property. :issue:`5388`
+-   Fix error with ``--extra-files`` and ``--exclude-patterns`` CLI options.
+    :issue:`5391`
+
+
+Version 3.0.1
+-------------
+
+Released 2024-01-18
+
+-   Correct type for ``path`` argument to ``send_file``. :issue:`5230`
+-   Fix a typo in an error message for the ``flask run --key`` option. :pr:`5344`
+-   Session data is untagged without relying on the built-in ``json.loads``
+    ``object_hook``. This allows other JSON providers that don't implement that.
+    :issue:`5381`
+-   Address more type findings when using mypy strict mode. :pr:`5383`
+
+
+Version 3.0.0
+-------------
+
+Released 2023-09-30
+
+-   Remove previously deprecated code. :pr:`5223`
+-   Deprecate the ``__version__`` attribute. Use feature detection, or
+    ``importlib.metadata.version("flask")``, instead. :issue:`5230`
+-   Restructure the code such that the Flask (app) and Blueprint
+    classes have Sans-IO bases. :pr:`5127`
+-   Allow self as an argument to url_for. :pr:`5264`
+-   Require Werkzeug >= 3.0.0.
+
+
+Version 2.3.3
+-------------
+
+Released 2023-08-21
+
+-   Python 3.12 compatibility.
+-   Require Werkzeug >= 2.3.7.
+-   Use ``flit_core`` instead of ``setuptools`` as build backend.
+-   Refactor how an app's root and instance paths are determined. :issue:`5160`
+
+
 Version 2.3.2
 -------------
 
-Released 2022-05-01
+Released 2023-05-01
 
 -   Set ``Vary: Cookie`` header when the session is accessed, modified, or refreshed.
 -   Update Werkzeug requirement to >=2.3.3 to apply recent bug fixes.
@@ -70,6 +119,15 @@ Released 2023-04-25
 -   The ``routes`` command shows each rule's ``subdomain`` or ``host`` when domain
     matching is in use. :issue:`5004`
 -   Use postponed evaluation of annotations. :pr:`5071`
+
+
+Version 2.2.5
+-------------
+
+Released 2023-05-02
+
+-   Update for compatibility with Werkzeug 2.3.3.
+-   Set ``Vary: Cookie`` header when the session is accessed, modified, or refreshed.
 
 
 Version 2.2.4
@@ -292,7 +350,7 @@ Released 2022-03-28
     or ``AppContext.g`` instead. :issue:`3898`
 -   ``copy_current_request_context`` can decorate async functions.
     :pr:`4303`
--   The CLI uses ``importlib.metadata`` instead of ``setuptools`` to
+-   The CLI uses ``importlib.metadata`` instead of ``pkg_resources`` to
     load command entry points. :issue:`4419`
 -   Overriding ``FlaskClient.open`` will not cause an error on redirect.
     :issue:`3396`
@@ -1497,3 +1555,4 @@ Version 0.1
 Released 2010-04-16
 
 -   First public preview release.
+

@@ -32,33 +32,18 @@
     [project]
     name = "flaskr"
     version = "1.0.0"
+    description = "The basic blog app built in the Flask tutorial."
     dependencies = [
         "flask",
     ]
 
     [build-system]
-    requires = ["setuptools"]
-    build-backend = "setuptools.build_meta"
+    requires = ["flit_core<4"]
+    build-backend = "flit_core.buildapi"
 
-setuptools 构建后端需要 ``MANIFEST.in`` 文件来说明需要包含的非 Python
-文件。
+更多内容和参数参见 `打包教程 <packaging tutorial_>`_ 。
 
-.. code-block:: none
-    :caption: ``MANIFEST.in``
-
-    include flaskr/schema.sql
-    graft flaskr/static
-    graft flaskr/templates
-    global-exclude *.pyc
-
-这告诉构建器复制所有 ``static`` 和 ``templates`` 文件夹中的文件，
-``schema.sql`` 文件，但是排除所有字节文件。
-
-更多内容和参数参见 `官方打包教程`_  和 `官方打包指南`_ 。
-
-.. _官方打包教程: https://packaging.python.org/tutorials/packaging-projects/
-.. _官方打包指南: https://packaging.python.org/guides/distributing-packages-using-setuptools/
- 
+.. _packaging tutorial: https://packaging.python.org/tutorials/packaging-projects/
 
 安装项目
 -------------------
@@ -88,10 +73,7 @@ setuptools 构建后端需要 ``MANIFEST.in`` 文件来说明需要包含的非 
     Jinja2         2.10
     MarkupSafe     1.0
     pip            9.0.3
-    setuptools     39.0.1
     Werkzeug       0.14.1
-    wheel          0.30.0
-
 
 至此，没有改变项目运行的方式， ``--app`` 还是被设置为 ``flaskr`` ，
 还是使用 ``flask run`` 运行应用。不同的是可以在任何地方运行应用，而不

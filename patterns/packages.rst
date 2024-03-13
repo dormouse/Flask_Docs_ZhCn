@@ -53,8 +53,8 @@
     ]
 
     [build-system]
-    requires = ["setuptools"]
-    build-backend = "setuptools.build_meta"
+    requires = ["flit_core<4"]
+    build-backend = "flit_core.buildapi"
 
 安装你的应用，使其可导入：
 

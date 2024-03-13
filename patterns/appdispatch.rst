@@ -14,33 +14,18 @@
 --------------------------
 
 下面所有的技术说明和举例都归结于一个可以运行于任何 WSGI 服务器的
-``application`` 对象。对于生产环境，参见 :doc:`/deploying/index` 。对于
-开发环境， Werkzeug 提供了一个内建开发服务器，它使用
-:func:`werkzeug.serving.run_simple` 来运行::
+``application`` 对象。对于开发环境，使用 ``flask run`` 启动开发服务
+器。对于生产环境，参见 :doc:`/deploying/index` 。
 
-    from werkzeug.serving import run_simple
-    run_simple('localhost', 5000, application, use_reloader=True)
-
-注意 :func:`run_simple <werkzeug.serving.run_simple>` 不适用于生产环境，
-生产环境 WSGI 服务器参见 :doc:`/deploying/index` 。
-
-为了使用交互调试器，应用和简单服务器都应当处于调试模式。下面是一个简单的
-“ hello world ”示例，使用了调试模式和
-:func:`run_simple <werkzeug.serving.run_simple>`::
+.. code-block:: python
 
     from flask import Flask
-    from werkzeug.serving import run_simple
 
     app = Flask(__name__)
-    app.debug = True
 
     @app.route('/')
     def hello_world():
         return 'Hello World!'
-
-    if __name__ == '__main__':
-        run_simple('localhost', 5000, app,
-                   use_reloader=True, use_debugger=True, use_evalex=True)
 
 
 组合应用
@@ -51,7 +36,9 @@
 应用都是一个合法的 WSGI 应用，它们通过调度中间件组合为一个基于前缀调度
 的大应用。
 
-假设你的主应用运行于 ``/`` ，后台接口位于 ``/backend``::
+假设你的主应用运行于 ``/`` ，后台接口位于 ``/backend`` 。
+
+.. code-block:: python
 
     from werkzeug.middleware.dispatcher import DispatcherMiddleware
     from frontend_app import application as frontend
@@ -75,7 +62,9 @@
 
 WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来监视请求，并把
 请求分配给你的 Flask 应用。如果被分配的应用还没有创建，那么就会动态创建
-应用并被登记下来::
+应用并被登记下来。
+
+.. code-block:: python
 
     from threading import Lock
 
@@ -103,7 +92,9 @@ WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来
             return app(environ, start_response)
 
 
-调度器示例::
+调度器示例:
+
+.. code-block:: python
 
     from myapplication import create_app, get_user_for_subdomain
     from werkzeug.exceptions import NotFound
@@ -127,10 +118,12 @@ WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来
 ----------------
 
 根据 URL 的路径调度非常简单。上面，我们通过查找 ``Host`` 头来判断子域，
-现在只要查找请求路径的第一个斜杠之前的路径就可以了::
+现在只要查找请求路径的第一个斜杠之前的路径就可以了。
+
+.. code-block:: python
 
     from threading import Lock
-    from werkzeug.wsgi import pop_path_info, peek_path_info
+    from wsgiref.util import shift_path_info
 
     class PathDispatcher:
 
@@ -150,15 +143,24 @@ WSGI 层是完美的抽象层，因此可以写一个你自己的 WSGI 应用来
                 return app
 
         def __call__(self, environ, start_response):
-            app = self.get_application(peek_path_info(environ))
+            app = self.get_application(_peek_path_info(environ))
             if app is not None:
-                pop_path_info(environ)
+                shift_path_info(environ)
             else:
                 app = self.default_app
             return app(environ, start_response)
 
+    def _peek_path_info(environ):
+        segments = environ.get("PATH_INFO", "").lstrip("/").split("/", 1)
+        if segments:
+            return segments[0]
+
+        return None
+
 与根据子域调度相比最大的不同是：根据路径调度时，如果创建函数返回
-``None`` ，那么就会回落到另一个应用::
+``None`` ，那么就会回落到另一个应用。
+
+.. code-block:: python
 
     from myapplication import create_app, default_app, get_user_for_prefix
 

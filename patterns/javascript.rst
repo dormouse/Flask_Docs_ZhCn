@@ -115,8 +115,8 @@ JavaScript 是在用户的浏览器中运行的，而不是模板的一部分，
 .. code-block:: javascript
 
     let data = new FormData()
-    data.append("name": "Flask Room")
-    data.append("description": "Talk about Flask here.")
+    data.append("name", "Flask Room")
+    data.append("description", "Talk about Flask here.")
     fetch(room_url, {
         "method": "POST",
         "body": data,
@@ -183,7 +183,7 @@ JSON 可以表示更复杂的数据，但除非必要，否则最好坚持使用
         const geology_div = getElementById("geology-fact")
         fetch(geology_url)
             .then(response => response.text)
-            .then(text => geology_div.innerHtml = text)
+            .then(text => geology_div.innerHTML = text)
     </script>
 
 

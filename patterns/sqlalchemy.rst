@@ -10,8 +10,8 @@
 Flask-SQLAlchemy 扩展
 --------------------------
 
-因为 SQLAlchemy 是一个常用的数据库抽象层，并且需要一定的配置才能使用，因此
-我们为你做了一个处理 SQLAlchemy 的扩展。如果你需要快速的开始使用
+因为 SQLAlchemy 是一个常用的数据库抽象层，并且需要一定的配置才能使用，
+因此我们为你做了一个处理 SQLAlchemy 的扩展。如果你需要快速的开始使用
 SQLAlchemy ，那么推荐你使用这个扩展。
 
 你可以从 `PyPI <https://pypi.org/project/Flask-SQLAlchemy/>`_ 下载
@@ -23,15 +23,14 @@ SQLAlchemy ，那么推荐你使用这个扩展。
 声明
 -----------
 
-SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你像 Django 一
-样，在一个地方定义表和模型然后到处使用。除了以下内容，我建议你阅读 `声明`_
-的官方文档。
+SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你像 Django
+一样，在一个地方定义表和模型然后到处使用。除了以下内容，我建议你阅读
+`声明`_ 的官方文档。
 
 以下是示例 :file:`database.py` 模块::
 
     from sqlalchemy import create_engine
-    from sqlalchemy.orm import scoped_session, sessionmaker
-    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
 
     engine = create_engine('sqlite:////tmp/test.db')
     db_session = scoped_session(sessionmaker(autocommit=False,
@@ -46,13 +45,13 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
         import yourapplication.models
         Base.metadata.create_all(bind=engine)
 
-要定义模型的话，只要继承上面创建的 `Base` 类就可以了。你可能会奇怪这里为什
-么不用理会线程（就像我们在 SQLite3 的例子中一样使用 :data:`~flask.g` 对象）。
-原因是 SQLAlchemy 已经用 :class:`~sqlalchemy.orm.scoped_session` 为我们做
-好了此类工作。
+要定义模型的话，只要继承上面创建的 `Base` 类就可以了。你可能会奇怪这里
+为什么不用理会线程（就像我们在 SQLite3 的例子中一样使用
+:data:`~flask.g` 对象）。原因是 SQLAlchemy 已经用
+:class:`~sqlalchemy.orm.scoped_session` 为我们做好了此类工作。
 
-如果要在应用中以声明方式使用 SQLAlchemy ，那么只要把下列代码加入应用模块就
-可以了。 Flask 会自动在请求结束时或者应用关闭时删除数据库会话::
+如果要在应用中以声明方式使用 SQLAlchemy ，那么只要把下列代码加入应用模
+块就可以了。 Flask 会自动在请求结束时或者应用关闭时删除数据库会话::
 
     from yourapplication.database import db_session
 
@@ -104,9 +103,8 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
 人工对象关系映射
 --------------------------------
 
-人工对象关系映射相较于上面的声明方式有优点也有缺点。主要区别是人工对象关系
-映射分别定义表和类并映射它们。这种方式更灵活，但是要多些代码。通常，这种方
-式与声明方式一样运行，因此请确保把你的应用在包中分为多个模块。
+人工对象关系映射相较于上面的声明方式有优点也有缺点。主要区别是人工对象
+关系映射分别定义表和类并映射它们。这种方式更灵活，但是要多些代码。通常，这种方式与声明方式一样运行，因此请确保把你的应用在包中分为多个模块。
 
 示例 :file:`database.py` 模块::
 
@@ -121,8 +119,8 @@ SQLAlchemy 中的声明扩展是使用 SQLAlchemy 的最新方法，它允许你
     def init_db():
         metadata.create_all(bind=engine)
 
-就像声明方法一样，你需要在每个请求结束后或者应用情境关闭后关闭会话。把以下
-代码放入你的应用模块::
+就像声明方法一样，你需要在每个请求结束后或者应用情境关闭后关闭会话。把
+以下代码放入你的应用模块::
 
     from yourapplication.database import db_session
 
