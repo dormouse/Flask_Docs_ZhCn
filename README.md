@@ -7,9 +7,9 @@ Initiate and translated by Dormouse Young.
 
 ## 版本
 
-现在正在翻译的是 Flask 2.3.2 的文档。
+现在正在翻译的是 Flask 3.0.2 的文档。
 
-Flask docs V2.3.2 are being translating now.
+Flask docs V3.0.2 are being translating now.
 
 ## 版权
 
