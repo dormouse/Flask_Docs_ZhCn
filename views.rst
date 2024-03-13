@@ -76,7 +76,7 @@
             return render_template(self.template, items=items)
 
 记住，我们用 ``View.as_view()`` 创建视图函数，而不是直接创建类。任何
-传递给``as_view``的额外参数都会在创建类时传递。现在我们可以注册同一个
+传递给 ``as_view`` 的额外参数都会在创建类时传递。现在我们可以注册同一个
 视图来处理多个模型。
 
 .. code-block:: python
@@ -128,7 +128,7 @@ URL变量
 实例，并将其用于每个请求。在这种情况下，写数据到 ``self`` 是不安全的。
 如果你需要在请求期间存储数据，那么请使用 :data:`~flask.g` 代替。
 
-在 ``ListView`` 的例子中，在请求过程中没有任何东西写到`self'，所以更
+在 ``ListView`` 的例子中，在请求过程中没有任何东西写到 ``self``，所以更
 有效的做法是创建一个单一的实例。
 
 .. code-block:: python
