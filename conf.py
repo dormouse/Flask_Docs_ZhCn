@@ -17,16 +17,22 @@ release, version = get_version("Flask")
 # General --------------------------------------------------------------
 language = 'zh_CN'
 
-master_doc = "index"
+default_role = "code"
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.log_cabinet",
-    "pallets_sphinx_themes",
-    "sphinx_issues",
     "sphinx_tabs.tabs",
+    "pallets_sphinx_themes",
 ]
+autodoc_member_order = "bysource"
 autodoc_typehints = "description"
+autodoc_preserve_defaults = True
+extlinks = {
+    "issue": ("https://github.com/pallets/flask/issues/%s", "#%s"),
+    "pr": ("https://github.com/pallets/flask/pull/%s", "#%s"),
+}
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "werkzeug": ("https://werkzeug.palletsprojects.com/", None),
@@ -37,8 +43,6 @@ intersphinx_mapping = {
     "wtforms": ("https://wtforms.readthedocs.io/", None),
     "blinker": ("https://blinker.readthedocs.io/", None),
 }
-issues_github_path = "pallets/flask"
-
 # HTML -----------------------------------------------------------------
 # html_theme = 'flask'
 # html_theme_path = ["./pallets_sphinx_themes"]
@@ -68,10 +72,6 @@ html_favicon = "_static/shortcut-icon.png"
 html_logo = "_static/flask-vertical.png"
 html_title = f"Flask中文文档({version})"
 html_show_sourcelink = False
-
-# LaTeX ----------------------------------------------------------------
-
-latex_documents = [(master_doc, f"Flask-{version}.tex", html_title, author, "manual")]
 
 # Local Extensions -----------------------------------------------------
 

@@ -22,12 +22,6 @@
 :class:`flask.views.View` 类继承而来。 所有视图中的 HTTP 方法处理器
 从 :class:`flask.views.MethodView` 类继承而来一样。
 
-.. admonition:: 在 Windows 的 Python 3.8 下使用 ``async`` 
-
-    Python 3.8 的 Windows 版异步处理是有问题的。如果您遇到类似
-    ``ValueError: set_wakeup_fd only works in main thread`` 的问题，请
-    升级到 Python 3.9 。
-
 .. admonition:: 通过 greenlet 使用 ``async``
 
     当使用 gevent 或 eventlet 为应用程序提供服务或动态修补时，

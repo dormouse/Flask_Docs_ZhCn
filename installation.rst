@@ -5,7 +5,7 @@
 Python 版本
 --------------
 
-我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.8 以上版本。
+我们推荐使用最新版本的 Python 。 Flask 支持 Python 3.9 以上版本。
 
 
 依赖

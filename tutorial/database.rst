@@ -32,6 +32,7 @@ SQLite 数据库支持，相应的模块为 :mod:`sqlite3` 。
     :caption: ``flaskr/db.py``
 
     import sqlite3
+    from datetime import datetime
 
     import click
     from flask import current_app, g
@@ -121,6 +122,11 @@ SQLite 数据库支持，相应的模块为 :mod:`sqlite3` 。
         init_db()
         click.echo('Initialized the database.')
 
+
+    sqlite3.register_converter(
+        "timestamp", lambda v: datetime.fromisoformat(v.decode())
+    )
+
 :meth:`open_resource() <Flask.open_resource>` 打开一个文件，该文件名
 是相对于 ``flaskr`` 包的。这样就不需要考虑以后应用具体部署在哪个位置。
 ``get_db`` 返回一个数据库连接，用于执行文件中的命令。
@@ -128,6 +134,9 @@ SQLite 数据库支持，相应的模块为 :mod:`sqlite3` 。
 :func:`click.command` 定义一个名为 ``init-db`` 命令行，它调用
 ``init_db`` 函数，并为用户显示一个成功的消息。更多关于如何写命令行的
 内容请参阅 doc:`/cli` 。
+
+调用 :func:`sqlite3.register_converter` 会告诉 Python 如何解释数据库中
+的时间戳值。我们将值转换为 :class:`datetime.datetime` 。
 
 
 在应用中注册

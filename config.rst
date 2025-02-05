@@ -110,6 +110,20 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     缺省值： ``None``
 
+.. py:data:: SECRET_KEY_FALLBACKS
+
+    仍可用于解签的旧密匙列表，最新的为先。这允许项目执行密钥轮换，而不
+    会使活动会话或其他最近签署的密钥失效。
+
+    密钥应在适当时间后删除，因为检查每个额外的密钥都会增加一些开销。
+
+    Flask 内置的安全 cookie 会话支持此功能。使用 :data:`SECRET_KEY` 的
+    扩展可能还不支持此功能。
+
+    缺省值： ``None``
+
+    .. versionadded:: 3.1
+
 .. py:data:: SESSION_COOKIE_NAME
 
     会话 cookie 的名称。假如已存在同名 cookie ，本变量可改变。
@@ -125,6 +139,12 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     不设置这个值比设置它更有限制性和安全性。
 
     缺省值： ``None``
+
+    .. warning::
+        如果在浏览器根据一个设置创建 Cookie 后更改此设置，可能会导致另
+        一个新的设置被创建。浏览器可能会以未定义的顺序发送两个设置。在
+        这种情况下，您可能需要同时更改 :data:`SESSION_COOKIE_NAME` ，否
+        则会使旧会话失效。
 
     .. versionchanged:: 2.3
         默认情况下不设置，不会回落到 ``SERVER_NAME`` 。
@@ -150,6 +170,22 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
     发送 cookie 。应用必须使用 HTTPS 服务来启用本变量。
 
     缺省值： ``False``
+
+.. py:data:: SESSION_COOKIE_PARTITIONED
+ 
+    浏览器将根据顶级文档的域名发送 cookie ，而不是仅根据设置 cookie 的
+    文档的域名发送。这样可以防止通过以 iframe 中设置的第三方 cookie 的
+    方式在不同网站之间 “泄漏”。
+
+    浏览器开始不允许非分区的第三方 cookie ，因此如果你希望 cookie 能在
+    此类嵌入情况下正常工作，就需要将 cookie 标记为已分区。
+
+    启用此功能也会隐式启用 :data:`SESSION_COOKIE_SECURE` ，因为它仅在通
+    过 HTTPS 提供服务时有效。
+
+    缺省值： ``False``
+
+    .. versionadded:: 3.1
 
 .. py:data:: SESSION_COOKIE_SAMESITE
 
@@ -199,17 +235,40 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     缺省值： ``None``
 
-.. py:data:: SERVER_NAME
+.. py:data:: TRUSTED_HOSTS
 
-    通知应用其所绑定的主机和端口。子域路由匹配需要本变量。
+    根据这些可信值验证 :attr:`.Request.host` 和其他使用它的属性。如果主
+    机无效，会引发 :exc:`~werkzeug.exception.SecurityError` ，会导致一
+    个 400 错误。如果是 ``None`` ，那么所有主机都有效。每个值要么完全匹
+    配，要么以点 ``.`` 开头，以匹配任何子域。
 
-    如果这样配置了， ``url_for`` 可以为应用生成一个单独的外部 URL ，而
-    不是一个请求情境。
+    路由过程中会根据此值进行验证。仍然会调用 ``before_request`` 和
+    ``after_request`` 回调。
 
     缺省值： ``None``
 
+    .. versionadded:: 3.1
+
+.. py:data:: SERVER_NAME
+
+    通知应用程序绑定的主机和端口。
+
+    如果启用了 ``subdomain_matching`` ，则必须设置本参数，以便从请求中
+    提取子域。
+
+    必须设置 ``url_for`` 才能在请求情境之外生成外部 URL 。
+
+    缺省值： ``None``
+
+    .. versionchanged:: 1.0
+        不隐式启用 ``subdomain_matching`` 。
+
     .. versionchanged:: 2.3
         不影响 ``SESSION_COOKIE_DOMAIN`` 。
+
+    .. versionchanged:: 3.1
+        对于 ``subdomain_matching`` 和 ``host_matching`` ，不将请求仅限
+        制为本域。
 
 .. py:data:: APPLICATION_ROOT
 
@@ -230,10 +289,48 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. py:data:: MAX_CONTENT_LENGTH
 
-    在进来的请求数据中读取的最大字节数。如果本变量没有配置，并且请求没
-    有指定 ``CONTENT_LENGTH`` ，那么为了安全原因，不会读任何数据。
+   本次请求中读取的最大字节数。如果超过此限制，将引发 413
+   :exc:`~werkzeug.exceptions.RequestEntityTooLarge` 错误。如果设置为
+   ``None`` ，则在 Flask 应用程序级别不会有限制。但是，如果设置为
+   ``None`` ，并且请求没有 ``Content-Length`` 头部，且 WSGI 服务器也没
+   有指示终止数据流，那么就不会读取数据，以避免出现无限数据流。
+
+    每个请求默认使用此配置。可以在特定
+    :attr:`.Request.max_content_length` 上设置该配置，以便将限制应用于
+    该特定视图。本设置应根据应用程序或视图的具体需求适当设置。
 
     缺省值： ``None``
+
+    .. versionadded:: 0.6
+
+.. py:data:: MAX_FORM_MEMORY_SIZE
+
+    在一个 ``multipart/form-data`` 正文中任何非文件表单字段的最大字节数。
+    如果超过此限制，将引发 413
+    :exc:`~werkzeug.exceptions.RequestEntityTooLarge` 错误。如果设置为
+    ``None`` ，则在 Flask 应用程序级别不会有限制。
+
+    每个请求默认使用此配置。可以对特定的
+    :attr:`.Request.max_form_memory_parts` 进行设置，以便将限制应用到该
+    特定视图。本设置应根据应用程序或视图的具体需求适当设置。
+
+    缺省值： ``500_000``
+
+    .. versionadded:: 3.1
+
+.. py:data:: MAX_FORM_PARTS
+
+    在一个 ``multipart/form-data`` 正文中出现的字段的最大数量。如果超过
+    此限制，将引发 413 :exc:`~werkzeug.exceptions.RequestEntityTooLarge`
+    错误。如果设置为 ``None`` ，则在 Flask 应用程序级别不会有限制。
+
+    每个请求默认使用此配置。可以对特定的
+    :attr:`.Request.max_form_parts` 进行设置，以便将限制应用到该特定视
+    图。本设置应根据应用程序或视图的具体需求适当设置。
+
+    缺省值： ``1_000``
+
+    .. versionadded:: 3.1
 
 .. py:data:: TEMPLATES_AUTO_RELOAD
 
@@ -252,6 +349,11 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
     当 cookie 头部大于本变量配置的字节数时发出警告。缺省值为 ``4093`` 。
     更大的 cookie 会被浏览器悄悄地忽略。本变量设置为 ``0`` 时关闭警告。
+
+.. py:data:: PROVIDE_AUTOMATIC_OPTIONS
+
+    设为 ``False`` 可以禁用 OPTIONS 响应的自动添加。可通过更改
+    ``provide_automatic_options`` 属性来重载每个路由。
 
 .. versionadded:: 0.4
    ``LOGGER_NAME``
@@ -303,6 +405,10 @@ Flask 的设计思路是在应用开始时载入配置。你可以在代码中�
 
 .. versionchanged:: 2.3
     ``ENV`` 被移除。
+
+.. versionadded:: 3.10
+    添加 :data:`PROVIDE_AUTOMATIC_OPTIONS` 来控制缺省 OPTIONS 响应的自
+    动添加。
 
 
 使用 Python 配置文件

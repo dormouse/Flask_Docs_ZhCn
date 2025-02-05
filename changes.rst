@@ -2,6 +2,50 @@
 ========
 
 
+Version 3.1.0
+-------------
+
+Released 2024-11-13
+
+-   Drop support for Python 3.8. :pr:`5623`
+-   Update minimum dependency versions to latest feature releases.
+    Werkzeug >= 3.1, ItsDangerous >= 2.2, Blinker >= 1.9. :pr:`5624,5633`
+-   Provide a configuration option to control automatic option
+    responses. :pr:`5496`
+-   ``Flask.open_resource``/``open_instance_resource`` and
+    ``Blueprint.open_resource`` take an ``encoding`` parameter to use when
+    opening in text mode. It defaults to ``utf-8``. :issue:`5504`
+-   ``Request.max_content_length`` can be customized per-request instead of only
+    through the ``MAX_CONTENT_LENGTH`` config. Added
+    ``MAX_FORM_MEMORY_SIZE`` and ``MAX_FORM_PARTS`` config. Added documentation
+    about resource limits to the security page. :issue:`5625`
+-   Add support for the ``Partitioned`` cookie attribute (CHIPS), with the
+    ``SESSION_COOKIE_PARTITIONED`` config. :issue:`5472`
+-   ``-e path`` takes precedence over default ``.env`` and ``.flaskenv`` files.
+    ``load_dotenv`` loads default files in addition to a path unless
+    ``load_defaults=False`` is passed. :issue:`5628`
+-   Support key rotation with the ``SECRET_KEY_FALLBACKS`` config, a list of old
+    secret keys that can still be used for unsigning. Extensions will need to
+    add support. :issue:`5621`
+-   Fix how setting ``host_matching=True`` or ``subdomain_matching=False``
+    interacts with ``SERVER_NAME``. Setting ``SERVER_NAME`` no longer restricts
+    requests to only that domain. :issue:`5553`
+-   ``Request.trusted_hosts`` is checked during routing, and can be set through
+    the ``TRUSTED_HOSTS`` config. :issue:`5636`
+
+
+Version 3.0.3
+-------------
+
+Released 2024-04-07
+
+-   The default ``hashlib.sha1`` may not be available in FIPS builds. Don't
+    access it at import time so the developer has time to change the default.
+    :issue:`5448`
+-   Don't initialize the ``cli`` attribute in the sansio scaffold, but rather in
+    the ``Flask`` concrete class. :pr:`5270`
+
+
 Version 3.0.2
 -------------
 
@@ -17,7 +61,7 @@ Version 3.0.1
 
 Released 2024-01-18
 
--   Correct type for ``path`` argument to ``send_file``. :issue:`5230`
+-   Correct type for ``path`` argument to ``send_file``. :issue:`5336`
 -   Fix a typo in an error message for the ``flask run --key`` option. :pr:`5344`
 -   Session data is untagged without relying on the built-in ``json.loads``
     ``object_hook``. This allows other JSON providers that don't implement that.
@@ -827,7 +871,7 @@ Released 2018-04-26
     explicitly for each exception if you want to avoid traversing the
     MRO. :pr:`2362`
 -   Fix incorrect JSON encoding of aware, non-UTC datetimes. :pr:`2374`
--   Template auto reloading will honor debug mode even even if
+-   Template auto reloading will honor debug mode even if
     ``Flask.jinja_env`` was already accessed. :pr:`2373`
 -   The following old deprecated code was removed. :issue:`2385`
 

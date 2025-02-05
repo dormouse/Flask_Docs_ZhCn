@@ -350,7 +350,7 @@ HTML 、 CSS 和其他 web API ，请参阅 `MDN Web 文档`_ 。
     @app.route('/hello/')
     @app.route('/hello/<name>')
     def hello(name=None):
-        return render_template('hello.html', name=name)
+        return render_template('hello.html', person=name)
 
 Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果您的应用是一
 个模块，那么模板文件夹应该在模块旁边；如果是一个包，那么就应该在包里
@@ -378,8 +378,8 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果您的�
 
     <!doctype html>
     <title>Hello from Flask</title>
-    {% if name %}
-      <h1>Hello {{ name }}!</h1>
+    {% if person %}
+      <h1>Hello {{ person }}!</h1>
     {% else %}
       <h1>Hello, World!</h1>
     {% endif %}
@@ -393,7 +393,7 @@ Flask 会在 :file:`templates` 文件夹内寻找模板。因此，如果您的�
 :doc:`patterns/templateinheritance` 。简单的说，模板继承可以使每个页
 面的特定元素（如页头、导航和页尾）保持一致。
 
-自动转义默认开启。因此，如果 ``name`` 包含 HTML ，那么会被自动转义。
+自动转义默认开启。因此，如果 ``person`` 包含 HTML ，那么会被自动转义。
 如果您可以信任某个变量，且知道它是安全的 HTML （例如变量来自一个把
 wiki 标记转换为 HTML 的模块），那么可以使用
 :class:`~markupsafe.Markup` 类把它标记为安全的，或者在模板中使用

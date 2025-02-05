@@ -20,7 +20,7 @@ ASGI
     asgi_app = WsgiToAsgi(app)
 
 并且用 ASGI 服务器为 ``asgi_app`` 提供服务。例如使用
-`Hypercorn <https://gitlab.com/pgjones/hypercorn>`_ 。
+`Hypercorn <https://github.com/pgjones/hypercorn>`_ 。
 
 .. sourcecode:: text
 

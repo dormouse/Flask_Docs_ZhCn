@@ -250,7 +250,7 @@ Flask 以前有一个”认证的扩展“的概念，即
 8.  扩展的依赖不应该使用上界或假设任何特定的版本。应当使用下限来表示
     最小的兼容性支持。例如 ``sqlalchemy>=1.4`` 。
 9.  使用 ``python_requires=">=version"`` 说明支持的 Python 版本。
-    2023年4月时， Flask 本身支持 Python >=3.8 ，这将随着时间的推移而
+    2024年10月时， Flask 本身支持 Python >=3.9 ，这将随着时间的推移而
     更新。
 
 .. _PyPI: https://pypi.org/search/?c=Framework+%3A%3A+Flask
