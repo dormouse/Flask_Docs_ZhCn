@@ -1,4 +1,4 @@
-alabaster==1.0.0
+alabaster
     # via sphinx
 babel==2.16.0
     # via sphinx
